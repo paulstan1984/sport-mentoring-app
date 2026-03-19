@@ -1,157 +1,294 @@
-# Plan: Sport Mentoring Application — Current Source of Truth
+# Plan: Sport Mentoring Application — TheRadaWay
 
-## Decisions
-- Framework: Next.js 16 (App Router)
-- Language: TypeScript
-- Styling: Tailwind CSS v4
-- DB: PostgreSQL
-- ORM: Prisma
-- Auth: iron-session with database-backed administrator accounts
-- Access model: multi-tenant, store-scoped data
-- Roles:
-	- `SUPER_ADMIN` manages administrators only
-	- `MENTOR` manages players profiles: CRUD operations
-    - `PLAYER` able to login, submit daily records, see graphs
-- UI language: Romanian
+## Viziune
 
----
-aici
-## Current Domain Model
+Aplicația ajută jucătorii să își creeze obiceiuri bune, să își urmărească progresul și să fie conectați constant la un sistem de valori sănătoase: disciplină, respect, perseverență, educație, muncă, credință.
 
-### StoreAdministrator
-- `storeId`: numeric primary key
-- `storeName`: store display name
-- `user`: unique login username
-- `password`: stored as MD5 hash in current implementation
-- `role`: `SUPER_ADMIN` or `STORE_ADMIN`
+Ecranul de deschidere afișează logo-ul **TheRadaWay** împreună cu această misiune.
 
-### Category
-- `id`: string primary key
-- `name`: category name
-- `storeId`: owning store
+Aplicația este:
+- simplă
+- rapidă
+- ușor de folosit zilnic
+- fără funcții complicate
 
-### Product
-- `id`: string primary key
-- `code`: product code, unique per store
-- `name`: product name
-- `measureUnit`: unit of measure
-- `stock`: current stock
-- `storeId`: owning store
-- `categoryId`: optional category reference
-
-### Data Ownership Rules
-- Categories and products are scoped by `storeId`.
-- A store administrator can only access categories and products from their own store.
-- Deleting a store administrator removes that store's products and categories as part of the deletion flow.
+**NU este o aplicație complexă. Este un instrument de creștere personală.**
 
 ---
 
-## Current Access Rules
-- `/login` is public.
-- `/admin/administrators*` is super-admin only.
-- `/admin/products*`, `/admin/categories*`, and `/scan*` are store-admin only.
-- The admin landing page redirects by role:
-	- super admins -> `/admin/administrators`
-	- store admins -> `/admin/products`
-- Navigation is role-aware:
-	- super admins see only administrator management
-	- store admins see products, categories, and cumpărare
+## Decizii tehnice
+
+- **Framework**: Next.js 16 (App Router)
+- **Limbaj**: TypeScript
+- **Stilizare**: Tailwind CSS v4
+- **BD**: PostgreSQL
+- **ORM**: Prisma
+- **Autentificare**: iron-session
+- **Roluri**:
+  - `MENTOR` — un singur mentor/antrenor; gestionează jucătorii, adaugă materiale și mesaje zilnice
+  - `PLAYER` — jucător; completează check-in zilnic, jurnal, obiective
+- **Limbă UI**: Română
 
 ---
 
-## Current Implementation Map
+## Model de date
 
-## Phase 1 — Foundation
-1. Prisma schema defines `StoreAdministrator`, `Category`, `Product`, and `AdminRole`.
-2. Products and categories are linked to stores through `storeId`.
-3. Product codes are unique per store via `@@unique([storeId, code])`.
-4. The multi-tenant migration backfills a default store for old records and adds store foreign keys.
-5. Prisma client is exposed through `lib/db.ts`.
+### User (Utilizator)
+- `id`: cheie primară
+- `name`: nume complet
+- `username`: login unic
+- `password`: hash
+- `role`: `MENTOR` | `PLAYER`
 
-## Phase 2 — Authentication and Session Flow
-6. `lib/auth.ts` defines session helpers, `requireAdminSession()`, `requireSuperAdmin()`, and `requireStoreAdmin()`.
-7. `app/(auth)/login/actions.ts` validates credentials against `StoreAdministrator` records in the database.
-8. Successful login stores `username`, `role`, and `storeId` in the session.
-9. `proxy.ts` protects `/admin/*` and `/scan`, redirecting unauthenticated users to `/login` and enforcing role restrictions.
-10. `app/page.tsx` and `app/admin/page.tsx` redirect users to the correct area based on role.
+### PlayerProfile (Profil jucător)
+- `id`
+- `userId`: referință la User
+- `age`: vârstă
+- `position`: poziție în teren
+- `team`: echipă / grupă
+- `personalGoal`: obiectiv personal
 
-## Phase 3 — Super Admin Area
-11. `app/admin/administrators/page.tsx` lists all administrators.
-12. `app/admin/administrators/new/page.tsx` creates new administrators with store name, username, password, and role.
-13. `app/admin/administrators/[storeId]/page.tsx` edits existing administrators.
-14. `app/admin/administrators/actions.ts` handles create, update, and delete operations.
-15. Super admins cannot delete their own super-admin record.
-16. Deleting a store admin triggers cleanup of that store's products and categories before deleting the administrator record.
+### DailyCheckIn (Check-in zilnic)
+Câmpuri binare (Da/Nu) completate zilnic de jucător:
 
-## Phase 4 — Store Admin Categories
-17. `app/admin/categories/page.tsx` lists categories for the current store only.
-18. `app/admin/categories/new/page.tsx` creates a category in the current store.
-19. `app/admin/categories/[id]/page.tsx` edits or deletes a category from the current store.
-20. `app/admin/categories/actions.ts` performs store-scoped mutations and revalidation.
+| Câmp | Descriere |
+|------|-----------|
+| `wokeUpBy8` | Trezit nu mai târziu de ora 8 |
+| `healthyBreakfast` | Mic dejun sănătos |
+| `schoolOrReading` | Școală / Citit 30–40 min |
+| `morningMobility` | Mobilitate / Prevenție (dimineață) |
+| `morningSnack` | Gustare sănătoasă (dimineață) |
+| `training1` | Antrenament 1 |
+| `afternoonSnack` | Gustare sănătoasă (după-amiază) |
+| `socialMediaMorningMax30` | Social media max 30 min (dimineață) |
+| `healthyLunch` | Prânz sănătos |
+| `rest` | Odihnă |
+| `afternoonMobility` | Mobilitate / Prevenție (după-amiază) |
+| `afternoonSnack2` | Gustare sănătoasă (a doua) |
+| `training2` | Antrenament 2 |
+| `recovery` | Recuperare / Detensionare / Băi calde-reci |
+| `healthyDinner` | Cină sănătoasă |
+| `socialMediaEveningMax60` | Social media max 1 oră (seară) |
+| `reading` | Citit cărți / cursuri / materiale Biblioteca TheRadaWay |
+| `inBedBy23` | Odihnă nu mai târziu de ora 23 |
+| `goodAttitude` | Am avut o atitudine bună |
+| `goodDeed` | Am făcut un lucru bun azi (câmp text opțional) |
+| `learnedSomething` | Am învățat ceva (câmp text opțional) |
+| `date`: data check-in-ului |
+| `playerId`: referință la User |
 
-## Phase 5 — Store Admin Products
-21. `app/admin/products/page.tsx` lists products alphabetically for the current store.
-22. `components/ProductList.tsx` provides client-side live search/filtering.
-23. `app/admin/products/new/page.tsx` creates store-scoped products.
-24. `app/admin/products/[id]/page.tsx` edits or deletes store-scoped products.
-25. `app/admin/products/actions.ts` validates duplicate product codes per store and supports CSV import.
-26. `app/admin/products/export/route.ts` exports products only for store admins.
+### DailyJournal (Jurnal zilnic)
+- `id`
+- `playerId`
+- `date`
+- `wentWell`: ce am făcut bine azi
+- `didntGoWell`: ce nu mi-a ieșit bine
+- `improvement`: ce pot face mai bine mâine
+- `selfScore`: notă 1–5
 
-## Phase 6 — Purchase Flow
-27. `app/scan/page.tsx` renders the purchase screen for store admins only.
-28. `components/ScanScreen.tsx` shows alphabetical product buttons and live search.
-29. `components/QuantityModal.tsx` captures purchase quantity.
-30. `app/scan/actions.ts` decreases stock and revalidates the relevant pages.
+### WeeklyGoal (Obiectiv săptămânal)
+- `id`
+- `playerId`
+- `weekStart`: data de luni a săptămânii
+- `goal`: textul obiectivului
+- `achieved`: boolean (bifat duminică)
 
-## Phase 7 — Layout and Deployment
-31. `app/admin/layout.tsx` renders role-aware navigation and logout.
-32. `next.config.ts` uses standalone output for deployment.
-33. `Dockerfile`, `docker-compose.yml`, and `fly.toml` support local and fly.io deployment.
+### LibraryItem (Biblioteca TheRadaWay)
+- `id`
+- `title`: titlu material
+- `type`: `TEXT` | `IMAGE`
+- `content`: conținut text sau URL imagine
+- `createdAt`
 
----
+### LibraryRead (Progres lectură)
+- `id`
+- `playerId`
+- `itemId`
+- `read`: boolean
 
-## Relevant Files
+### DailyMessage (Mesajul zilei)
+- `id`
+- `date`: data pentru care este valabil mesajul
+- `message`: textul mesajului motivațional (adăugat de mentor)
 
-| File | Purpose |
-|------|---------|
-| `prisma/schema.prisma` | Current multi-tenant schema with `StoreAdministrator`, `Category`, `Product`, and `AdminRole` |
-| `prisma/migrations/20260316190000_multitenant_admins/migration.sql` | Migration introducing store-scoped data and administrator roles |
-| `lib/db.ts` | Prisma client singleton |
-| `lib/auth.ts` | Session helpers and role guards |
-| `lib/data.ts` | All DB access functions and store deletion cleanup logic |
-| `proxy.ts` | Route protection and role-based redirects |
-| `app/(auth)/login/` | Login page and server action |
-| `app/admin/layout.tsx` | Role-aware admin navigation |
-| `app/admin/administrators/**` | Super-admin-only administrator management |
-| `app/admin/categories/**` | Store-scoped category CRUD |
-| `app/admin/products/**` | Store-scoped product CRUD, import, and export |
-| `app/scan/**` | Store-admin purchase flow |
-| `components/ProductList.tsx` | Product filtering UI |
-| `components/ScanScreen.tsx` | Purchase screen UI |
-| `components/QuantityModal.tsx` | Quantity entry modal |
-| `config/auth.ts` | Environment-backed session and optional super-admin bootstrap config |
-| `Dockerfile` + `fly.toml` | Deployment config |
-
----
-
-## Verification
-1. `docker compose up -d` starts PostgreSQL and pgAdmin cleanly.
-2. `npm run lint` passes.
-3. `npm run build` passes.
-4. Logging in as a super admin redirects to `/admin/administrators`.
-5. Logging in as a store admin redirects to `/admin/products`.
-6. A super admin cannot access `/admin/products`, `/admin/categories`, or `/scan`.
-7. A store admin cannot access `/admin/administrators`.
-8. Category CRUD affects only the current store.
-9. Product CRUD affects only the current store and preserves alphabetical ordering plus live search.
-10. The buy page lets a store admin decrease stock for products from their store only.
-11. Deleting a store administrator also removes that store's categories and products.
-12. Unauthenticated access to `/admin/*` or `/scan` redirects to `/login`.
+### EmotionalState (Stare emoțională)
+- `id`
+- `playerId`
+- `date`
+- `level`: `BINE` | `OK` | `GREU`
 
 ---
 
-## Out of Scope
-- Audit log / stock history
-- Email notifications
-- Product images
-- Advanced password hashing migration beyond the current implementation
+## Reguli de acces
+
+- `/login` este public.
+- `/mentor/**` este accesibil doar rolului `MENTOR`.
+- `/player/**` este accesibil doar rolului `PLAYER`.
+- Utilizatorii neautentificați sunt redirecționați la `/login`.
+- Mentorul nu are profil de jucător; jucătorii nu au acces la zone de mentor.
+
+---
+
+## Funcționalități
+
+### 1. Ecran de deschidere
+- Logo TheRadaWay
+- Misiunea aplicației afișată vizibil
+- Buton de login
+
+### 2. Profil jucător
+- Câmpuri: nume, vârstă, poziție în teren, echipă / grupă, obiectiv personal
+- Rapid de completat și ușor de editat
+
+### 3. Check-in zilnic
+- Listă de elemente binare (Da/Nu sau bifă)
+- Două câmpuri text opționale: „lucrul bun de azi" și „ce am învățat"
+- Scopul este consecvența, nu complexitatea
+
+### 4. Jurnal zilnic
+- Trei câmpuri text scurte: ce a mers bine, ce nu a mers, ce pot îmbunătăți
+- Notă de la 1 (slab) la 5 (foarte bine)
+
+### 5. Biblioteca TheRadaWay
+- Materiale de tip text și imagini
+- Doar mentorul poate adăuga materiale
+- Jucătorii pot marca fiecare material: necitit / citit
+
+### 6. Dashboard mentor
+- Listă jucători cu status vizual:
+  - 🟢 verde = activ (check-in completat azi)
+  - 🟡 galben = parțial
+  - 🔴 roșu = inactiv
+- Vizualizare rapidă a cine a completat check-in-ul
+
+### 7. Obiectiv săptămânal
+- Jucătorul scrie un singur obiectiv la începutul săptămânii
+- Duminică poate bifa dacă l-a atins sau nu
+
+### 8. Scor de consecvență
+- Zile consecutive cu check-in completat
+- Progres personal vizibil
+- Fără competiție între jucători
+
+### 9. Mesajul zilei
+- Mentorul adaugă un mesaj scurt de motivație pentru o anumită dată
+- Jucătorii îl văd la deschiderea aplicației
+- Exemplu: „Disciplina bate motivația."
+
+### 10. Stare emoțională
+- Selecție simplă: Bine / OK / Greu
+- Ajută mentorul să înțeleagă starea jucătorului
+
+---
+
+## Principii
+
+- Totul trebuie să fie rapid
+- Interfață simplă
+- Fără funcții inutile
+- Focus pe consecvență zilnică
+
+---
+
+## Faze de implementare
+
+### Faza 1 — Fundație
+1. Schema Prisma: `User`, `PlayerProfile`, `DailyCheckIn`, `DailyJournal`, `WeeklyGoal`, `LibraryItem`, `LibraryRead`, `DailyMessage`, `EmotionalState`.
+2. Migrații Prisma și seed cu un cont de mentor și câțiva jucători demo.
+3. `lib/db.ts` — client Prisma singleton.
+
+### Faza 2 — Autentificare
+4. `lib/auth.ts` — sesiune iron-session, `requireMentor()`, `requirePlayer()`.
+5. `app/(auth)/login/` — pagina de login și acțiunea server.
+6. `middleware.ts` — protecție rute `/mentor/**` și `/player/**`.
+
+### Faza 3 — Ecran de deschidere
+7. `app/page.tsx` — ecran cu logo TheRadaWay, misiune și buton login.
+
+### Faza 4 — Profil jucător
+8. `app/player/profile/page.tsx` — vizualizare și editare profil.
+9. `app/player/profile/actions.ts` — salvare profil.
+
+### Faza 5 — Check-in zilnic
+10. `app/player/checkin/page.tsx` — formular check-in zilnic.
+11. `app/player/checkin/actions.ts` — salvare check-in.
+
+### Faza 6 — Jurnal zilnic
+12. `app/player/journal/page.tsx` — formular jurnal zilnic.
+13. `app/player/journal/actions.ts` — salvare jurnal.
+
+### Faza 7 — Stare emoțională
+14. `app/player/emotional/page.tsx` — selecție stare emoțională.
+15. `app/player/emotional/actions.ts` — salvare stare.
+
+### Faza 8 — Obiectiv săptămânal
+16. `app/player/weekly-goal/page.tsx` — scriere obiectiv și bifare la final de săptămână.
+17. `app/player/weekly-goal/actions.ts` — salvare obiectiv și status.
+
+### Faza 9 — Biblioteca TheRadaWay
+18. `app/player/library/page.tsx` — lista materialelor cu status citit/necitit.
+19. `app/player/library/actions.ts` — marcare material ca citit.
+20. `app/mentor/library/page.tsx` — gestionare materiale (adăugare, ștergere).
+21. `app/mentor/library/actions.ts` — CRUD materiale.
+
+### Faza 10 — Mesajul zilei
+22. `app/mentor/daily-message/page.tsx` — adăugare mesaj zilnic.
+23. `app/mentor/daily-message/actions.ts` — salvare mesaj.
+
+### Faza 11 — Scor de consecvență
+24. `lib/consistency.ts` — calcul zile consecutive și progres personal.
+25. `app/player/dashboard/page.tsx` — afișare scor consecvență și mesajul zilei.
+
+### Faza 12 — Dashboard mentor
+26. `app/mentor/dashboard/page.tsx` — lista jucători cu status verde/galben/roșu.
+
+### Faza 13 — Layout și deployment
+27. `app/mentor/layout.tsx` — navigație mentor.
+28. `app/player/layout.tsx` — navigație jucător.
+29. `next.config.ts` — output standalone.
+30. `Dockerfile`, `fly.toml` — deployment pe fly.io.
+
+---
+
+## Fișiere relevante (țintă)
+
+| Fișier | Scop |
+|--------|------|
+| `prisma/schema.prisma` | Schema completă TheRadaWay |
+| `lib/db.ts` | Client Prisma singleton |
+| `lib/auth.ts` | Sesiune și gardieni de rol |
+| `lib/consistency.ts` | Calcul scor de consecvență |
+| `middleware.ts` | Protecție rute |
+| `app/page.tsx` | Ecran de deschidere cu logo TheRadaWay |
+| `app/(auth)/login/` | Pagina și acțiunea de login |
+| `app/player/**` | Zone jucător |
+| `app/mentor/**` | Zone mentor |
+| `config/auth.ts` | Configurare sesiune |
+| `Dockerfile` + `fly.toml` | Deployment |
+
+---
+
+## Verificare
+
+1. Ecranul de deschidere afișează logo-ul TheRadaWay și misiunea aplicației.
+2. Login cu rol `MENTOR` redirecționează la `/mentor/dashboard`.
+3. Login cu rol `PLAYER` redirecționează la `/player/dashboard`.
+4. Mentorul nu poate accesa zonele de jucător și invers.
+5. Check-in-ul zilnic se salvează corect și apare în dashboard-ul mentorului.
+6. Jurnalul zilnic se salvează și poate fi editat.
+7. Biblioteca afișează materiale; doar mentorul poate adăuga/șterge.
+8. Mesajul zilei adăugat de mentor apare pe ecranul jucătorului.
+9. Scorul de consecvență crește corect cu fiecare check-in consecutiv.
+10. Dashboard-ul mentorului colorează corect jucătorii: verde/galben/roșu.
+11. Accesul neautentificat la rute protejate redirecționează la `/login`.
+12. `npm run lint` trece fără erori.
+13. `npm run build` trece fără erori.
+
+---
+
+## În afara scopului
+
+- Videoclipuri în bibliotecă (doar text și imagini)
+- Competiție sau clasament între jucători
+- Notificări email sau push
+- Funcționalități complexe de raportare sau analiză
