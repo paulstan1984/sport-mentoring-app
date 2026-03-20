@@ -21,7 +21,6 @@ The UI language is **Romanian**. All user-facing text (labels, buttons, messages
 
 ## Architecture
 - There is a single super_admin user (no registration flow).
-- Credentials are stored in a **config file** (e.g., `config/auth.ts` or environment variables). Never hard-code credentials in component or route files.
 - All routes other than the login page must be protected and accessible only to authenticated admins.
 - Use Next.js middleware (`middleware.ts`) for route protection.
 
