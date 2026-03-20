@@ -1,0 +1,28 @@
+version: "3.9"
+
+services:
+
+  postgres:
+    image: postgres:16
+    container_name: db-server
+    environment:
+      POSTGRES_DB: sport_db
+      POSTGRES_USER: sport_user
+      POSTGRES_PASSWORD: sport_pwd
+    ports:
+      - "5432:5432"
+    volumes:
+      - C:\data\postgres-db:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "8080:80"
+    depends_on:
+      - postgres
+
+      
