@@ -26,7 +26,11 @@ export function PlayerProfileEditor({
       {isOpen && (
         <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-5">
           <h2 className="font-semibold mb-4">Editează profilul</h2>
-          <PlayerProfileForm player={player} positions={positions} />
+          <PlayerProfileForm
+            player={player}
+            positions={positions}
+            onSuccess={() => setIsOpen(false)}
+          />
         </div>
       )}
     </div>
