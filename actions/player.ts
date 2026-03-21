@@ -204,6 +204,7 @@ export async function updatePlayerObjective(
 
   await db.player.update({ where: { id: playerId }, data: { objective } });
   revalidatePath("/player/profile");
+  revalidatePath("/player/dashboard");
   return { success: true };
 }
 
