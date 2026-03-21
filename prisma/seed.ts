@@ -127,7 +127,7 @@ async function main() {
   console.log("──────────────────────────────────────────");
   console.log("Conturi de test:");
   console.log("  SUPER_ADMIN: admin / admin1234");
-  console.log("  MENTOR:      mentor1 / mentor1234");
+  console.log("  MENTOR:      rada / mentor1234");
   console.log("  PLAYER:      jucator1 / jucator1234");
 }
 
