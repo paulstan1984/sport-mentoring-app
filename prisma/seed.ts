@@ -44,16 +44,16 @@ async function main() {
 
   // ── Demo Mentor ────────────────────────────────────────────────────────────
   const mentorUser = await db.user.upsert({
-    where: { username: "mentor1" },
+    where: { username: "rada" },
     update: {},
     create: {
-      username: "mentor1",
+      username: "rada",
       passwordHash: await bcrypt.hash("mentor1234", SALT_ROUNDS),
       role: "MENTOR",
       mentor: {
         create: {
-          name: "Ion Popescu",
-          description: "Antrenor cu 10 ani experiență în fotbal juniori.",
+          name: "Ionuț Rada",
+          description: "Antrenor cu 10 ani experiență.",
         },
       },
     },
@@ -71,10 +71,27 @@ async function main() {
     });
 
     const formItems = [
-      { label: "Am mers la antrenament", allowAdditionalString: false, order: 0 },
-      { label: "Am respectat programul de odihnă", allowAdditionalString: false, order: 1 },
-      { label: "Am mâncat sănătos", allowAdditionalString: true, order: 2 },
-      { label: "Am exersat individual (tehnica)", allowAdditionalString: true, order: 3 },
+      { label: "Trezit nu mai târziu de ora 8", allowAdditionalString: false, order: 0 },
+      { label: "Mic dejun sănătos", allowAdditionalString: false, order: 1 },
+      { label: "Școală / Citit 30-40 de min", allowAdditionalString: false, order: 2 },
+      { label: "Mobilitate / Prevenție", allowAdditionalString: false, order: 3 },
+      { label: "Gustare sănătoasă", allowAdditionalString: false, order: 4 },
+      { label: "Antrenament 1", allowAdditionalString: false, order: 5 },
+      { label: "Gustare sănătoasă (fructe)", allowAdditionalString: false, order: 6 },
+      { label: "Social media max 30 min", allowAdditionalString: false, order: 7 },
+      { label: "Prânz sănătos", allowAdditionalString: false, order: 8 },
+      { label: "Odihnă", allowAdditionalString: false, order: 9 },
+      { label: "Mobilitate / Prevenție", allowAdditionalString: false, order: 10 },
+      { label: "Gustare sănătoasă", allowAdditionalString: false, order: 11 },
+      { label: "Antrenament 2", allowAdditionalString: false, order: 12 },
+      { label: "Recuperare / Detensionare / Băi calde-reci", allowAdditionalString: false, order: 13 },
+      { label: "Cină sănătoasă", allowAdditionalString: false, order: 14 },
+      { label: "Social media max 1 oră", allowAdditionalString: false, order: 15 },
+      { label: "Citit cărți / cursuri / materiale Biblioteca TheRadaWay", allowAdditionalString: false, order: 16 },
+      { label: "Odihnă nu mai târziu de ora 23", allowAdditionalString: false, order: 17 },
+      { label: "Am avut o atitudine bună", allowAdditionalString: false, order: 18 },
+      { label: "Am făcut un lucru bun azi", allowAdditionalString: true, order: 19 },
+      { label: "Am învățat ceva", allowAdditionalString: true, order: 20 },
     ];
 
     for (const item of formItems) {
