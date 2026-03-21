@@ -28,6 +28,7 @@ export default async function PlayerDashboard() {
 
   const [
     todayMessage,
+    latestMessage,
     hasCheckin,
     hasJournal,
     todayConfidence,
@@ -36,6 +37,10 @@ export default async function PlayerDashboard() {
   ] = await Promise.all([
     db.dailyMessage.findUnique({
       where: { mentorId_day: { mentorId: player.mentorId, day: today } },
+    }),
+    db.dailyMessage.findFirst({
+      where: { mentorId: player.mentorId },
+      orderBy: { day: "desc" },
     }),
     db.checkinAnswer.findFirst({ where: { playerId, day: today } }),
     db.dailyJournal.findFirst({ where: { playerId, day: today } }),
@@ -46,17 +51,37 @@ export default async function PlayerDashboard() {
     getStreak(playerId),
   ]);
 
+  const messageToShow = todayMessage ?? latestMessage;
+  const isTodayMessage =
+    !!messageToShow &&
+    startOfDayUTC(new Date(messageToShow.day)).getTime() === today.getTime();
+
   return (
     <div className="max-w-xl space-y-6">
       {/* Mentor message */}
-      {todayMessage && (
-        <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-2xl p-5">
-          <p className="text-xs font-medium text-blue-500 uppercase tracking-wide mb-2">
-            Mesajul mentorului tău
+      <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-2xl p-5">
+        <p className="text-xs font-medium text-blue-500 uppercase tracking-wide mb-2">
+          Mesajul mentorului tău
+        </p>
+        {messageToShow ? (
+          <>
+            <p className="text-xs text-blue-500/80 mb-3">
+              {isTodayMessage
+                ? "Astăzi"
+                : `Ultimul mesaj: ${new Date(messageToShow.day).toLocaleDateString("ro-RO", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                  })}`}
+            </p>
+            <RichTextViewer html={messageToShow.message} />
+          </>
+        ) : (
+          <p className="text-sm text-blue-700 dark:text-blue-200">
+            Mentorul tău nu a publicat încă un mesaj.
           </p>
-          <RichTextViewer html={todayMessage.message} />
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Stats row */}
       <div className="grid grid-cols-3 gap-3">
@@ -87,7 +112,7 @@ export default async function PlayerDashboard() {
             <p className="text-sm font-semibold">Obiectiv săptămânal</p>
             <p className="text-xs text-gray-400">Săptămâna {weekNumber}, {year}</p>
           </div>
-          {currentScope?.accomplished !== null && (
+          {currentScope && currentScope.accomplished !== null && (
             <span className={`text-xs font-medium ${
               currentScope.accomplished
                 ? "text-green-600 dark:text-green-400"
