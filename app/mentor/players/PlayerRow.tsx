@@ -4,11 +4,11 @@ import { useState } from "react";
 import { useActionState } from "react";
 import Link from "next/link";
 import {
-  updatePlayer,
   deletePlayer,
   resetPlayerPassword,
 } from "@/actions/mentor";
-import type { Player, User, PlayfieldPosition, Mentor } from "@/app/generated/prisma/client";
+import type { Player, User, PlayfieldPosition } from "@/app/generated/prisma/client";
+import { PlayerProfileForm } from "./PlayerProfileForm";
 
 type PlayerWithRelations = Player & {
   user: Pick<User, "username">;
@@ -24,7 +24,6 @@ export function PlayerRow({
 }) {
   const [editing, setEditing] = useState(false);
   const [resettingPwd, setResettingPwd] = useState(false);
-  const [updateState, updateAction, isUpdating] = useActionState(updatePlayer, null);
   const [pwdState, pwdAction, isPwdPending] = useActionState(resetPlayerPassword, null);
 
   async function handleDelete() {
@@ -36,46 +35,26 @@ export function PlayerRow({
     return (
       <tr className="bg-blue-50 dark:bg-blue-950">
         <td colSpan={5} className="px-4 py-4">
-          <form action={updateAction} className="grid grid-cols-2 gap-3">
-            <input type="hidden" name="id" value={player.id} />
-            <div>
-              <label className="label">Nume *</label>
-              <input name="name" defaultValue={player.name} required className="input text-sm" />
-            </div>
-            <div>
-              <label className="label">Echipă</label>
-              <input name="team" defaultValue={player.team ?? ""} className="input text-sm" />
-            </div>
-            <div>
-              <label className="label">Data nașterii</label>
-              <input
-                name="dateOfBirth"
-                type="date"
-                defaultValue={
-                  player.dateOfBirth
-                    ? new Date(player.dateOfBirth).toISOString().slice(0, 10)
-                    : ""
-                }
-                className="input text-sm"
-              />
-            </div>
-            <div>
-              <label className="label">Poziție</label>
-              <select name="playfieldPositionId" defaultValue={player.playfieldPositionId ?? ""} className="input text-sm">
-                <option value="">— Selectează —</option>
-                {positions.map((pos) => (
-                  <option key={pos.id} value={pos.id}>{pos.name}</option>
-                ))}
-              </select>
-            </div>
-            {updateState?.error && (
-              <p className="col-span-2 text-sm text-red-600">{updateState.error}</p>
-            )}
-            <div className="col-span-2 flex gap-2">
-              <button type="submit" disabled={isUpdating} className="btn-primary text-sm">Salvează</button>
-              <button type="button" onClick={() => setEditing(false)} className="btn-secondary text-sm">Anulează</button>
-            </div>
-          </form>
+          <PlayerProfileForm
+            player={player}
+            positions={positions}
+            onSuccess={() => setEditing(false)}
+            formClassName="grid grid-cols-2 gap-3"
+            actionsClassName="col-span-2 flex gap-2"
+            submitButtonClassName="btn-primary text-sm"
+            submitLabel="Salvează"
+            errorClassName="col-span-2 text-sm text-red-600"
+            successClassName="col-span-2 text-sm text-green-600"
+            secondaryAction={
+              <button
+                type="button"
+                onClick={() => setEditing(false)}
+                className="btn-secondary text-sm"
+              >
+                Anulează
+              </button>
+            }
+          />
 
           {/* Reset password */}
           <div className="mt-4 pt-4 border-t border-blue-200 dark:border-blue-800">
