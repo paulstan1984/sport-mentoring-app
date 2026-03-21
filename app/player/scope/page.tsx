@@ -1,6 +1,7 @@
 import { requirePlayer, getSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getISOWeek } from "@/lib/streak";
+import { RichTextViewer } from "@/components/RichTextViewer";
 import { ScopeForm } from "./ScopeForm";
 
 export default async function ScopePage() {
@@ -31,6 +32,15 @@ export default async function ScopePage() {
         <p className="text-sm text-gray-400">
           Săptămâna {weekNumber}, {year}
         </p>
+      </div>
+
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-5 space-y-2">
+        <p className="text-sm font-semibold">Obiectivul setat</p>
+        {currentScope?.scope ? (
+          <RichTextViewer html={currentScope.scope} className="text-sm" />
+        ) : (
+          <p className="text-sm text-gray-500">Nu ai setat încă un obiectiv pentru săptămâna aceasta.</p>
+        )}
       </div>
 
       <ScopeForm currentScope={currentScope} pastScopes={pastScopes} />

@@ -1,6 +1,6 @@
 import { requirePlayer, getSession } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { getStreak, startOfDayUTC } from "@/lib/streak";
+import { getISOWeek, getStreak, startOfDayUTC } from "@/lib/streak";
 import { RichTextViewer } from "@/components/RichTextViewer";
 import { ConfidencePicker } from "./ConfidencePicker";
 import Link from "next/link";
@@ -17,6 +17,7 @@ export default async function PlayerDashboard() {
   const playerId = session.playerId!;
 
   const today = startOfDayUTC(new Date());
+  const { weekNumber, year } = getISOWeek(new Date());
 
   const player = await db.player.findUnique({
     where: { id: playerId },
@@ -30,6 +31,7 @@ export default async function PlayerDashboard() {
     hasCheckin,
     hasJournal,
     todayConfidence,
+    currentScope,
     streak,
   ] = await Promise.all([
     db.dailyMessage.findUnique({
@@ -38,6 +40,9 @@ export default async function PlayerDashboard() {
     db.checkinAnswer.findFirst({ where: { playerId, day: today } }),
     db.dailyJournal.findFirst({ where: { playerId, day: today } }),
     db.confidenceLevel.findFirst({ where: { playerId, day: today } }),
+    db.weeklyScope.findUnique({
+      where: { playerId_weekNumber_year: { playerId, weekNumber, year } },
+    }),
     getStreak(playerId),
   ]);
 
@@ -73,6 +78,38 @@ export default async function PlayerDashboard() {
       <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-5">
         <p className="text-sm font-semibold mb-3">Cum mă simt azi?</p>
         <ConfidencePicker current={todayConfidence?.level ?? null} />
+      </div>
+
+      {/* Weekly scope */}
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-5 space-y-3">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold">Obiectiv săptămânal</p>
+            <p className="text-xs text-gray-400">Săptămâna {weekNumber}, {year}</p>
+          </div>
+          {currentScope?.accomplished !== null && (
+            <span className={`text-xs font-medium ${
+              currentScope.accomplished
+                ? "text-green-600 dark:text-green-400"
+                : "text-red-600 dark:text-red-400"
+            }`}>
+              {currentScope.accomplished ? "Realizat" : "Nerealizat"}
+            </span>
+          )}
+        </div>
+
+        {currentScope?.scope ? (
+          <RichTextViewer html={currentScope.scope} className="text-sm" />
+        ) : (
+          <p className="text-sm text-gray-500">Nu ai setat încă un obiectiv pentru săptămâna aceasta.</p>
+        )}
+
+        <Link
+          href="/player/scope"
+          className="inline-flex text-sm font-medium text-blue-600 hover:text-blue-700"
+        >
+          Editează obiectivul
+        </Link>
       </div>
 
       {/* Quick links */}

@@ -69,7 +69,7 @@ npx prisma db push --force-reset; npm run db:generate; npm run db:seed
 | Rol         | Utilizator  | Parolă       |
 |-------------|-------------|--------------|
 | SUPER_ADMIN | `admin`     | `admin1234`  |
-| MENTOR      | `mentor1`   | `mentor1234` |
+| MENTOR      | `rada`      | `mentor1234` |
 | PLAYER      | `jucator1`  | `jucator1234`|
 
 > ⚠️ Schimbați parolele imediat după prima autentificare în producție!

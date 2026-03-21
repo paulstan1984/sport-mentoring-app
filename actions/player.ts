@@ -125,6 +125,7 @@ export async function saveWeeklyScope(
   });
 
   revalidatePath("/player/scope");
+  revalidatePath("/player/dashboard");
   return { success: true };
 }
 
@@ -140,6 +141,7 @@ export async function toggleWeeklyScope(
 
   await db.weeklyScope.update({ where: { id }, data: { accomplished } });
   revalidatePath("/player/scope");
+  revalidatePath("/player/dashboard");
   return { success: true };
 }
 
