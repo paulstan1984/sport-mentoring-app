@@ -3,7 +3,7 @@
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 interface RichTextEditorProps {
   name: string;
@@ -18,6 +18,8 @@ export function RichTextEditor({
   placeholder,
   minHeight = "min-h-32",
 }: RichTextEditorProps) {
+  const [htmlValue, setHtmlValue] = useState(initialValue);
+
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -25,6 +27,12 @@ export function RichTextEditor({
     ],
     immediatelyRender: false,
     content: initialValue,
+    onCreate: ({ editor: currentEditor }) => {
+      setHtmlValue(currentEditor.getHTML());
+    },
+    onUpdate: ({ editor: currentEditor }) => {
+      setHtmlValue(currentEditor.getHTML());
+    },
     editorProps: {
       attributes: {
         class: `outline-none ${minHeight} px-3 py-2`,
@@ -36,6 +44,7 @@ export function RichTextEditor({
   useEffect(() => {
     if (editor && initialValue !== editor.getHTML()) {
       editor.commands.setContent(initialValue || "");
+      setHtmlValue(editor.getHTML());
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialValue]);
@@ -67,7 +76,7 @@ export function RichTextEditor({
   return (
     <div className="border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
       {/* Hidden input carries HTML value on form submit */}
-      <input type="hidden" name={name} value={editor?.getHTML() ?? ""} readOnly />
+      <input type="hidden" name={name} value={htmlValue} readOnly />
 
       {/* Toolbar */}
       <div className="flex gap-1 p-1 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">

@@ -290,7 +290,11 @@ export async function publishDailyMessage(
   const mentorId = await getMentorId();
 
   const message = (formData.get("message") as string)?.trim();
-  if (!message) return { error: "Mesajul nu poate fi gol." };
+  const plainText = (message ?? "")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .trim();
+  if (!plainText) return { error: "Mesajul nu poate fi gol." };
 
   const today = startOfDayUTC(new Date());
 
