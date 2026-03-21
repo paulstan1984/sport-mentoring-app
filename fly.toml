@@ -1,0 +1,38 @@
+# fly.toml — sport-mentoring-app
+# Deploy with: fly deploy
+
+app = "sport-mentoring-app"
+primary_region = "ams"          
+
+[build]
+
+[env]
+  PORT       = "3000"
+  HOSTNAME   = "0.0.0.0"
+  NODE_ENV   = "production"
+  UPLOAD_DIR = "/data/uploads"
+
+# Secrets (do NOT put real values here — set them via `fly secrets set`):
+#   fly secrets set DATABASE_URL="postgresql://..."
+#   fly secrets set SESSION_SECRET="<32+ char random string>"
+
+[[mounts]]
+  source      = "uploads_data"
+  destination = "/data/uploads"
+
+[http_service]
+  internal_port        = 3000
+  force_https          = true
+  auto_stop_machines   = "stop"
+  auto_start_machines  = true
+  min_machines_running = 1
+
+  [http_service.concurrency]
+    type       = "connections"
+    hard_limit = 25
+    soft_limit = 20
+
+[[vm]]
+  memory = "1gb"
+  cpu_kind = "shared"
+  cpus = 1

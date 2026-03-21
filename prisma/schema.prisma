@@ -1,0 +1,171 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  SUPER_ADMIN
+  MENTOR
+  PLAYER
+}
+
+enum Confidence {
+  GOOD
+  OK
+  HARD
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  username     String   @unique
+  passwordHash String
+  role         Role
+  createdAt    DateTime @default(now())
+  mentor       Mentor?
+  player       Player?
+}
+
+model Mentor {
+  id            Int           @id @default(autoincrement())
+  userId        Int           @unique
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name          String
+  photo         String?
+  description   String?
+  lastActiveAt  DateTime?
+  players       Player[]
+  checkinForm   CheckinForm?
+  libraryItems  LibraryItem[]
+  dailyMessages DailyMessage[]
+  createdAt     DateTime      @default(now())
+}
+
+model PlayfieldPosition {
+  id      Int      @id @default(autoincrement())
+  name    String   @unique
+  players Player[]
+}
+
+model Player {
+  id                  Int                @id @default(autoincrement())
+  userId              Int                @unique
+  user                User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name                String
+  dateOfBirth         DateTime?
+  playfieldPositionId Int?
+  playfieldPosition   PlayfieldPosition? @relation(fields: [playfieldPositionId], references: [id])
+  team                String?
+  objective           String?
+  mentorId            Int
+  mentor              Mentor             @relation(fields: [mentorId], references: [id])
+  lastActiveAt        DateTime?
+  checkinAnswers      CheckinAnswer[]
+  dailyJournals       DailyJournal[]
+  weeklyScopes        WeeklyScope[]
+  confidenceLevels    ConfidenceLevel[]
+  libraryReads        LibraryItemRead[]
+  createdAt           DateTime           @default(now())
+}
+
+model CheckinForm {
+  id       Int               @id @default(autoincrement())
+  mentorId Int               @unique
+  mentor   Mentor            @relation(fields: [mentorId], references: [id], onDelete: Cascade)
+  items    CheckinFormItem[]
+}
+
+model CheckinFormItem {
+  id                    Int             @id @default(autoincrement())
+  formId                Int
+  form                  CheckinForm     @relation(fields: [formId], references: [id], onDelete: Cascade)
+  label                 String
+  allowAdditionalString Boolean         @default(false)
+  order                 Int             @default(0)
+  deletedAt             DateTime?
+  answers               CheckinAnswer[]
+}
+
+model CheckinAnswer {
+  id          Int             @id @default(autoincrement())
+  playerId    Int
+  player      Player          @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  flagId      Int
+  flag        CheckinFormItem @relation(fields: [flagId], references: [id])
+  day         DateTime        @db.Date
+  checked     Boolean         @default(false)
+  stringValue String?
+
+  @@unique([playerId, flagId, day])
+}
+
+model DailyJournal {
+  id              Int      @id @default(autoincrement())
+  playerId        Int
+  player          Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  day             DateTime @db.Date
+  whatDidGood     String?
+  whatDidWrong    String?
+  whatCanDoBetter String?
+  myScore         Int      @default(0)
+
+  @@unique([playerId, day])
+}
+
+model WeeklyScope {
+  id           Int      @id @default(autoincrement())
+  playerId     Int
+  player       Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  weekNumber   Int
+  year         Int
+  scope        String?
+  accomplished Boolean?
+
+  @@unique([playerId, weekNumber, year])
+}
+
+model ConfidenceLevel {
+  id       Int        @id @default(autoincrement())
+  playerId Int
+  player   Player     @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  day      DateTime   @db.Date
+  level    Confidence
+
+  @@unique([playerId, day])
+}
+
+model LibraryItem {
+  id        Int               @id @default(autoincrement())
+  mentorId  Int
+  mentor    Mentor            @relation(fields: [mentorId], references: [id], onDelete: Cascade)
+  name      String
+  filePath  String
+  fileType  String
+  reads     LibraryItemRead[]
+  createdAt DateTime          @default(now())
+}
+
+model LibraryItemRead {
+  id            Int         @id @default(autoincrement())
+  libraryItemId Int
+  libraryItem   LibraryItem @relation(fields: [libraryItemId], references: [id], onDelete: Cascade)
+  playerId      Int
+  player        Player      @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  readAt        DateTime    @default(now())
+
+  @@unique([libraryItemId, playerId])
+}
+
+model DailyMessage {
+  id       Int      @id @default(autoincrement())
+  mentorId Int
+  mentor   Mentor   @relation(fields: [mentorId], references: [id], onDelete: Cascade)
+  message  String
+  day      DateTime @db.Date
+
+  @@unique([mentorId, day])
+}
+
