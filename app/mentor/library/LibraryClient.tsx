@@ -30,6 +30,7 @@ export function LibraryClient({
   const router = useRouter();
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [showUploadForm, setShowUploadForm] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
   async function handleUpload(e: React.FormEvent<HTMLFormElement>) {
@@ -65,21 +66,33 @@ export function LibraryClient({
     <div className="space-y-8">
       {/* Upload form */}
       <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-6">
-        <h2 className="font-semibold mb-4">Adaugă material</h2>
-        <form ref={formRef} onSubmit={handleUpload} className="space-y-3">
-          <div>
-            <label className="label">Nume material *</label>
-            <input name="name" required className="input" placeholder="ex: Tehnica pasei" />
-          </div>
-          <div>
-            <label className="label">Fișier (PDF, DOC, imagine) *</label>
-            <input name="file" type="file" required accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif" className="input file:mr-2 file:btn-xs" />
-          </div>
-          {uploadError && <p className="text-sm text-red-600">{uploadError}</p>}
-          <button type="submit" disabled={uploading} className="btn-primary">
-            {uploading ? "Se încarcă..." : "Încarcă fișier"}
+        <div className="flex items-center justify-between gap-3 mb-4">
+          <h2 className="font-semibold">Adaugă material</h2>
+          <button
+            type="button"
+            onClick={() => setShowUploadForm((prev) => !prev)}
+            className="btn-secondary text-sm"
+          >
+            {showUploadForm ? "Ascunde formularul" : "Arată formularul"}
           </button>
-        </form>
+        </div>
+
+        {showUploadForm && (
+          <form ref={formRef} onSubmit={handleUpload} className="space-y-3">
+            <div>
+              <label className="label">Nume material *</label>
+              <input name="name" required className="input" placeholder="ex: Tehnica pasei" />
+            </div>
+            <div>
+              <label className="label">Fișier (PDF, DOC, imagine) *</label>
+              <input name="file" type="file" required accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif" className="input file:mr-2 file:btn-xs" />
+            </div>
+            {uploadError && <p className="text-sm text-red-600">{uploadError}</p>}
+            <button type="submit" disabled={uploading} className="btn-primary">
+              {uploading ? "Se încarcă..." : "Încarcă fișier"}
+            </button>
+          </form>
+        )}
       </div>
 
       {/* Library items */}

@@ -17,6 +17,7 @@ export function CheckinFormBuilder({
   const [addState, addAction, isAdding] = useActionState(addCheckinFormItem, null);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editState, editAction, isEditing] = useActionState(updateCheckinFormItem, null);
+  const [showAddForm, setShowAddForm] = useState(false);
 
   async function handleDelete(id: number) {
     if (!confirm("Ștergi acest element? Răspunsurile istorice vor fi păstrate.")) return;
@@ -27,23 +28,35 @@ export function CheckinFormBuilder({
     <div className="space-y-6">
       {/* Add item form */}
       <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-6">
-        <h2 className="font-semibold mb-4">Adaugă element</h2>
-        <form action={addAction} className="space-y-3">
-          <div>
-            <label className="label">Label *</label>
-            <input name="label" required className="input" placeholder="ex: Am mers la antrenament" />
-          </div>
-          <label className="flex items-center gap-2 text-sm cursor-pointer">
-            <input name="allowAdditionalString" type="checkbox" className="rounded" />
-            Permite câmp text suplimentar
-          </label>
-          {addState?.error && (
-            <p className="text-sm text-red-600">{addState.error}</p>
-          )}
-          <button type="submit" disabled={isAdding} className="btn-primary">
-            {isAdding ? "Se adaugă..." : "Adaugă element"}
+        <div className="flex items-center justify-between gap-3 mb-4">
+          <h2 className="font-semibold">Adaugă element</h2>
+          <button
+            type="button"
+            onClick={() => setShowAddForm((prev) => !prev)}
+            className="btn-secondary text-sm"
+          >
+            {showAddForm ? "Ascunde formularul" : "Arată formularul"}
           </button>
-        </form>
+        </div>
+
+        {showAddForm && (
+          <form action={addAction} className="space-y-3">
+            <div>
+              <label className="label">Label *</label>
+              <input name="label" required className="input" placeholder="ex: Am mers la antrenament" />
+            </div>
+            <label className="flex items-center gap-2 text-sm cursor-pointer">
+              <input name="allowAdditionalString" type="checkbox" className="rounded" />
+              Permite câmp text suplimentar
+            </label>
+            {addState?.error && (
+              <p className="text-sm text-red-600">{addState.error}</p>
+            )}
+            <button type="submit" disabled={isAdding} className="btn-primary">
+              {isAdding ? "Se adaugă..." : "Adaugă element"}
+            </button>
+          </form>
+        )}
       </div>
 
       {/* Current items */}

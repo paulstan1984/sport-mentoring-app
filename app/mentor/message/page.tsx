@@ -29,6 +29,18 @@ export default async function MessagePage() {
     <div className="max-w-2xl space-y-8">
       <h1 className="text-2xl font-bold">Mesajul zilei</h1>
 
+      {/* Current message preview */}
+      <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-2xl p-6">
+        <h2 className="font-semibold mb-3">Mesajul curent pentru astăzi</h2>
+        {todayMsg?.message ? (
+          <RichTextViewer html={todayMsg.message} className="text-sm" />
+        ) : (
+          <p className="text-sm text-blue-700 dark:text-blue-200">
+            Nu ai publicat încă mesajul de azi.
+          </p>
+        )}
+      </div>
+
       {/* Editor */}
       <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-6">
         <h2 className="font-semibold mb-4">

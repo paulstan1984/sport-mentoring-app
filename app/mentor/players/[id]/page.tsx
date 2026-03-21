@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { getStreak } from "@/lib/streak";
 import { RichTextViewer } from "@/components/RichTextViewer";
 import { PresenceBadge } from "@/components/PresenceBadge";
+import { PlayerProfileEditor } from "./PlayerProfileEditor";
 
 const CONFIDENCE_LABEL: Record<string, string> = {
   GOOD: "😊 Bine",
@@ -45,13 +46,16 @@ export default async function PlayerDetailPage({
   const streak = await getStreak(playerId);
 
   // Library items for this mentor + read status
-  const libraryItems = await db.libraryItem.findMany({
-    where: { mentorId },
-    include: {
-      reads: { where: { playerId } },
-    },
-    orderBy: { createdAt: "desc" },
-  });
+  const [libraryItems, positions] = await Promise.all([
+    db.libraryItem.findMany({
+      where: { mentorId },
+      include: {
+        reads: { where: { playerId } },
+      },
+      orderBy: { createdAt: "desc" },
+    }),
+    db.playfieldPosition.findMany({ orderBy: { name: "asc" } }),
+  ]);
 
   return (
     <div className="max-w-3xl space-y-8">
@@ -73,6 +77,17 @@ export default async function PlayerDetailPage({
           <p className="text-xs text-gray-400">zile consecutiv</p>
         </div>
       </div>
+
+      <PlayerProfileEditor
+        player={{
+          id: player.id,
+          name: player.name,
+          team: player.team,
+          dateOfBirth: player.dateOfBirth,
+          playfieldPositionId: player.playfieldPositionId,
+        }}
+        positions={positions}
+      />
 
       {/* Objective */}
       {player.objective && (
