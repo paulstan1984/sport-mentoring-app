@@ -56,6 +56,12 @@ npx prisma db push
 
 # Creează utilizatorul admin și datele demo
 npm run db:seed
+
+# Resetează toate tabelele, apoi rulează seed
+npx prisma db push --force-reset; npm run db:seed
+
+# Resetează, regenerează Prisma Client, apoi rulează seed
+npx prisma db push --force-reset; npm run db:generate; npm run db:seed
 ```
 
 **Conturi create de seed:**
