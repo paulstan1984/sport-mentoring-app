@@ -45,6 +45,21 @@ export default async function PlayerDetailPage({
 
   const streak = await getStreak(playerId);
 
+  const checkinsByDay = player.checkinAnswers.reduce<
+    Array<{ dayKey: string; answers: typeof player.checkinAnswers }>
+  >((acc, answer) => {
+    const dayKey = new Date(answer.day).toISOString().slice(0, 10);
+    const existingGroup = acc.find((group) => group.dayKey === dayKey);
+
+    if (existingGroup) {
+      existingGroup.answers.push(answer);
+    } else {
+      acc.push({ dayKey, answers: [answer] });
+    }
+
+    return acc;
+  }, []);
+
   // Library items for this mentor + read status
   const [libraryItems, positions] = await Promise.all([
     db.libraryItem.findMany({
@@ -110,6 +125,51 @@ export default async function PlayerDetailPage({
           {player.confidenceLevels.length === 0 && (
             <p className="text-sm text-gray-400">Nicio înregistrare.</p>
           )}
+        </div>
+      </div>
+
+      {/* Checkin records */}
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-5">
+        <h2 className="font-semibold mb-4">Checkin (ultimele înregistrări)</h2>
+        <div className="space-y-4">
+          {checkinsByDay.length === 0 && (
+            <p className="text-sm text-gray-400">Nicio înregistrare.</p>
+          )}
+
+          {checkinsByDay.map((group) => {
+            const checkedCount = group.answers.filter((a) => a.checked).length;
+
+            return (
+              <div key={group.dayKey} className="border-l-4 border-gray-200 dark:border-gray-700 pl-4">
+                <p className="text-xs font-medium text-gray-400 mb-2">
+                  {new Date(group.dayKey).toLocaleDateString("ro-RO", {
+                    weekday: "long",
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}
+                  {" · "}
+                  {checkedCount}/{group.answers.length} bifate
+                </p>
+
+                <div className="space-y-1">
+                  {group.answers.map((answer) => (
+                    <div key={answer.id} className="text-sm flex items-start gap-2">
+                      <span className={answer.checked ? "text-green-500" : "text-gray-400"}>
+                        {answer.checked ? "✅" : "⬜"}
+                      </span>
+                      <div>
+                        <span>{answer.flag.label}</span>
+                        {answer.stringValue && (
+                          <p className="text-xs text-gray-500 mt-0.5">Detalii: {answer.stringValue}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
