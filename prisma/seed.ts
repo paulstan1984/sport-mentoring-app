@@ -102,7 +102,7 @@ async function main() {
         await db.checkinFormItem.create({ data: { ...item, formId: form.id } });
       }
     }
-    console.log(`✅ Formular de pontaj demo creat.`);
+    console.log(`✅ Formular de checkin demo creat.`);
 
     // ── Demo Player ────────────────────────────────────────────────────────
     const playerUser = await db.user.upsert({

@@ -45,7 +45,7 @@ export function ProfileClient({ player }: { player: PlayerWithRelations }) {
 
       {/* Objective */}
       <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-5">
-        <h2 className="font-semibold mb-4">Obiectivul meu</h2>
+        <h2 className="font-semibold mb-4">Obiectivul meu general</h2>
         <form action={objAction} className="space-y-4">
           <RichTextEditor
             name="objective"

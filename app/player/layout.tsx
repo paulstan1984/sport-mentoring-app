@@ -21,7 +21,7 @@ export default async function PlayerLayout({
 
   const navLinks = [
     { href: "/player/dashboard", label: "🏠 Acasă" },
-    { href: "/player/checkin", label: "✅ Pontaj" },
+    { href: "/player/checkin", label: "✅ Checkin" },
     { href: "/player/journal", label: "📓 Jurnal" },
     { href: "/player/scope", label: "🎯 Obiectiv" },
     { href: "/player/library", label: "📚 Bibliotecă" },

@@ -23,7 +23,7 @@ export default async function MentorLayout({
   const navLinks = [
     { href: "/mentor/dashboard", label: "📊 Dashboard" },
     { href: "/mentor/players", label: "👥 Jucători" },
-    { href: "/mentor/checkin-form", label: "✅ Formular Pontaj" },
+    { href: "/mentor/checkin-form", label: "✅ Formular Checkin" },
     { href: "/mentor/library", label: "📚 Bibliotecă" },
     { href: "/mentor/message", label: "💬 Mesajul Zilei" },
     { href: "/mentor/profile", label: "⚙️ Profil" },

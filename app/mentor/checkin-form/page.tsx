@@ -19,7 +19,7 @@ export default async function CheckinFormPage() {
 
   return (
     <div className="max-w-2xl">
-      <h1 className="text-2xl font-bold mb-6">Formular de pontaj</h1>
+      <h1 className="text-2xl font-bold mb-6">Formular de checkin</h1>
       <CheckinFormBuilder items={form?.items ?? []} />
     </div>
   );

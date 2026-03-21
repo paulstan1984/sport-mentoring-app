@@ -72,7 +72,7 @@ export function DashboardClient({ players }: { players: PlayerSummary[] }) {
                     : "bg-gray-100 dark:bg-gray-800 text-gray-500"
                 }`}
               >
-                {p.checkedInToday ? "✅ Pontaj ok" : "⏳ Fără pontaj"}
+                {p.checkedInToday ? "✅ Checkin ok" : "⏳ Fără checkin"}
               </span>
               {p.confidenceToday && (
                 <span className="bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300 px-2 py-0.5 rounded-full">

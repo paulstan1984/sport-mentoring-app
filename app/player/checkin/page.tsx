@@ -41,7 +41,7 @@ export default async function CheckinPage() {
 
   return (
     <div className="max-w-lg">
-      <h1 className="text-2xl font-bold mb-2">Pontaj zilnic</h1>
+      <h1 className="text-2xl font-bold mb-2">Checkin zilnic</h1>
       <p className="text-sm text-gray-400 mb-6">
         {today.toLocaleDateString("ro-RO", {
           weekday: "long",
@@ -52,7 +52,7 @@ export default async function CheckinPage() {
       </p>
 
       {items.length === 0 ? (
-        <p className="text-gray-400">Mentorul tău nu a configurat încă formularul de pontaj.</p>
+        <p className="text-gray-400">Mentorul tău nu a configurat încă formularul de checkin.</p>
       ) : (
         <CheckinForm items={items} answerMap={answerMap} />
       )}

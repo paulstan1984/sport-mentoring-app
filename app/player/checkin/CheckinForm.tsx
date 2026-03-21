@@ -24,7 +24,7 @@ export function CheckinForm({
     <form action={formAction} className="space-y-4">
       {alreadySubmitted && (
         <div className="bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 px-4 py-3 rounded-xl text-sm">
-          ✅ Ai completat pontajul de astăzi. Poți actualiza oricând.
+          ✅ Ai completat checkin-ul de astăzi. Poți actualiza oricând.
         </div>
       )}
 
@@ -64,12 +64,12 @@ export function CheckinForm({
       )}
       {state?.success && (
         <p className="text-sm text-green-600 bg-green-50 dark:bg-green-950 px-3 py-2 rounded-xl">
-          Pontajul a fost salvat! ✅
+          Checkin-ul a fost salvat! ✅
         </p>
       )}
 
       <button type="submit" disabled={isPending} className="btn-primary w-full">
-        {isPending ? "Se salvează..." : "Salvează pontajul"}
+        {isPending ? "Se salvează..." : "Salvează checkin-ul"}
       </button>
     </form>
   );

@@ -126,7 +126,7 @@ The UI language is **Romanian**. All user-facing text (labels, buttons, messages
 | Dashboard                | Panou principal             |
 | Mentor                   | Antrenor                    |
 | Player                   | Jucător                     |
-| Daily checkin            | Pontaj zilnic               |
+| Daily checkin            | Checkin zilnic              |
 | Journal                  | Jurnal                      |
 | Weekly scope             | Scop săptămânal             |
 | Accomplished             | Realizat                    |

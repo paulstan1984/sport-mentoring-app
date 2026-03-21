@@ -91,7 +91,7 @@ export default async function PlayerDashboard() {
         </div>
         <div className={`rounded-2xl shadow p-4 text-center ${hasCheckin ? "bg-green-50 dark:bg-green-950" : "bg-white dark:bg-gray-900"}`}>
           <p className="text-2xl">{hasCheckin ? "✅" : "⏳"}</p>
-          <p className="text-xs text-gray-400 mt-1">Pontaj</p>
+          <p className="text-xs text-gray-400 mt-1">Checkin</p>
         </div>
         <div className={`rounded-2xl shadow p-4 text-center ${hasJournal ? "bg-green-50 dark:bg-green-950" : "bg-white dark:bg-gray-900"}`}>
           <p className="text-2xl">{hasJournal ? "✅" : "⏳"}</p>
@@ -141,7 +141,7 @@ export default async function PlayerDashboard() {
       <div className="grid grid-cols-2 gap-3">
         {!hasCheckin && (
           <Link href="/player/checkin" className="bg-blue-600 text-white rounded-2xl p-4 text-sm font-medium hover:bg-blue-700 transition-colors text-center">
-            ✅ Completează pontajul
+            ✅ Completează checkin-ul
           </Link>
         )}
         {!hasJournal && (

@@ -101,8 +101,8 @@ Aplicația va fi disponibilă la [http://localhost:3000](http://localhost:3000).
 ```
 app/
   admin/          # Pagini SUPER_ADMIN (managament mentori, poziții)
-  mentor/         # Pagini MENTOR (jucători, pontaj, bibliotecă, mesaj)
-  player/         # Pagini PLAYER (pontaj zilnic, jurnal, scop săptămânal)
+  mentor/         # Pagini MENTOR (jucători, checkin, bibliotecă, mesaj)
+  player/         # Pagini PLAYER (checkin zilnic, jurnal, scop săptămânal)
   login/          # Pagina de autentificare
   api/
     upload/       # Endpoint upload fișiere (mentor)
