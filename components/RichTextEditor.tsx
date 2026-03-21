@@ -23,6 +23,7 @@ export function RichTextEditor({
       StarterKit,
       Link.configure({ openOnClick: false }),
     ],
+    immediatelyRender: false,
     content: initialValue,
     editorProps: {
       attributes: {
