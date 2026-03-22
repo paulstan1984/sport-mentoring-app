@@ -1,6 +1,7 @@
 import { requireMentor, getSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { PlayerForm } from "./PlayerForm";
+import { PlayerCsvImport } from "./PlayerCsvImport";
 import { PlayerRow } from "./PlayerRow";
 
 export default async function PlayersPage() {
@@ -28,6 +29,10 @@ export default async function PlayersPage() {
       <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-6 mb-8">
         <h2 className="text-lg font-semibold mb-4">Adaugă Jucător</h2>
         <PlayerForm positions={positions} />
+
+        <div className="mt-6 pt-6 border-t border-gray-100 dark:border-gray-800">
+          <PlayerCsvImport />
+        </div>
       </div>
 
       {/* Players list */}

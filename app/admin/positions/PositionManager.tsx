@@ -34,7 +34,7 @@ export function PositionManager({
       {/* Add position form */}
       <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-6">
         <h2 className="text-lg font-semibold mb-3">Adaugă poziție</h2>
-        <form action={createAction} className="flex gap-2">
+        <form action={createAction} className="flex flex-col sm:flex-row gap-2">
           <input
             name="name"
             required
@@ -59,8 +59,8 @@ export function PositionManager({
         )}
         {positions.map((p) =>
           editingId === p.id ? (
-            <div key={p.id} className="px-4 py-3 flex gap-2">
-              <form action={updateAction} className="flex gap-2 flex-1">
+            <div key={p.id} className="px-4 py-3 flex flex-col sm:flex-row gap-2">
+              <form action={updateAction} className="flex flex-col sm:flex-row gap-2 flex-1">
                 <input type="hidden" name="id" value={p.id} />
                 <input name="name" defaultValue={p.name} required className="input flex-1 text-sm" />
                 <button type="submit" disabled={isUpdating} className="btn-primary text-sm">
