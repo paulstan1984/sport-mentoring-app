@@ -561,13 +561,12 @@ export async function updateMentorProfile(
 
   const name = (formData.get("name") as string)?.trim();
   const description = (formData.get("description") as string)?.trim() || null;
-  const photo = (formData.get("photo") as string)?.trim() || null;
 
   if (!name) return { error: "Numele este obligatoriu." };
 
   await db.mentor.update({
     where: { id: mentorId },
-    data: { name, description, photo },
+    data: { name, description },
   });
 
   revalidatePath("/mentor/profile");

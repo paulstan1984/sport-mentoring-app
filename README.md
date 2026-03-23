@@ -158,9 +158,3 @@ Asigurați-vă că variabilele de mediu sunt configurate în fly.io:
 ```bash
 fly secrets set DATABASE_URL="..." SESSION_SECRET="..." UPLOAD_DIR="/data/uploads"
 ```
-
-# TODO
-- display logout button on mobile always
-- import players visible on demand / not always
-- generate 10 demo players
-- present to Ionut Rada 
