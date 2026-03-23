@@ -1,0 +1,101 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { logout } from "@/actions/auth";
+
+const mainLinks = [
+  { href: "/mentor/dashboard", label: "📊 Dashboard" },
+  { href: "/mentor/players", label: "👥 Jucători" },
+];
+
+const moreLinks = [
+  { href: "/mentor/checkin-form", label: "✅ Formular Checkin" },
+  { href: "/mentor/library", label: "📚 Bibliotecă" },
+  { href: "/mentor/message", label: "💬 Mesajul Zilei" },
+];
+
+function getLabelIcon(label: string) {
+  return label.split(" ")[0];
+}
+
+function getLabelText(label: string) {
+  return label.split(" ").slice(1).join(" ");
+}
+
+export function MentorMobileNav() {
+  const [moreOpen, setMoreOpen] = useState(false);
+
+  function closeMore() {
+    setMoreOpen(false);
+  }
+
+  function handleOverlayKeyDown(e: React.KeyboardEvent) {
+    if (e.key === "Escape" || e.key === "Enter" || e.key === " ") {
+      closeMore();
+    }
+  }
+
+  return (
+    <>
+      {moreOpen && (
+        <div
+          role="button"
+          aria-label="Închide meniul"
+          tabIndex={0}
+          className="fixed inset-0 z-20"
+          onClick={closeMore}
+          onKeyDown={handleOverlayKeyDown}
+        >
+          <div
+            id="mentor-more-menu"
+            className="fixed bottom-16 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 px-4 py-3 space-y-1 z-30 shadow-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {moreLinks.map((l) => (
+              <Link
+                key={l.href}
+                href={l.href}
+                className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
+                onClick={closeMore}
+              >
+                <span className="text-lg leading-none">{getLabelIcon(l.label)}</span>
+                <span>{getLabelText(l.label)}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+      <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 flex md:hidden z-10">
+        {mainLinks.map((l) => (
+          <Link
+            key={l.href}
+            href={l.href}
+            className="flex-1 flex flex-col items-center py-2 text-xs text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+          >
+            <span className="text-lg leading-none">{getLabelIcon(l.label)}</span>
+            <span className="mt-0.5 truncate">{getLabelText(l.label)}</span>
+          </Link>
+        ))}
+        <button
+          onClick={() => setMoreOpen(!moreOpen)}
+          aria-expanded={moreOpen}
+          aria-controls="mentor-more-menu"
+          className="flex-1 flex flex-col items-center py-2 text-xs text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+        >
+          <span className="text-lg leading-none">⋯</span>
+          <span className="mt-0.5 truncate">Mai mult</span>
+        </button>
+        <form action={logout} className="flex-1">
+          <button
+            type="submit"
+            className="w-full h-full flex flex-col items-center py-2 text-xs text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+          >
+            <span className="text-lg leading-none">🚪</span>
+            <span className="mt-0.5 truncate">Ieșire</span>
+          </button>
+        </form>
+      </nav>
+    </>
+  );
+}
