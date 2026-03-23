@@ -32,8 +32,12 @@ export default async function PlayerLayout({
     <div className="min-h-screen flex flex-col">
       {/* Top header (mobile) */}
       <header className="bg-blue-600 text-white px-4 py-3 flex items-center justify-between sticky top-0 z-10">
-        <span className="font-bold text-sm">⚽ SportMentor</span>
-        <span className="text-sm text-blue-200">{player?.name ?? "Jucător"}</span>
+        <Link href="/player/dashboard" className="font-bold text-sm text-white hover:text-blue-100">
+          ⚽ SportMentor
+        </Link>
+        <Link href="/player/profile" className="text-sm text-blue-200 hover:text-white">
+          {player?.name ?? "Jucător"}
+        </Link>
       </header>
 
       {/* Main content */}
@@ -43,7 +47,7 @@ export default async function PlayerLayout({
 
       {/* Bottom navigation (mobile-first) */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 flex md:hidden z-10">
-        {navLinks.slice(0, 5).map((l) => (
+        {navLinks.slice(0, 3).map((l) => (
           <Link
             key={l.href}
             href={l.href}
@@ -67,10 +71,12 @@ export default async function PlayerLayout({
       {/* Side nav (desktop) */}
       <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-52 bg-gray-900 text-white flex-col">
         <div className="px-6 py-5 border-b border-gray-700">
-          <span className="text-lg font-bold text-blue-400">⚽ SportMentor</span>
-          <p className="text-xs text-gray-400 mt-0.5 truncate">
+          <Link href="/player/dashboard" className="text-lg font-bold text-blue-400 hover:text-blue-300">
+            ⚽ SportMentor
+          </Link>
+          <Link href="/player/profile" className="block text-xs text-gray-400 mt-0.5 truncate hover:text-gray-200">
             {player?.name ?? "Jucător"}
-          </p>
+          </Link>
         </div>
         <nav className="flex-1 px-3 py-4 space-y-1">
           {navLinks.map((l) => (
