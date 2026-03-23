@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { ALLOWED_TYPES, MAX_SIZE_BYTES, saveUploadedFile } from "@/lib/upload";
+import { ALLOWED_IMAGE_TYPES, MAX_SIZE_BYTES, saveUploadedFile } from "@/lib/upload";
 
 export async function POST(request: NextRequest) {
   const session = await getSession();
@@ -21,35 +21,30 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Formular invalid." }, { status: 400 });
   }
 
-  const name = (formData.get("name") as string)?.trim();
   const file = formData.get("file") as File | null;
-
-  if (!name || !file) {
-    return NextResponse.json({ error: "Completați toate câmpurile." }, { status: 400 });
+  if (!file) {
+    return NextResponse.json({ error: "Fișierul lipsește." }, { status: 400 });
   }
 
   if (file.size > MAX_SIZE_BYTES) {
     return NextResponse.json({ error: "Fișierul depășește 20 MB." }, { status: 400 });
   }
 
-  const ext = ALLOWED_TYPES[file.type];
+  const ext = ALLOWED_IMAGE_TYPES[file.type];
   if (!ext) {
     return NextResponse.json(
-      { error: "Tip de fișier neacceptat. Acceptăm PDF, DOC, DOCX, JPG, PNG, GIF." },
+      { error: "Tip de fișier neacceptat. Acceptăm JPG, PNG, GIF." },
       { status: 400 }
     );
   }
 
-  const { filePath } = await saveUploadedFile(file, mentorId, ext);
+  const { filename } = await saveUploadedFile(file, mentorId, ext);
+  const photoUrl = `/api/mentor-photo/${mentorId}/${filename}`;
 
-  await db.libraryItem.create({
-    data: {
-      mentorId,
-      name,
-      filePath,
-      fileType: ext,
-    },
+  await db.mentor.update({
+    where: { id: mentorId },
+    data: { photo: photoUrl },
   });
 
-  return NextResponse.json({ success: true }, { status: 201 });
+  return NextResponse.json({ success: true, photoUrl }, { status: 200 });
 }
