@@ -52,6 +52,15 @@ export default async function MentorLayout({
             <span className="mt-0.5 truncate">{l.label.split(" ").slice(1).join(" ")}</span>
           </Link>
         ))}
+        <form action={logout} className="flex-1">
+          <button
+            type="submit"
+            className="w-full h-full flex flex-col items-center py-2 text-xs text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+          >
+            <span className="text-lg leading-none">🚪</span>
+            <span className="mt-0.5 truncate">Ieșire</span>
+          </button>
+        </form>
       </nav>
 
       {/* Side nav (desktop) */}
