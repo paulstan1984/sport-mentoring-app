@@ -4,7 +4,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
 }
 
 enum Role {
@@ -95,7 +95,7 @@ model CheckinAnswer {
   player      Player          @relation(fields: [playerId], references: [id], onDelete: Cascade)
   flagId      Int
   flag        CheckinFormItem @relation(fields: [flagId], references: [id])
-  day         DateTime        @db.Date
+  day         DateTime
   checked     Boolean         @default(false)
   stringValue String?
 
@@ -106,7 +106,7 @@ model DailyJournal {
   id              Int      @id @default(autoincrement())
   playerId        Int
   player          Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
-  day             DateTime @db.Date
+  day             DateTime
   whatDidGood     String?
   whatDidWrong    String?
   whatCanDoBetter String?
@@ -131,7 +131,7 @@ model ConfidenceLevel {
   id       Int        @id @default(autoincrement())
   playerId Int
   player   Player     @relation(fields: [playerId], references: [id], onDelete: Cascade)
-  day      DateTime   @db.Date
+  day      DateTime  
   level    Confidence
 
   @@unique([playerId, day])
@@ -164,7 +164,7 @@ model DailyMessage {
   mentorId Int
   mentor   Mentor   @relation(fields: [mentorId], references: [id], onDelete: Cascade)
   message  String
-  day      DateTime @db.Date
+  day      DateTime
 
   @@unique([mentorId, day])
 }
