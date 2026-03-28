@@ -43,8 +43,14 @@ export function LibraryClient({
     try {
       const res = await fetch("/api/upload", { method: "POST", body: data });
       if (!res.ok) {
-        const json = await res.json();
-        setUploadError(json.error ?? "Eroare la upload.");
+        let errorMsg = "Eroare la upload.";
+        try {
+          const json = await res.json();
+          errorMsg = json.error ?? errorMsg;
+        } catch {
+          // Server returned non-JSON; keep generic message
+        }
+        setUploadError(errorMsg);
       } else {
         formRef.current?.reset();
         router.refresh();
