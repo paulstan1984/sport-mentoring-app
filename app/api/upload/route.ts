@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { ALLOWED_TYPES, MAX_SIZE_BYTES, saveUploadedFile } from "@/lib/upload";
+import { MAX_SIZE_BYTES, resolveAllowedExt, saveUploadedFile } from "@/lib/upload";
 
 export async function POST(request: NextRequest) {
   const session = await getSession();
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Fișierul depășește 20 MB." }, { status: 400 });
   }
 
-  const ext = ALLOWED_TYPES[file.type];
+  const ext = resolveAllowedExt(file);
   if (!ext) {
     return NextResponse.json(
       { error: "Tip de fișier neacceptat. Acceptăm PDF, DOC, DOCX, JPG, PNG, GIF." },

@@ -104,14 +104,6 @@ export default async function PlayerDetailPage({
         positions={positions}
       />
 
-      {/* Objective */}
-      {player.objective && (
-        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-5">
-          <h2 className="font-semibold mb-3">Obiectiv general</h2>
-          <RichTextViewer html={player.objective} />
-        </div>
-      )}
-
       {/* Confidence history */}
       <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-5">
         <h2 className="font-semibold mb-3">Nivelul de încredere (ultimele 14 zile)</h2>

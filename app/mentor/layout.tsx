@@ -3,6 +3,15 @@ import { logout } from "@/actions/auth";
 import { requireMentor } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { MentorMobileNav } from "./MentorMobileNav";
+import {
+  LayoutDashboard,
+  Users,
+  ClipboardCheck,
+  BookOpen,
+  MessageSquare,
+  Settings,
+  LogOut,
+} from "lucide-react";
 
 export default async function MentorLayout({
   children,
@@ -22,12 +31,12 @@ export default async function MentorLayout({
   });
 
   const navLinks = [
-    { href: "/mentor/dashboard", label: "📊 Dashboard" },
-    { href: "/mentor/players", label: "👥 Jucători" },
-    { href: "/mentor/checkin-form", label: "✅ Formular Checkin" },
-    { href: "/mentor/library", label: "📚 Bibliotecă" },
-    { href: "/mentor/message", label: "💬 Mesajul Zilei" },
-    { href: "/mentor/profile", label: "⚙️ Profil" },
+    { href: "/mentor/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/mentor/players", label: "Jucători", icon: Users },
+    { href: "/mentor/checkin-form", label: "Formular Checkin", icon: ClipboardCheck },
+    { href: "/mentor/library", label: "Bibliotecă", icon: BookOpen },
+    { href: "/mentor/message", label: "Mesajul Zilei", icon: MessageSquare },
+    { href: "/mentor/profile", label: "Profil", icon: Settings },
   ];
 
   return (
@@ -49,12 +58,12 @@ export default async function MentorLayout({
       <MentorMobileNav />
 
       {/* Side nav (desktop) */}
-      <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-56 bg-gray-900 text-white flex-col">
-        <div className="px-6 py-5 border-b border-gray-700">
-          <Link href="/mentor/dashboard" className="text-lg font-bold text-blue-400 hover:text-blue-300">
+      <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-56 bg-white border-r border-gray-200 flex-col shadow-sm">
+        <div className="px-6 py-5 border-b border-gray-100">
+          <Link href="/mentor/dashboard" className="text-lg font-bold text-blue-600 hover:text-blue-700">
             ⚽ SportMentor
           </Link>
-          <Link href="/mentor/profile" className="block text-xs text-gray-400 mt-0.5 truncate hover:text-gray-200">
+          <Link href="/mentor/profile" className="block text-xs text-gray-400 mt-0.5 truncate hover:text-gray-600">
             {mentor?.name ?? "Mentor"}
           </Link>
         </div>
@@ -63,19 +72,21 @@ export default async function MentorLayout({
             <Link
               key={l.href}
               href={l.href}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-gray-800 transition-colors text-gray-200"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
             >
+              <l.icon size={20} />
               {l.label}
             </Link>
           ))}
         </nav>
-        <div className="px-3 py-4 border-t border-gray-700">
+        <div className="px-3 py-4 border-t border-gray-100">
           <form action={logout}>
             <button
               type="submit"
-              className="w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-gray-800 transition-colors text-gray-400"
+              className="w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-500 hover:bg-red-50 hover:text-red-600 transition-colors"
             >
-              🚪 Deconectare
+              <LogOut size={20} />
+              Deconectare
             </button>
           </form>
         </div>

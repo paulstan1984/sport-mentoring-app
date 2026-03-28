@@ -3,25 +3,26 @@
 import { useState } from "react";
 import Link from "next/link";
 import { logout } from "@/actions/auth";
+import {
+  LayoutDashboard,
+  Users,
+  ClipboardCheck,
+  BookOpen,
+  MessageSquare,
+  MoreHorizontal,
+  LogOut,
+} from "lucide-react";
 
 const mainLinks = [
-  { href: "/mentor/dashboard", label: "📊 Dashboard" },
-  { href: "/mentor/players", label: "👥 Jucători" },
+  { href: "/mentor/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/mentor/players", label: "Jucători", icon: Users },
 ];
 
 const moreLinks = [
-  { href: "/mentor/checkin-form", label: "✅ Formular Checkin" },
-  { href: "/mentor/library", label: "📚 Bibliotecă" },
-  { href: "/mentor/message", label: "💬 Mesajul Zilei" },
+  { href: "/mentor/checkin-form", label: "Formular Checkin", icon: ClipboardCheck },
+  { href: "/mentor/library", label: "Bibliotecă", icon: BookOpen },
+  { href: "/mentor/message", label: "Mesajul Zilei", icon: MessageSquare },
 ];
-
-function getLabelIcon(label: string) {
-  return label.split(" ")[0];
-}
-
-function getLabelText(label: string) {
-  return label.split(" ").slice(1).join(" ");
-}
 
 export function MentorMobileNav() {
   const [moreOpen, setMoreOpen] = useState(false);
@@ -59,8 +60,8 @@ export function MentorMobileNav() {
                 className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
                 onClick={closeMore}
               >
-                <span className="text-lg leading-none">{getLabelIcon(l.label)}</span>
-                <span>{getLabelText(l.label)}</span>
+                <l.icon size={20} />
+                <span>{l.label}</span>
               </Link>
             ))}
           </div>
@@ -73,8 +74,8 @@ export function MentorMobileNav() {
             href={l.href}
             className="flex-1 flex flex-col items-center py-2 text-xs text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
           >
-            <span className="text-lg leading-none">{getLabelIcon(l.label)}</span>
-            <span className="mt-0.5 truncate">{getLabelText(l.label)}</span>
+            <l.icon size={22} className="mb-0.5" />
+            <span className="mt-0.5 truncate">{l.label}</span>
           </Link>
         ))}
         <button
@@ -83,7 +84,7 @@ export function MentorMobileNav() {
           aria-controls="mentor-more-menu"
           className="flex-1 flex flex-col items-center py-2 text-xs text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
         >
-          <span className="text-lg leading-none">⋯</span>
+          <MoreHorizontal size={22} className="mb-0.5" />
           <span className="mt-0.5 truncate">Mai mult</span>
         </button>
         <form action={logout} className="flex-1">
@@ -91,7 +92,7 @@ export function MentorMobileNav() {
             type="submit"
             className="w-full h-full flex flex-col items-center py-2 text-xs text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
           >
-            <span className="text-lg leading-none">🚪</span>
+            <LogOut size={22} className="mb-0.5" />
             <span className="mt-0.5 truncate">Ieșire</span>
           </button>
         </form>
