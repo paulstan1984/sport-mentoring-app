@@ -36,6 +36,14 @@ export default function AdminLayout({
             <span className="mt-0.5 truncate">{l.label.split(" ").slice(1).join(" ")}</span>
           </Link>
         ))}
+        <a
+          href="/api/admin/download-db"
+          download="app.db"
+          className="flex-1 flex flex-col items-center py-2 text-xs text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+        >
+          <span className="text-lg leading-none">💾</span>
+          <span className="mt-0.5 truncate">DB</span>
+        </a>
         <form action={logout} className="flex-1">
           <button
             type="submit"
@@ -64,7 +72,14 @@ export default function AdminLayout({
             </Link>
           ))}
         </nav>
-        <div className="px-3 py-4 border-t border-blue-800">
+        <div className="px-3 py-4 border-t border-blue-800 space-y-1">
+          <a
+            href="/api/admin/download-db"
+            download="app.db"
+            className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-blue-800 transition-colors text-blue-200"
+          >
+            💾 Descarcă baza de date
+          </a>
           <form action={logout}>
             <button
               type="submit"

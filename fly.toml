@@ -13,8 +13,12 @@ primary_region = "ams"
   UPLOAD_DIR = "/data/uploads"
 
 # Secrets (do NOT put real values here — set them via `fly secrets set`):
-#   fly secrets set DATABASE_URL="postgresql://..."
+#   fly secrets set DATABASE_URL="file:/data/db/app.db"
 #   fly secrets set SESSION_SECRET="<32+ char random string>"
+
+[[mounts]]
+  source      = "db_data"
+  destination = "/data/db"
 
 [[mounts]]
   source      = "uploads_data"
