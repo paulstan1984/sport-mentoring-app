@@ -1,8 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { updatePlayerObjective, changePlayerPassword } from "@/actions/player";
-import { RichTextEditor } from "@/components/RichTextEditor";
+import { changePlayerPassword } from "@/actions/player";
 import type { Player, User, PlayfieldPosition } from "@/app/generated/prisma/client";
 
 type PlayerWithRelations = Player & {
@@ -11,7 +10,6 @@ type PlayerWithRelations = Player & {
 };
 
 export function ProfileClient({ player }: { player: PlayerWithRelations }) {
-  const [objState, objAction, isObjPending] = useActionState(updatePlayerObjective, null);
   const [pwdState, pwdAction, isPwdPending] = useActionState(changePlayerPassword, null);
 
   return (
@@ -41,23 +39,6 @@ export function ProfileClient({ player }: { player: PlayerWithRelations }) {
             </p>
           </div>
         </div>
-      </div>
-
-      {/* Objective */}
-      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-5">
-        <h2 className="font-semibold mb-4">Obiectivul meu general</h2>
-        <form action={objAction} className="space-y-4">
-          <RichTextEditor
-            name="objective"
-            initialValue={player.objective ?? ""}
-            placeholder="Descrie obiectivul tău personal..."
-          />
-          {objState?.error && <p className="text-sm text-red-600">{objState.error}</p>}
-          {objState?.success && <p className="text-sm text-green-600">Obiectivul a fost salvat.</p>}
-          <button type="submit" disabled={isObjPending} className="btn-primary">
-            {isObjPending ? "Se salvează..." : "Salvează obiectivul"}
-          </button>
-        </form>
       </div>
 
       {/* Change password */}

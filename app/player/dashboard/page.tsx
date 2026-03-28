@@ -125,22 +125,6 @@ export default async function PlayerDashboard() {
         <ConfidencePicker current={todayConfidence?.level ?? null} />
       </div>
 
-      {/* Global scope */}
-      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-5 space-y-3">
-        <p className="text-sm font-semibold">Obiectivul meu general</p>
-        {player.objective ? (
-          <RichTextViewer html={player.objective} className="text-sm" />
-        ) : (
-          <p className="text-sm text-gray-500">Nu ai setat încă obiectivul general.</p>
-        )}
-        <Link
-          href="/player/profile"
-          className="inline-flex text-sm font-medium text-blue-600 hover:text-blue-700"
-        >
-          Editează obiectivul general
-        </Link>
-      </div>
-
       {/* Weekly scope */}
       <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-5 space-y-3">
         <div className="flex items-start justify-between gap-3">
