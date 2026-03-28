@@ -60,17 +60,21 @@ export async function createMentor(
   const photoFile = formData.get("photo") as File | null;
   if (photoFile && photoFile.size > 0) {
     if (photoFile.size > MAX_SIZE_BYTES) {
-      // Mentor was already created; skip photo but don't fail
-    } else {
-      const ext = ALLOWED_IMAGE_TYPES[photoFile.type];
-      if (ext && user.mentor) {
-        const { filename } = await saveUploadedFile(photoFile, user.mentor.id, ext);
-        const photoUrl = `/api/mentor-photo/${user.mentor.id}/${filename}`;
-        await db.mentor.update({
-          where: { id: user.mentor.id },
-          data: { photo: photoUrl },
-        });
-      }
+      revalidatePath("/admin/mentors");
+      return { success: true, error: "Mentorul a fost adăugat, dar fotografia depășește 20 MB și nu a fost salvată." };
+    }
+    const ext = ALLOWED_IMAGE_TYPES[photoFile.type];
+    if (!ext) {
+      revalidatePath("/admin/mentors");
+      return { success: true, error: "Mentorul a fost adăugat, dar tipul fotografiei nu este acceptat (JPG, PNG, GIF)." };
+    }
+    if (user.mentor) {
+      const { filename } = await saveUploadedFile(photoFile, user.mentor.id, ext);
+      const photoUrl = `/api/mentor-photo/${user.mentor.id}/${filename}`;
+      await db.mentor.update({
+        where: { id: user.mentor.id },
+        data: { photo: photoUrl },
+      });
     }
   }
 

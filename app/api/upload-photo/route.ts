@@ -44,15 +44,15 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { filename } = await saveUploadedFile(file, mentorId, ext);
-  const photoUrl = `/api/mentor-photo/${mentorId}/${filename}`;
-
-  // Delete the old photo file before updating the record
+  // Fetch old photo path before saving the new file
   const mentor = await db.mentor.findUnique({
     where: { id: mentorId },
     select: { photo: true },
   });
   const oldPhotoPath = resolveMentorPhotoPath(mentor?.photo ?? null);
+
+  const { filename } = await saveUploadedFile(file, mentorId, ext);
+  const photoUrl = `/api/mentor-photo/${mentorId}/${filename}`;
 
   await db.mentor.update({
     where: { id: mentorId },

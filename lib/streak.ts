@@ -62,21 +62,21 @@ export function getWeekStart(date: Date): Date {
 
 /**
  * Returns a human-friendly label for the week containing `date`.
- * Format: "21 Mar - 27 Mar" (same month) or "28 Mar - 3 Apr" (across months).
+ * Format: "21 mar. - 27 mar." (same month) or "28 mar. - 3 apr." (across months).
+ * Both dates always include the month abbreviation.
  */
 export function getWeekLabel(date: Date): string {
   const monday = getWeekStart(date);
   const sunday = new Date(monday);
   sunday.setUTCDate(monday.getUTCDate() + 6);
 
-  const fmt = (d: Date, includeMonth: boolean) =>
+  const fmt = (d: Date) =>
     d.toLocaleDateString("ro-RO", {
       day: "numeric",
-      ...(includeMonth ? { month: "short" } : {}),
+      month: "short",
       timeZone: "UTC",
     });
 
-  const sameMonth = monday.getUTCMonth() === sunday.getUTCMonth();
-  return `${fmt(monday, !sameMonth || true)} - ${fmt(sunday, true)}`;
+  return `${fmt(monday)} - ${fmt(sunday)}`;
 }
 
