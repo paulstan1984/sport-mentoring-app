@@ -7,10 +7,11 @@ primary_region = "ams"
 [build]
 
 [env]
-  PORT       = "3000"
-  HOSTNAME   = "0.0.0.0"
-  NODE_ENV   = "production"
-  UPLOAD_DIR = "/data/uploads"
+  PORT         = "3000"
+  HOSTNAME     = "0.0.0.0"
+  NODE_ENV     = "production"
+  UPLOAD_DIR   = "/data/uploads"
+  DATABASE_URL = "file:/data/db/app.db"
 
 # Secrets (do NOT put real values here — set them via `fly secrets set`):
 #   fly secrets set DATABASE_URL="file:/data/db/app.db"
