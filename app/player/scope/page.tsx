@@ -1,6 +1,6 @@
 import { requirePlayer, getSession } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { getISOWeek } from "@/lib/streak";
+import { getISOWeek, getWeekLabel } from "@/lib/streak";
 import { RichTextViewer } from "@/components/RichTextViewer";
 import { ScopeForm } from "./ScopeForm";
 
@@ -10,6 +10,7 @@ export default async function ScopePage() {
   const playerId = session.playerId!;
 
   const { weekNumber, year } = getISOWeek(new Date());
+  const weekLabel = getWeekLabel(new Date());
 
   const [currentScope, pastScopes] = await Promise.all([
     db.weeklyScope.findUnique({
@@ -30,7 +31,7 @@ export default async function ScopePage() {
       <div>
         <h1 className="text-2xl font-bold mb-1">Obiectiv săptămânal</h1>
         <p className="text-sm text-gray-400">
-          Săptămâna {weekNumber}, {year}
+          Săptămâna {weekLabel}
         </p>
       </div>
 

@@ -47,3 +47,36 @@ export function getISOWeek(date: Date): { weekNumber: number; year: number } {
   );
   return { weekNumber, year: d.getUTCFullYear() };
 }
+
+/**
+ * Returns the Monday (start) of the ISO week that contains `date`.
+ */
+export function getWeekStart(date: Date): Date {
+  const d = new Date(
+    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate())
+  );
+  const dayNum = d.getUTCDay() || 7; // Mon=1 … Sun=7
+  d.setUTCDate(d.getUTCDate() - (dayNum - 1));
+  return d;
+}
+
+/**
+ * Returns a human-friendly label for the week containing `date`.
+ * Format: "21 Mar - 27 Mar" (same month) or "28 Mar - 3 Apr" (across months).
+ */
+export function getWeekLabel(date: Date): string {
+  const monday = getWeekStart(date);
+  const sunday = new Date(monday);
+  sunday.setUTCDate(monday.getUTCDate() + 6);
+
+  const fmt = (d: Date, includeMonth: boolean) =>
+    d.toLocaleDateString("ro-RO", {
+      day: "numeric",
+      ...(includeMonth ? { month: "short" } : {}),
+      timeZone: "UTC",
+    });
+
+  const sameMonth = monday.getUTCMonth() === sunday.getUTCMonth();
+  return `${fmt(monday, !sameMonth || true)} - ${fmt(sunday, true)}`;
+}
+
