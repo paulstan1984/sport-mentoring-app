@@ -18,11 +18,7 @@ primary_region = "ams"
 
 [[mounts]]
   source      = "data"
-  destination = "/data/db"
-
-[[mounts]]
-  source      = "data"
-  destination = "/data/uploads"
+  destination = "/data"
 
 [http_service]
   internal_port        = 3000
