@@ -1,5 +1,5 @@
 import { join } from "path";
-import { writeFile, mkdir } from "fs/promises";
+import { writeFile, mkdir, unlink, rm } from "fs/promises";
 import { v4 as uuidv4 } from "uuid";
 
 export const ALLOWED_TYPES: Record<string, string> = {
@@ -68,4 +68,46 @@ export async function saveUploadedFile(
   await writeFile(filePath, buffer);
 
   return { filePath, filename };
+}
+
+/**
+ * Deletes a single file at `filePath` from the filesystem, ignoring errors
+ * (e.g. file already deleted or path does not exist).
+ */
+export async function deleteFile(filePath: string): Promise<void> {
+  try {
+    await unlink(filePath);
+  } catch {
+    // Ignore – file may have already been deleted
+  }
+}
+
+/**
+ * Deletes the entire upload directory for a mentor and all files within it.
+ * Used when a mentor is deleted.
+ */
+export async function deleteMentorUploadDir(mentorId: number): Promise<void> {
+  const uploadDir = process.env.UPLOAD_DIR ?? "./uploads";
+  const mentorDir = join(uploadDir, String(mentorId));
+  try {
+    await rm(mentorDir, { recursive: true, force: true });
+  } catch {
+    // Ignore – directory may not exist
+  }
+}
+
+/**
+ * Extracts the filesystem path for a mentor photo stored by this application.
+ * Returns null when `photoUrl` is a plain URL pointing elsewhere.
+ */
+export function resolveMentorPhotoPath(
+  photoUrl: string | null
+): string | null {
+  if (!photoUrl) return null;
+  // Local photos have the format /api/mentor-photo/{mentorId}/{filename}
+  const prefix = "/api/mentor-photo/";
+  if (!photoUrl.startsWith(prefix)) return null;
+  const rest = photoUrl.slice(prefix.length); // "{mentorId}/{filename}"
+  const uploadDir = process.env.UPLOAD_DIR ?? "./uploads";
+  return join(uploadDir, rest);
 }

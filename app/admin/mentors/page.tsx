@@ -1,6 +1,6 @@
 import { requireSuperAdmin } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { MentorForm } from "./MentorForm";
+import { AddMentorToggle } from "./AddMentorToggle";
 import { MentorRow } from "./MentorRow";
 import { MentorCard } from "./MentorCard";
 
@@ -18,11 +18,8 @@ export default async function MentorsPage() {
         <h1 className="text-2xl font-bold">Mentori</h1>
       </div>
 
-      {/* Add mentor form */}
-      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-6 mb-8">
-        <h2 className="text-lg font-semibold mb-4">Adaugă Mentor</h2>
-        <MentorForm />
-      </div>
+      {/* Add mentor form — hidden by default, revealed on demand */}
+      <AddMentorToggle />
 
       {/* Mentors list */}
       <div className="md:hidden space-y-3">

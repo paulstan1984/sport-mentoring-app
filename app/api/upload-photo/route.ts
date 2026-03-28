@@ -1,7 +1,13 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { ALLOWED_IMAGE_TYPES, MAX_SIZE_BYTES, saveUploadedFile } from "@/lib/upload";
+import {
+  ALLOWED_IMAGE_TYPES,
+  MAX_SIZE_BYTES,
+  saveUploadedFile,
+  deleteFile,
+  resolveMentorPhotoPath,
+} from "@/lib/upload";
 
 export async function POST(request: NextRequest) {
   const session = await getSession();
@@ -38,6 +44,13 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Fetch old photo path before saving the new file
+  const mentor = await db.mentor.findUnique({
+    where: { id: mentorId },
+    select: { photo: true },
+  });
+  const oldPhotoPath = resolveMentorPhotoPath(mentor?.photo ?? null);
+
   const { filename } = await saveUploadedFile(file, mentorId, ext);
   const photoUrl = `/api/mentor-photo/${mentorId}/${filename}`;
 
@@ -45,6 +58,10 @@ export async function POST(request: NextRequest) {
     where: { id: mentorId },
     data: { photo: photoUrl },
   });
+
+  if (oldPhotoPath) {
+    await deleteFile(oldPhotoPath);
+  }
 
   return NextResponse.json({ success: true, photoUrl }, { status: 200 });
 }

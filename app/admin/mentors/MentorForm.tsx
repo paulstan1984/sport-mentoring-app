@@ -21,8 +21,14 @@ export function MentorForm() {
         <input name="name" required className="input" placeholder="ex: Ion Popescu" />
       </div>
       <div>
-        <label className="label">Foto (URL)</label>
-        <input name="photo" className="input" placeholder="https://..." />
+        <label className="label">Fotografie profil</label>
+        <input
+          name="photo"
+          type="file"
+          accept=".jpg,.jpeg,.png,.gif"
+          className="input py-1.5 text-sm file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 dark:file:bg-blue-900 dark:file:text-blue-200 cursor-pointer"
+        />
+        <p className="text-xs text-gray-500 mt-1">JPG, PNG sau GIF, max 20 MB (opțional)</p>
       </div>
       <div className="sm:col-span-2">
         <label className="label">Descriere scurtă</label>
