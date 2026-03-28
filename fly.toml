@@ -17,11 +17,11 @@ primary_region = "ams"
 #   fly secrets set SESSION_SECRET="<32+ char random string>"
 
 [[mounts]]
-  source      = "db_data"
+  source      = "data"
   destination = "/data/db"
 
 [[mounts]]
-  source      = "uploads_data"
+  source      = "data"
   destination = "/data/uploads"
 
 [http_service]
