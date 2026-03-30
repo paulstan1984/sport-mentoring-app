@@ -35,7 +35,10 @@ export async function login(
     if (mentor) session.mentorId = mentor.id;
   } else if (user.role === "PLAYER") {
     const player = await db.player.findUnique({ where: { userId: user.id } });
-    if (player) session.playerId = player.id;
+    if (!player || !player.isActive) {
+      return { error: "Contul tău a fost dezactivat. Contactează antrenorul." };
+    }
+    session.playerId = player.id;
   }
 
   await session.save();

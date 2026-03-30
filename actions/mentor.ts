@@ -356,6 +356,23 @@ export async function deletePlayer(playerId: number): Promise<ActionResult> {
   return { success: true };
 }
 
+export async function togglePlayerActive(playerId: number): Promise<ActionResult> {
+  await requireMentor();
+  const mentorId = await getMentorId();
+
+  const player = await db.player.findFirst({ where: { id: playerId, mentorId } });
+  if (!player) return { error: "Jucătorul nu a fost găsit." };
+
+  await db.player.update({
+    where: { id: playerId },
+    data: { isActive: !player.isActive },
+  });
+
+  revalidatePath("/mentor/players");
+  revalidatePath(`/mentor/players/${playerId}`);
+  return { success: true };
+}
+
 export async function resetPlayerPassword(
   _prev: ActionResult | null,
   formData: FormData
@@ -598,5 +615,82 @@ export async function changeMentorPassword(
   const passwordHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
   await db.user.update({ where: { id: user.id }, data: { passwordHash } });
 
+  return { success: true };
+}
+
+// ── Player Notes ──────────────────────────────────────────────────────────────
+
+export async function createPlayerNote(
+  _prev: ActionResult | null,
+  formData: FormData
+): Promise<ActionResult> {
+  await requireMentor();
+  const mentorId = await getMentorId();
+
+  const playerId = Number(formData.get("playerId"));
+  const dateStr = (formData.get("date") as string)?.trim();
+  const content = (formData.get("content") as string)?.trim();
+
+  if (!playerId || !dateStr || !content) return { error: "Toate câmpurile sunt obligatorii." };
+
+  const plainText = content.replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ").trim();
+  if (!plainText) return { error: "Conținutul notei nu poate fi gol." };
+
+  // Verify player belongs to this mentor
+  const player = await db.player.findFirst({ where: { id: playerId, mentorId } });
+  if (!player) return { error: "Jucătorul nu a fost găsit." };
+
+  const date = new Date(`${dateStr}T00:00:00.000Z`);
+  if (Number.isNaN(date.getTime())) return { error: "Data este invalidă." };
+
+  await db.playerNote.create({
+    data: { playerId, mentorId, date, content },
+  });
+
+  revalidatePath(`/mentor/players/${playerId}`);
+  return { success: true };
+}
+
+export async function updatePlayerNote(
+  _prev: ActionResult | null,
+  formData: FormData
+): Promise<ActionResult> {
+  await requireMentor();
+  const mentorId = await getMentorId();
+
+  const noteId = Number(formData.get("noteId"));
+  const dateStr = (formData.get("date") as string)?.trim();
+  const content = (formData.get("content") as string)?.trim();
+
+  if (!noteId || !dateStr || !content) return { error: "Toate câmpurile sunt obligatorii." };
+
+  const plainText = content.replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ").trim();
+  if (!plainText) return { error: "Conținutul notei nu poate fi gol." };
+
+  // Verify note belongs to this mentor
+  const note = await db.playerNote.findFirst({ where: { id: noteId, mentorId } });
+  if (!note) return { error: "Nota nu a fost găsită." };
+
+  const date = new Date(`${dateStr}T00:00:00.000Z`);
+  if (Number.isNaN(date.getTime())) return { error: "Data este invalidă." };
+
+  await db.playerNote.update({
+    where: { id: noteId },
+    data: { date, content },
+  });
+
+  revalidatePath(`/mentor/players/${note.playerId}`);
+  return { success: true };
+}
+
+export async function deletePlayerNote(noteId: number): Promise<ActionResult> {
+  await requireMentor();
+  const mentorId = await getMentorId();
+
+  const note = await db.playerNote.findFirst({ where: { id: noteId, mentorId } });
+  if (!note) return { error: "Nota nu a fost găsită." };
+
+  await db.playerNote.delete({ where: { id: noteId } });
+  revalidatePath(`/mentor/players/${note.playerId}`);
   return { success: true };
 }
