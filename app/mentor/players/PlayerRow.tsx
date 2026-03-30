@@ -6,6 +6,7 @@ import Link from "next/link";
 import {
   deletePlayer,
   resetPlayerPassword,
+  togglePlayerActive,
 } from "@/actions/mentor";
 import type { Player, User, PlayfieldPosition } from "@/app/generated/prisma/client";
 import { PlayerProfileForm } from "./PlayerProfileForm";
@@ -29,6 +30,12 @@ export function PlayerRow({
   async function handleDelete() {
     if (!confirm(`Ștergi jucătorul "${player.name}"?`)) return;
     await deletePlayer(player.id);
+  }
+
+  async function handleToggleActive() {
+    const action = player.isActive ? "dezactivezi" : "activezi";
+    if (!confirm(`Ești sigur că vrei să ${action} jucătorul "${player.name}"?`)) return;
+    await togglePlayerActive(player.id);
   }
 
   if (editing) {
@@ -79,8 +86,15 @@ export function PlayerRow({
   }
 
   return (
-    <tr className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
-      <td className="px-4 py-3 font-mono text-xs text-gray-500">{player.user.username}</td>
+    <tr className={`hover:bg-gray-50 dark:hover:bg-gray-800/50 ${!player.isActive ? "opacity-60" : ""}`}>
+      <td className="px-4 py-3 font-mono text-xs text-gray-500">
+        {player.user.username}
+        {!player.isActive && (
+          <span className="ml-2 inline-block rounded bg-red-100 dark:bg-red-900/40 px-1.5 py-0.5 text-xs text-red-600 dark:text-red-400">
+            dezactivat
+          </span>
+        )}
+      </td>
       <td className="px-4 py-3 font-medium">
         <Link href={`/mentor/players/${player.id}`} className="hover:text-blue-600 hover:underline">
           {player.name}
@@ -93,6 +107,16 @@ export function PlayerRow({
       <td className="px-4 py-3">
         <div className="flex gap-2 justify-end">
           <button onClick={() => setEditing(true)} className="btn-xs">Editează</button>
+          <button
+            onClick={handleToggleActive}
+            className={`btn-xs ${
+              player.isActive
+                ? "text-orange-600 border-orange-300 hover:bg-orange-50 dark:hover:bg-orange-900/20"
+                : "text-green-600 border-green-300 hover:bg-green-50 dark:hover:bg-green-900/20"
+            }`}
+          >
+            {player.isActive ? "Dezactivează" : "Activează"}
+          </button>
           <button onClick={handleDelete} className="btn-xs-danger">Șterge</button>
         </div>
       </td>

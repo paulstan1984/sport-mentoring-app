@@ -6,6 +6,7 @@ import { getStreak } from "@/lib/streak";
 import { RichTextViewer } from "@/components/RichTextViewer";
 import { PresenceBadge } from "@/components/PresenceBadge";
 import { PlayerProfileEditor } from "./PlayerProfileEditor";
+import { PlayerNotes } from "./PlayerNotes";
 
 const CONFIDENCE_LABEL: Record<string, string> = {
   GOOD: "😊 Bine",
@@ -38,6 +39,7 @@ export default async function PlayerDetailPage({
       weeklyScopes: { orderBy: { year: "desc" }, take: 8 },
       confidenceLevels: { orderBy: { day: "desc" }, take: 14 },
       libraryReads: { include: { libraryItem: true } },
+      notes: { orderBy: { date: "desc" } },
     },
   });
 
@@ -80,6 +82,11 @@ export default async function PlayerDetailPage({
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold">{player.name}</h1>
             <PresenceBadge lastActiveAt={player.lastActiveAt} />
+            {!player.isActive && (
+              <span className="rounded bg-red-100 dark:bg-red-900/40 px-2 py-0.5 text-xs font-medium text-red-600 dark:text-red-400">
+                dezactivat
+              </span>
+            )}
           </div>
           <p className="text-sm text-gray-400 mt-0.5">
             @{player.user.username}
@@ -103,6 +110,9 @@ export default async function PlayerDetailPage({
         }}
         positions={positions}
       />
+
+      {/* Mentor notes for this player */}
+      <PlayerNotes playerId={player.id} notes={player.notes} />
 
       {/* Confidence history */}
       <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-5">
