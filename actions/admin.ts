@@ -91,13 +91,40 @@ export async function updateMentor(
   const id = Number(formData.get("id"));
   const name = (formData.get("name") as string)?.trim();
   const description = (formData.get("description") as string)?.trim() || null;
-  const photo = (formData.get("photo") as string)?.trim() || null;
 
   if (!id || !name) return { error: "Date invalide." };
 
+  // Handle optional photo upload
+  const photoFile = formData.get("photo") as File | null;
+  let photo: string | null | undefined = undefined; // undefined = keep existing
+
+  if (photoFile && photoFile.size > 0) {
+    if (photoFile.size > MAX_SIZE_BYTES) {
+      return { error: "Fotografia depășește limita de 20 MB." };
+    }
+    const ext = ALLOWED_IMAGE_TYPES[photoFile.type];
+    if (!ext) {
+      return { error: "Tipul fotografiei nu este acceptat (JPG, PNG, GIF)." };
+    }
+
+    // Delete old photo if stored locally
+    const existing = await db.mentor.findUnique({ where: { id }, select: { photo: true } });
+    if (existing) {
+      const oldPath = resolveMentorPhotoPath(existing.photo);
+      if (oldPath) await deleteFile(oldPath);
+    }
+
+    const { filename } = await saveUploadedFile(photoFile, id, ext);
+    photo = `/api/mentor-photo/${id}/${filename}`;
+  }
+
   await db.mentor.update({
     where: { id },
-    data: { name, description, photo },
+    data: {
+      name,
+      description,
+      ...(photo !== undefined ? { photo } : {}),
+    },
   });
 
   revalidatePath("/admin/mentors");
@@ -133,7 +160,28 @@ export async function deleteMentor(id: number): Promise<ActionResult> {
 }
 
 
-// ── Playfield Positions ───────────────────────────────────────────────────────
+export async function changeMentorPassword(
+  _prev: ActionResult | null,
+  formData: FormData
+): Promise<ActionResult> {
+  await requireSuperAdmin();
+
+  const id = Number(formData.get("id"));
+  const newPassword = formData.get("newPassword") as string;
+
+  if (!id || !newPassword) return { error: "Date invalide." };
+  if (newPassword.length < 8) return { error: "Parola trebuie să aibă cel puțin 8 caractere." };
+
+  const mentor = await db.mentor.findUnique({ where: { id }, select: { userId: true } });
+  if (!mentor) return { error: "Mentorul nu a fost găsit." };
+
+  const passwordHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
+  await db.user.update({ where: { id: mentor.userId }, data: { passwordHash } });
+
+  return { success: true };
+}
+
+
 
 export async function createPosition(
   _prev: ActionResult | null,

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { requireMentor, getSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getStreak } from "@/lib/streak";
+import { getWeekLabelFromWeekNumber } from "@/lib/weekUtils";
 import { RichTextViewer } from "@/components/RichTextViewer";
 import { PresenceBadge } from "@/components/PresenceBadge";
 import { PlayerProfileEditor } from "./PlayerProfileEditor";
@@ -221,7 +222,7 @@ export default async function PlayerDetailPage({
           {player.weeklyScopes.map((s) => (
             <div key={s.id} className="flex items-start gap-3">
               <span className="text-xs text-gray-400 shrink-0 mt-1">
-                S{s.weekNumber}/{s.year}
+                Săpt. {getWeekLabelFromWeekNumber(s.weekNumber, s.year)}
               </span>
               <div className="flex-1">
                 <RichTextViewer html={s.scope} className="text-sm" />

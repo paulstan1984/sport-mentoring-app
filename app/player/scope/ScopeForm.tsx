@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { saveWeeklyScope, toggleWeeklyScope } from "@/actions/player";
 import { RichTextEditor } from "@/components/RichTextEditor";
 import { RichTextViewer } from "@/components/RichTextViewer";
+import { getWeekLabelFromWeekNumber } from "@/lib/weekUtils";
 import type { WeeklyScope } from "@/app/generated/prisma/client";
 
 export function ScopeForm({
@@ -14,10 +15,6 @@ export function ScopeForm({
   pastScopes: WeeklyScope[];
 }) {
   const [saveState, saveAction, isSaving] = useActionState(saveWeeklyScope, null);
-
-  async function handleToggle(id: number, current: boolean | null) {
-    await toggleWeeklyScope(id, !current);
-  }
 
   return (
     <div className="space-y-6">
@@ -48,7 +45,7 @@ export function ScopeForm({
             <p className="text-sm text-gray-500 mb-2">Status la finalul săptămânii:</p>
             <div className="flex gap-2">
               <button
-                onClick={() => handleToggle(currentScope.id, currentScope.accomplished)}
+                onClick={() => toggleWeeklyScope(currentScope.id, true)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   currentScope.accomplished === true
                     ? "bg-green-600 text-white"
@@ -58,7 +55,7 @@ export function ScopeForm({
                 ✅ Realizat
               </button>
               <button
-                onClick={() => handleToggle(currentScope.id, !currentScope.accomplished)}
+                onClick={() => toggleWeeklyScope(currentScope.id, false)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   currentScope.accomplished === false
                     ? "bg-red-500 text-white"
@@ -81,7 +78,7 @@ export function ScopeForm({
               <div key={s.id} className="border-l-4 border-gray-200 dark:border-gray-700 pl-4">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-xs text-gray-400">
-                    S{s.weekNumber}/{s.year}
+                    Săpt. {getWeekLabelFromWeekNumber(s.weekNumber, s.year)}
                   </span>
                   <span className={`text-xs font-medium ${
                     s.accomplished === true
