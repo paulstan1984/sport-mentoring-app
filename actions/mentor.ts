@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { requireMentor, getSession } from "@/lib/auth";
 import { startOfDayUTC } from "@/lib/streak";
+import { deleteFile } from "@/lib/upload";
 
 const SALT_ROUNDS = 12;
 type ActionResult = {
@@ -515,8 +516,9 @@ export async function deleteLibraryItem(id: number): Promise<ActionResult> {
   const item = await db.libraryItem.findFirst({ where: { id, mentorId } });
   if (!item) return { error: "Element negăsit." };
 
-  // File deletion is handled separately via the API route
   await db.libraryItem.delete({ where: { id } });
+  // Delete the file from storage after removing the DB record
+  await deleteFile(item.filePath);
   revalidatePath("/mentor/library");
   return { success: true };
 }

@@ -4,6 +4,14 @@ import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { requireSuperAdmin } from "@/lib/auth";
+import {
+  ALLOWED_IMAGE_TYPES,
+  MAX_SIZE_BYTES,
+  saveUploadedFile,
+  deleteFile,
+  deleteMentorUploadDir,
+  resolveMentorPhotoPath,
+} from "@/lib/upload";
 
 const SALT_ROUNDS = 12;
 
@@ -21,7 +29,6 @@ export async function createMentor(
   const password = formData.get("password") as string;
   const name = (formData.get("name") as string)?.trim();
   const description = (formData.get("description") as string)?.trim() || null;
-  const photo = (formData.get("photo") as string)?.trim() || null;
 
   if (!username || !password || !name) {
     return { error: "Câmpurile marcate sunt obligatorii." };
@@ -37,16 +44,39 @@ export async function createMentor(
 
   const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
 
-  await db.user.create({
+  const user = await db.user.create({
     data: {
       username,
       passwordHash,
       role: "MENTOR",
       mentor: {
-        create: { name, description, photo },
+        create: { name, description, photo: null },
       },
     },
+    include: { mentor: true },
   });
+
+  // Handle optional photo upload
+  const photoFile = formData.get("photo") as File | null;
+  if (photoFile && photoFile.size > 0) {
+    if (photoFile.size > MAX_SIZE_BYTES) {
+      revalidatePath("/admin/mentors");
+      return { success: true, error: "Mentorul a fost adăugat, dar fotografia depășește 20 MB și nu a fost salvată." };
+    }
+    const ext = ALLOWED_IMAGE_TYPES[photoFile.type];
+    if (!ext) {
+      revalidatePath("/admin/mentors");
+      return { success: true, error: "Mentorul a fost adăugat, dar tipul fotografiei nu este acceptat (JPG, PNG, GIF)." };
+    }
+    if (user.mentor) {
+      const { filename } = await saveUploadedFile(photoFile, user.mentor.id, ext);
+      const photoUrl = `/api/mentor-photo/${user.mentor.id}/${filename}`;
+      await db.mentor.update({
+        where: { id: user.mentor.id },
+        data: { photo: photoUrl },
+      });
+    }
+  }
 
   revalidatePath("/admin/mentors");
   return { success: true };
@@ -76,10 +106,32 @@ export async function updateMentor(
 
 export async function deleteMentor(id: number): Promise<ActionResult> {
   await requireSuperAdmin();
+
+  // Gather files to delete before removing DB records
+  const mentor = await db.mentor.findUnique({
+    where: { id },
+    include: { libraryItems: { select: { filePath: true } } },
+  });
+
+  if (mentor) {
+    // Delete library item files
+    for (const item of mentor.libraryItems) {
+      await deleteFile(item.filePath);
+    }
+    // Delete profile photo file if stored locally
+    const photoPath = resolveMentorPhotoPath(mentor.photo);
+    if (photoPath) {
+      await deleteFile(photoPath);
+    }
+    // Remove the entire mentor upload directory (catches any remaining files)
+    await deleteMentorUploadDir(id);
+  }
+
   await db.mentor.delete({ where: { id } });
   revalidatePath("/admin/mentors");
   return { success: true };
 }
+
 
 // ── Playfield Positions ───────────────────────────────────────────────────────
 

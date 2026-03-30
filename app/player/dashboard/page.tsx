@@ -1,6 +1,6 @@
 import { requirePlayer, getSession } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { getISOWeek, getStreak, startOfDayUTC } from "@/lib/streak";
+import { getISOWeek, getWeekLabel, getStreak, startOfDayUTC } from "@/lib/streak";
 import { RichTextViewer } from "@/components/RichTextViewer";
 import { ConfidencePicker } from "./ConfidencePicker";
 import Link from "next/link";
@@ -18,6 +18,7 @@ export default async function PlayerDashboard() {
 
   const today = startOfDayUTC(new Date());
   const { weekNumber, year } = getISOWeek(new Date());
+  const weekLabel = getWeekLabel(new Date());
 
   const player = await db.player.findUnique({
     where: { id: playerId },
@@ -130,7 +131,7 @@ export default async function PlayerDashboard() {
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-sm font-semibold">Obiectiv săptămânal</p>
-            <p className="text-xs text-gray-400">Săptămâna {weekNumber}, {year}</p>
+            <p className="text-xs text-gray-400">Săptămâna {weekLabel}</p>
           </div>
           {currentScope && currentScope.accomplished !== null && (
             <span className={`text-xs font-medium ${
