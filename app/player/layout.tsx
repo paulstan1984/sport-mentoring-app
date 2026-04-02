@@ -9,6 +9,7 @@ import {
   BookText,
   Target,
   BookOpen,
+  TrendingUp,
   User,
   LogOut,
 } from "lucide-react";
@@ -31,6 +32,7 @@ export default async function PlayerLayout({
   const navLinks = [
     { href: "/player/dashboard", label: "Acasă", icon: Home },
     { href: "/player/checkin", label: "Checkin", icon: ClipboardCheck },
+    { href: "/player/improvement", label: "Îmbunătățiri", icon: TrendingUp },
     { href: "/player/journal", label: "Jurnal", icon: BookText },
     { href: "/player/scope", label: "Obiectiv", icon: Target },
     { href: "/player/library", label: "Bibliotecă", icon: BookOpen },

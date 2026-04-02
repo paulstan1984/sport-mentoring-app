@@ -9,6 +9,7 @@ import {
   ClipboardCheck,
   BookOpen,
   MessageSquare,
+  TrendingUp,
   MoreHorizontal,
   LogOut,
 } from "lucide-react";
@@ -20,6 +21,7 @@ const mainLinks = [
 
 const moreLinks = [
   { href: "/mentor/checkin-form", label: "Formular Checkin", icon: ClipboardCheck },
+  { href: "/mentor/improvement-ways", label: "Îmbunătățiri", icon: TrendingUp },
   { href: "/mentor/library", label: "Bibliotecă", icon: BookOpen },
   { href: "/mentor/message", label: "Mesajul Zilei", icon: MessageSquare },
 ];

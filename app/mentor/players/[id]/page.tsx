@@ -64,7 +64,7 @@ export default async function PlayerDetailPage({
   }, []);
 
   // Library items for this mentor + read status
-  const [libraryItems, positions] = await Promise.all([
+  const [libraryItems, positions, improvementWays] = await Promise.all([
     db.libraryItem.findMany({
       where: { mentorId },
       include: {
@@ -73,6 +73,17 @@ export default async function PlayerDetailPage({
       orderBy: { createdAt: "desc" },
     }),
     db.playfieldPosition.findMany({ orderBy: { name: "asc" } }),
+    db.improvementWay.findMany({
+      where: { mentorId, deletedAt: null },
+      include: {
+        ratings: {
+          where: { playerId },
+          orderBy: { day: "desc" },
+          take: 14,
+        },
+      },
+      orderBy: { order: "asc" },
+    }),
   ]);
 
   return (
@@ -234,6 +245,39 @@ export default async function PlayerDetailPage({
           ))}
         </div>
       </div>
+
+      {/* Improvement way ratings */}
+      {improvementWays.length > 0 && (
+        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-5">
+          <h2 className="font-semibold mb-4">Modalități de îmbunătățire (ultimele 14 zile)</h2>
+          <div className="space-y-5">
+            {improvementWays.map((way) => (
+              <div key={way.id}>
+                <p className="text-sm font-medium mb-2">{way.title}</p>
+                {way.ratings.length === 0 ? (
+                  <p className="text-xs text-gray-400">Nicio evaluare.</p>
+                ) : (
+                  <div className="flex gap-2 flex-wrap">
+                    {way.ratings.map((r) => (
+                      <span
+                        key={r.id}
+                        className="text-xs bg-gray-100 dark:bg-gray-800 rounded px-2 py-1"
+                      >
+                        {new Date(r.day).toLocaleDateString("ro-RO", {
+                          day: "numeric",
+                          month: "short",
+                        })}
+                        {": "}
+                        <span className="font-semibold text-blue-600">{r.score}/5</span>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Library read status */}
       <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-5">
