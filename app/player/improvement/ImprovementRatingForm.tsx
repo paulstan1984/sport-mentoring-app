@@ -15,6 +15,8 @@ const SCORE_LABELS: Record<number, string> = {
   5: "5 – Complet",
 };
 
+const DEFAULT_SCORE = 3;
+
 export function ImprovementRatingForm({
   ways,
   ratingMap,
@@ -24,7 +26,7 @@ export function ImprovementRatingForm({
 }) {
   const [state, formAction, isPending] = useActionState(saveImprovementWayRatings, null);
   const [scores, setScores] = useState<Record<number, number>>(
-    Object.fromEntries(ways.map((w) => [w.id, ratingMap[w.id]?.score ?? 3]))
+    Object.fromEntries(ways.map((w) => [w.id, ratingMap[w.id]?.score ?? DEFAULT_SCORE]))
   );
 
   const alreadySubmitted = Object.values(ratingMap).length > 0;
