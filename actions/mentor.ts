@@ -694,3 +694,103 @@ export async function deletePlayerNote(noteId: number): Promise<ActionResult> {
   revalidatePath(`/mentor/players/${note.playerId}`);
   return { success: true };
 }
+
+// ── Improvement Ways ──────────────────────────────────────────────────────────
+
+export async function createImprovementWay(
+  _prev: ActionResult | null,
+  formData: FormData
+): Promise<ActionResult> {
+  await requireMentor();
+  const mentorId = await getMentorId();
+
+  const title = (formData.get("title") as string)?.trim();
+  const description = (formData.get("description") as string) || null;
+
+  if (!title) return { error: "Titlul este obligatoriu." };
+
+  const maxOrder = await db.improvementWay.aggregate({
+    where: { mentorId, deletedAt: null },
+    _max: { order: true },
+  });
+  const order = (maxOrder._max.order ?? -1) + 1;
+
+  await db.improvementWay.create({
+    data: { mentorId, title, description, order },
+  });
+
+  revalidatePath("/mentor/improvement-ways");
+  return { success: true };
+}
+
+export async function updateImprovementWay(
+  _prev: ActionResult | null,
+  formData: FormData
+): Promise<ActionResult> {
+  await requireMentor();
+  const mentorId = await getMentorId();
+
+  const id = Number(formData.get("id"));
+  const title = (formData.get("title") as string)?.trim();
+  const description = (formData.get("description") as string) || null;
+
+  if (!id || !title) return { error: "Titlul este obligatoriu." };
+
+  const way = await db.improvementWay.findFirst({ where: { id, mentorId } });
+  if (!way) return { error: "Elementul nu a fost găsit." };
+
+  await db.improvementWay.update({
+    where: { id },
+    data: { title, description },
+  });
+
+  revalidatePath("/mentor/improvement-ways");
+  return { success: true };
+}
+
+export async function deleteImprovementWay(id: number): Promise<ActionResult> {
+  await requireMentor();
+  const mentorId = await getMentorId();
+
+  const way = await db.improvementWay.findFirst({ where: { id, mentorId } });
+  if (!way) return { error: "Elementul nu a fost găsit." };
+
+  await db.improvementWay.update({
+    where: { id },
+    data: { deletedAt: new Date() },
+  });
+
+  revalidatePath("/mentor/improvement-ways");
+  return { success: true };
+}
+
+export async function moveImprovementWay(
+  id: number,
+  direction: "up" | "down"
+): Promise<ActionResult> {
+  await requireMentor();
+  const mentorId = await getMentorId();
+
+  const ways = await db.improvementWay.findMany({
+    where: { mentorId, deletedAt: null },
+    orderBy: { order: "asc" },
+  });
+
+  const idx = ways.findIndex((w) => w.id === id);
+  if (idx === -1) return { error: "Elementul nu a fost găsit." };
+
+  const swapIdx = direction === "up" ? idx - 1 : idx + 1;
+  if (swapIdx < 0 || swapIdx >= ways.length) return { success: true };
+
+  const current = ways[idx];
+  const swap = ways[swapIdx];
+
+  await db.$transaction([
+    db.improvementWay.update({ where: { id: current.id }, data: { order: swap.order } }),
+    db.improvementWay.update({ where: { id: swap.id }, data: { order: current.order } }),
+  ]);
+
+  revalidatePath("/mentor/improvement-ways");
+  return { success: true };
+}
+

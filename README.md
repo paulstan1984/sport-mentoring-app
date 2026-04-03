@@ -101,8 +101,8 @@ Aplicația va fi disponibilă la [http://localhost:3000](http://localhost:3000).
 ```
 app/
   admin/          # Pagini SUPER_ADMIN (managament mentori, poziții)
-  mentor/         # Pagini MENTOR (jucători, checkin, bibliotecă, mesaj)
-  player/         # Pagini PLAYER (checkin zilnic, jurnal, scop săptămânal)
+  mentor/         # Pagini MENTOR (jucători, checkin, îmbunătățiri, bibliotecă, mesaj)
+  player/         # Pagini PLAYER (checkin zilnic, jurnal, îmbunătățiri, scop săptămânal)
   login/          # Pagina de autentificare
   api/
     upload/       # Endpoint upload fișiere (mentor)
@@ -140,6 +140,16 @@ uploads/          # Fișiere uploadate (gitignored, creat automat)
 | `PLAYER`      | `/player/dashboard`       |
 
 Middleware-ul Next.js (`middleware.ts`) protejează toate rutele și redirecționează utilizatorii neautentificați la `/login`.
+
+---
+
+## Funcționalități principale
+
+### Modalități de îmbunătățire
+
+- **Mentor** → `/mentor/improvement-ways`: definește o listă de modalități de îmbunătățire (titlu + descriere rich text).
+- **Jucător** → `/player/improvement`: evaluează zilnic fiecare modalitate de îmbunătățire cu un scor de la 1 la 5.
+- **Mentor** → `/mentor/players/[id]`: vizualizează istoricul evaluărilor fiecărui jucător (ultimele 14 zile) per modalitate.
 
 ---
 

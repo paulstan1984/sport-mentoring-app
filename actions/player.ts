@@ -245,3 +245,52 @@ export async function touchPlayerActivity(): Promise<void> {
     data: { lastActiveAt: new Date() },
   });
 }
+
+// ── Improvement Way Ratings ───────────────────────────────────────────────────
+
+export async function saveImprovementWayRatings(
+  _prev: ActionResult | null,
+  formData: FormData
+): Promise<ActionResult> {
+  await requirePlayer();
+  const playerId = await getPlayerId();
+
+  const today = startOfDayUTC(new Date());
+
+  const player = await db.player.findUnique({
+    where: { id: playerId },
+    include: {
+      mentor: {
+        include: {
+          improvementWays: {
+            where: { deletedAt: null },
+            orderBy: { order: "asc" },
+          },
+        },
+      },
+    },
+  });
+
+  if (!player) return { error: "Jucător negăsit." };
+
+  const ways = player.mentor.improvementWays;
+
+  const ops = ways.map((way) => {
+    const raw = formData.get(`score_${way.id}`);
+    const score = Math.min(5, Math.max(1, Number(raw) || 1));
+
+    return db.improvementWayRating.upsert({
+      where: {
+        playerId_improvementWayId_day: { playerId, improvementWayId: way.id, day: today },
+      },
+      update: { score },
+      create: { playerId, improvementWayId: way.id, day: today, score },
+    });
+  });
+
+  await db.$transaction(ops);
+
+  revalidatePath("/player/improvement");
+  revalidatePath("/player/dashboard");
+  return { success: true };
+}

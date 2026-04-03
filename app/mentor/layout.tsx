@@ -10,6 +10,7 @@ import {
   BookOpen,
   MessageSquare,
   Settings,
+  TrendingUp,
   LogOut,
 } from "lucide-react";
 
@@ -34,6 +35,7 @@ export default async function MentorLayout({
     { href: "/mentor/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/mentor/players", label: "Jucători", icon: Users },
     { href: "/mentor/checkin-form", label: "Formular Checkin", icon: ClipboardCheck },
+    { href: "/mentor/improvement-ways", label: "Îmbunătățiri", icon: TrendingUp },
     { href: "/mentor/library", label: "Bibliotecă", icon: BookOpen },
     { href: "/mentor/message", label: "Mesajul Zilei", icon: MessageSquare },
     { href: "/mentor/profile", label: "Profil", icon: Settings },

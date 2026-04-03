@@ -30,18 +30,19 @@ model User {
 }
 
 model Mentor {
-  id            Int           @id @default(autoincrement())
-  userId        Int           @unique
-  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name          String
-  photo         String?
-  description   String?
-  lastActiveAt  DateTime?
-  players       Player[]
-  checkinForm   CheckinForm?
-  libraryItems  LibraryItem[]
-  dailyMessages DailyMessage[]
-  createdAt     DateTime      @default(now())
+  id               Int              @id @default(autoincrement())
+  userId           Int              @unique
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name             String
+  photo            String?
+  description      String?
+  lastActiveAt     DateTime?
+  players          Player[]
+  checkinForm      CheckinForm?
+  libraryItems     LibraryItem[]
+  dailyMessages    DailyMessage[]
+  improvementWays  ImprovementWay[]
+  createdAt        DateTime         @default(now())
 }
 
 model PlayfieldPosition {
@@ -51,26 +52,27 @@ model PlayfieldPosition {
 }
 
 model Player {
-  id                  Int                @id @default(autoincrement())
-  userId              Int                @unique
-  user                User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name                String
-  dateOfBirth         DateTime?
-  playfieldPositionId Int?
-  playfieldPosition   PlayfieldPosition? @relation(fields: [playfieldPositionId], references: [id])
-  team                String?
-  objective           String?
-  mentorId            Int
-  mentor              Mentor             @relation(fields: [mentorId], references: [id])
-  isActive            Boolean            @default(true)
-  lastActiveAt        DateTime?
-  checkinAnswers      CheckinAnswer[]
-  dailyJournals       DailyJournal[]
-  weeklyScopes        WeeklyScope[]
-  confidenceLevels    ConfidenceLevel[]
-  libraryReads        LibraryItemRead[]
-  notes               PlayerNote[]
-  createdAt           DateTime           @default(now())
+  id                    Int                    @id @default(autoincrement())
+  userId                Int                    @unique
+  user                  User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name                  String
+  dateOfBirth           DateTime?
+  playfieldPositionId   Int?
+  playfieldPosition     PlayfieldPosition?     @relation(fields: [playfieldPositionId], references: [id])
+  team                  String?
+  objective             String?
+  mentorId              Int
+  mentor                Mentor                 @relation(fields: [mentorId], references: [id])
+  isActive              Boolean                @default(true)
+  lastActiveAt          DateTime?
+  checkinAnswers        CheckinAnswer[]
+  dailyJournals         DailyJournal[]
+  weeklyScopes          WeeklyScope[]
+  confidenceLevels      ConfidenceLevel[]
+  libraryReads          LibraryItemRead[]
+  notes                 PlayerNote[]
+  improvementWayRatings ImprovementWayRating[]
+  createdAt             DateTime               @default(now())
 }
 
 model PlayerNote {
@@ -179,5 +181,29 @@ model DailyMessage {
   day      DateTime
 
   @@unique([mentorId, day])
+}
+
+model ImprovementWay {
+  id          Int                    @id @default(autoincrement())
+  mentorId    Int
+  mentor      Mentor                 @relation(fields: [mentorId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  order       Int                    @default(0)
+  deletedAt   DateTime?
+  ratings     ImprovementWayRating[]
+  createdAt   DateTime               @default(now())
+}
+
+model ImprovementWayRating {
+  id               Int            @id @default(autoincrement())
+  playerId         Int
+  player           Player         @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  improvementWayId Int
+  improvementWay   ImprovementWay @relation(fields: [improvementWayId], references: [id], onDelete: Cascade)
+  day              DateTime
+  score            Int
+
+  @@unique([playerId, improvementWayId, day])
 }
 
