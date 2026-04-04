@@ -243,13 +243,14 @@ function ReportChart({ data }: { data: ReportData }) {
           />
           <YAxis tick={{ fontSize: 11 }} />
           <Tooltip
-            formatter={(value: number, name: string) => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            formatter={((value: any, name: string) => {
               if (name === "confidence") {
                 const labels: Record<number, string> = { 3: "Bine", 2: "OK", 1: "Greu" };
-                return [labels[value] ?? value, "Nivel stare"];
+                return [typeof value === "number" ? (labels[value] ?? value) : value, "Nivel stare"];
               }
               return [value, name];
-            }}
+            }) as any}
           />
           <Legend />
 
