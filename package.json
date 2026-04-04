@@ -9,6 +9,7 @@
     "lint": "eslint",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
+    "db:seed-march-2026": "tsx prisma/seed-march-2026.ts",
     "db:generate": "prisma generate"
   },
   "prisma": {
