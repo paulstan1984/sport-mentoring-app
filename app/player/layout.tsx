@@ -30,10 +30,12 @@ export default async function PlayerLayout({
     select: { name: true, mentorId: true },
   });
 
-  const mentor = await db.mentor.findUnique({
-    where: { id: player?.mentorId ?? 0 },
-    select: { name: true, photo: true },
-  });
+  const mentor = player
+    ? await db.mentor.findUnique({
+        where: { id: player.mentorId },
+        select: { name: true, photo: true },
+      })
+    : null;
 
   const navLinks = [
     { href: "/player/dashboard", label: "Acasă", icon: Home },

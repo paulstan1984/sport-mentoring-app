@@ -29,6 +29,9 @@ function toDateStr(d: Date): string {
   return new Date(d).toISOString().slice(0, 10);
 }
 
+// Score awarded when a weekly scope is accomplished
+const WEEKLY_GOAL_ACCOMPLISHED_SCORE = 5;
+
 export default async function ReportsPage({
   searchParams,
 }: {
@@ -166,7 +169,7 @@ export default async function ReportsPage({
           const scope = weeklyScopes.find(
             (s) => s.weekNumber === weekNumber && s.year === year
           );
-          weeklyGoal = scope?.accomplished ? 5 : 0;
+          weeklyGoal = scope?.accomplished ? WEEKLY_GOAL_ACCOMPLISHED_SCORE : 0;
         }
 
         // Checkin count — number of checked items for this day
