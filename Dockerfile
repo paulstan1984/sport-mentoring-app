@@ -28,7 +28,7 @@ COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 COPY package.json package-lock.json ./
-RUN npx prisma generate
+# RUN npx prisma generate
 RUN npx prisma migrate deploy
 
 RUN npm ci
