@@ -6,6 +6,7 @@ primary_region = "ams"
 
 [deploy]
   release_command = "npx prisma migrate deploy"
+  release_command = "npx prisma generate"
 
 [build]
 
