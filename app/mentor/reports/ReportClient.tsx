@@ -1,5 +1,16 @@
 "use client";
 
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+
 export interface ReportRow {
   date: string;
   iwRatings: Record<number, number>;
@@ -135,6 +146,122 @@ export function ReportClient({ data }: { data: ReportData }) {
           </table>
         </div>
       )}
+
+      {data.rows.length > 0 && <ReportChart data={data} />}
+    </div>
+  );
+}
+
+// Palette for improvement way lines
+const LINE_COLORS = [
+  "#6366f1", "#f59e0b", "#10b981", "#ef4444", "#3b82f6",
+  "#ec4899", "#14b8a6", "#f97316", "#8b5cf6", "#84cc16",
+];
+
+function confidenceScore(c: string | null): number | null {
+  if (!c) return null;
+  switch (c) {
+    case "GOOD": return 3;
+    case "OK": return 2;
+    case "HARD": return 1;
+    default: return null;
+  }
+}
+
+function ReportChart({ data }: { data: ReportData }) {
+  const chartData = data.rows.map((row) => {
+    const point: Record<string, string | number | null> = { date: row.date };
+    for (const iw of data.selectedImprovementWays) {
+      point[`iw_${iw.id}`] = row.iwRatings[iw.id] ?? null;
+    }
+    if (data.includeConfidence) point["confidence"] = confidenceScore(row.confidence);
+    if (data.includeJournalScore) point["journalScore"] = row.journalScore;
+    if (data.includeWeeklyGoal) point["weeklyGoal"] = row.weeklyGoal;
+    if (data.includeCheckinCount) point["checkinCount"] = row.checkinCount;
+    return point;
+  });
+
+  return (
+    <div className="mt-8 print:mt-6">
+      <h3 className="text-base font-semibold mb-4">Grafic evoluție</h3>
+      <ResponsiveContainer width="100%" height={320}>
+        <LineChart data={chartData} margin={{ top: 4, right: 16, left: 0, bottom: 4 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+          <XAxis
+            dataKey="date"
+            tick={{ fontSize: 11 }}
+            tickFormatter={(v: string) => v.slice(5)}
+          />
+          <YAxis tick={{ fontSize: 11 }} />
+          <Tooltip
+            formatter={(value: number, name: string) => {
+              if (name === "confidence") {
+                const labels: Record<number, string> = { 3: "Bine", 2: "OK", 1: "Greu" };
+                return [labels[value] ?? value, "Nivel stare"];
+              }
+              return [value, name];
+            }}
+          />
+          <Legend />
+
+          {data.selectedImprovementWays.map((iw, idx) => (
+            <Line
+              key={iw.id}
+              type="monotone"
+              dataKey={`iw_${iw.id}`}
+              name={iw.title}
+              stroke={LINE_COLORS[idx % LINE_COLORS.length]}
+              dot={false}
+              connectNulls
+            />
+          ))}
+
+          {data.includeConfidence && (
+            <Line
+              type="monotone"
+              dataKey="confidence"
+              name="Nivel stare"
+              stroke="#6b7280"
+              strokeDasharray="4 2"
+              dot={false}
+              connectNulls
+            />
+          )}
+
+          {data.includeJournalScore && (
+            <Line
+              type="monotone"
+              dataKey="journalScore"
+              name="Scor jurnal"
+              stroke="#0ea5e9"
+              dot={false}
+              connectNulls
+            />
+          )}
+
+          {data.includeWeeklyGoal && (
+            <Line
+              type="monotone"
+              dataKey="weeklyGoal"
+              name="Obiectiv săpt."
+              stroke="#22c55e"
+              dot={false}
+              connectNulls
+            />
+          )}
+
+          {data.includeCheckinCount && (
+            <Line
+              type="monotone"
+              dataKey="checkinCount"
+              name="Checkin"
+              stroke="#f97316"
+              dot={false}
+              connectNulls
+            />
+          )}
+        </LineChart>
+      </ResponsiveContainer>
     </div>
   );
 }
