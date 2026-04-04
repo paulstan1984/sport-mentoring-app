@@ -36,6 +36,7 @@ model Mentor {
   name             String
   photo            String?
   description      String?
+  isActive         Boolean          @default(true)
   lastActiveAt     DateTime?
   players          Player[]
   checkinForm      CheckinForm?

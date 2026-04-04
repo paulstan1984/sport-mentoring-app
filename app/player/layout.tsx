@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { logout } from "@/actions/auth";
 import { requirePlayer } from "@/lib/auth";
 import { db } from "@/lib/db";
@@ -26,8 +27,15 @@ export default async function PlayerLayout({
 
   const player = await db.player.findUnique({
     where: { id: session.playerId },
-    select: { name: true },
+    select: { name: true, mentorId: true },
   });
+
+  const mentor = player
+    ? await db.mentor.findUnique({
+        where: { id: player.mentorId },
+        select: { name: true, photo: true },
+      })
+    : null;
 
   const navLinks = [
     { href: "/player/dashboard", label: "Acasă", icon: Home },
@@ -43,8 +51,19 @@ export default async function PlayerLayout({
     <div className="min-h-screen flex flex-col">
       {/* Top header (mobile) */}
       <header className="bg-blue-600 text-white px-4 py-3 flex items-center justify-between sticky top-0 z-10">
-        <Link href="/player/dashboard" className="font-bold text-sm text-white hover:text-blue-100">
-          ⚽ SportMentor
+        <Link href="/player/dashboard" className="flex items-center gap-2 hover:opacity-90">
+          {mentor?.photo ? (
+            <Image
+              src={mentor.photo}
+              alt={mentor.name ?? "Antrenor"}
+              width={28}
+              height={28}
+              className="rounded-full object-cover border border-white/30"
+            />
+          ) : (
+            <span className="text-base">⚽</span>
+          )}
+          <span className="font-bold text-sm text-white">{mentor?.name ?? "Antrenor"}</span>
         </Link>
         <Link href="/player/profile" className="text-sm text-blue-200 hover:text-white">
           {player?.name ?? "Jucător"}
@@ -82,8 +101,21 @@ export default async function PlayerLayout({
       {/* Side nav (desktop) */}
       <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-52 bg-white border-r border-gray-200 flex-col shadow-sm">
         <div className="px-6 py-5 border-b border-gray-100">
-          <Link href="/player/dashboard" className="text-lg font-bold text-blue-600 hover:text-blue-700">
-            ⚽ SportMentor
+          <Link href="/player/dashboard" className="flex items-center gap-2 hover:opacity-90">
+            {mentor?.photo ? (
+              <Image
+                src={mentor.photo}
+                alt={mentor.name ?? "Antrenor"}
+                width={32}
+                height={32}
+                className="rounded-full object-cover border border-gray-200"
+              />
+            ) : (
+              <span className="text-lg">⚽</span>
+            )}
+            <span className="text-base font-bold text-blue-600 hover:text-blue-700 truncate">
+              {mentor?.name ?? "Antrenor"}
+            </span>
           </Link>
           <Link href="/player/profile" className="block text-xs text-gray-400 mt-0.5 truncate hover:text-gray-600">
             {player?.name ?? "Jucător"}

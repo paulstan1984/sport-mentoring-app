@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useActionState } from "react";
-import { updateMentor, deleteMentor, changeMentorPassword } from "@/actions/admin";
+import { updateMentor, deleteMentor, changeMentorPassword, toggleMentorActive } from "@/actions/admin";
 import type { Mentor, User } from "@/app/generated/prisma/client";
 
 type MentorWithUser = Mentor & { user: Pick<User, "username"> };
@@ -17,6 +17,12 @@ export function MentorRow({ mentor }: { mentor: MentorWithUser }) {
     if (!confirm(`Ștergi mentorul "${mentor.name}"? Toți jucătorii săi vor fi șterși.`))
       return;
     await deleteMentor(mentor.id);
+  }
+
+  async function handleToggleActive() {
+    const action = mentor.isActive ? "dezactivezi" : "activezi";
+    if (!confirm(`Ești sigur că vrei să ${action} mentorul "${mentor.name}"?`)) return;
+    await toggleMentorActive(mentor.id);
   }
 
   if (editing) {
@@ -80,8 +86,15 @@ export function MentorRow({ mentor }: { mentor: MentorWithUser }) {
   }
 
   return (
-    <tr className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
-      <td className="px-4 py-3 font-mono text-xs text-gray-500">{mentor.user.username}</td>
+    <tr className={`hover:bg-gray-50 dark:hover:bg-gray-800/50 ${!mentor.isActive ? "opacity-60" : ""}`}>
+      <td className="px-4 py-3 font-mono text-xs text-gray-500">
+        {mentor.user.username}
+        {!mentor.isActive && (
+          <span className="ml-2 inline-block rounded bg-red-100 dark:bg-red-900/40 px-1.5 py-0.5 text-xs text-red-600 dark:text-red-400">
+            dezactivat
+          </span>
+        )}
+      </td>
       <td className="px-4 py-3 font-medium">{mentor.name}</td>
       <td className="px-4 py-3 text-gray-400 text-xs truncate max-w-48">
         {mentor.description ?? "—"}
@@ -89,6 +102,16 @@ export function MentorRow({ mentor }: { mentor: MentorWithUser }) {
       <td className="px-4 py-3">
         <div className="flex gap-2 justify-end">
           <button onClick={() => setEditing(true)} className="btn-xs">Editează</button>
+          <button
+            onClick={handleToggleActive}
+            className={`btn-xs ${
+              mentor.isActive
+                ? "text-orange-600 border-orange-300 hover:bg-orange-50 dark:hover:bg-orange-900/20"
+                : "text-green-600 border-green-300 hover:bg-green-50 dark:hover:bg-green-900/20"
+            }`}
+          >
+            {mentor.isActive ? "Dezactivează" : "Activează"}
+          </button>
           <button onClick={handleDelete} className="btn-xs-danger">Șterge</button>
         </div>
       </td>

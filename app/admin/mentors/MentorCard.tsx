@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { deleteMentor, updateMentor, changeMentorPassword } from "@/actions/admin";
+import { deleteMentor, updateMentor, changeMentorPassword, toggleMentorActive } from "@/actions/admin";
 import type { Mentor, User } from "@/app/generated/prisma/client";
 
 type MentorWithUser = Mentor & { user: Pick<User, "username"> };
@@ -17,6 +17,12 @@ export function MentorCard({ mentor }: { mentor: MentorWithUser }) {
       return;
     }
     await deleteMentor(mentor.id);
+  }
+
+  async function handleToggleActive() {
+    const action = mentor.isActive ? "dezactivezi" : "activezi";
+    if (!confirm(`Ești sigur că vrei să ${action} mentorul "${mentor.name}"?`)) return;
+    await toggleMentorActive(mentor.id);
   }
 
   if (editing) {
@@ -83,13 +89,30 @@ export function MentorCard({ mentor }: { mentor: MentorWithUser }) {
   }
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-xl p-4 shadow">
-      <p className="font-medium text-sm">{mentor.name}</p>
+    <div className={`bg-white dark:bg-gray-900 rounded-xl p-4 shadow ${!mentor.isActive ? "opacity-60" : ""}`}>
+      <div className="flex items-center gap-2">
+        <p className="font-medium text-sm">{mentor.name}</p>
+        {!mentor.isActive && (
+          <span className="inline-block rounded bg-red-100 dark:bg-red-900/40 px-1.5 py-0.5 text-xs text-red-600 dark:text-red-400">
+            dezactivat
+          </span>
+        )}
+      </div>
       <p className="font-mono text-xs text-gray-500 mt-1">{mentor.user.username}</p>
       <p className="text-xs text-gray-500 mt-2 line-clamp-2">{mentor.description ?? "Fără descriere"}</p>
       <div className="flex gap-2 mt-3">
         <button onClick={() => setEditing(true)} className="btn-xs">
           Editează
+        </button>
+        <button
+          onClick={handleToggleActive}
+          className={`btn-xs ${
+            mentor.isActive
+              ? "text-orange-600 border-orange-300 hover:bg-orange-50 dark:hover:bg-orange-900/20"
+              : "text-green-600 border-green-300 hover:bg-green-50 dark:hover:bg-green-900/20"
+          }`}
+        >
+          {mentor.isActive ? "Dezactivează" : "Activează"}
         </button>
         <button onClick={handleDelete} className="btn-xs-danger">
           Șterge
