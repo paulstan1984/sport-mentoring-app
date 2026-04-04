@@ -47,23 +47,68 @@ function confidenceLabel(c: string | null): string {
   }
 }
 
+function exportToPdf(reportId: string, playerName: string, startDate: string, endDate: string) {
+  const el = document.getElementById(reportId);
+  if (!el) return;
+
+  // Clone so we can strip the export button before printing
+  const clone = el.cloneNode(true) as HTMLElement;
+  const btn = clone.querySelector("[data-print-exclude]");
+  if (btn) btn.parentElement?.removeChild(btn);
+
+  const printStyles = `
+    @page { size: A4 landscape; margin: 12mm; }
+    * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { font-family: sans-serif; font-size: 11px; color: #111; background: #fff; margin: 0; padding: 0; }
+    h2 { font-size: 14px; font-weight: 700; margin: 0 0 4px; }
+    p  { font-size: 11px; margin: 0 0 2px; color: #555; }
+    table { width: 100%; border-collapse: collapse; table-layout: auto; margin-top: 12px; }
+    th, td { border: 1px solid #d1d5db; padding: 4px 6px; white-space: nowrap; font-size: 10px; }
+    th { background: #f3f4f6; font-weight: 600; }
+    tr:nth-child(even) td { background: #f9fafb; }
+    .print-chart { margin-top: 20px; }
+    svg { max-width: 100%; }
+  `;
+
+  const win = window.open("", "_blank", "width=1200,height=900");
+  if (!win) return;
+  win.document.write(`<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8"/>
+<title>Raport — ${playerName} (${startDate} – ${endDate})</title>
+<style>${printStyles}</style>
+</head><body>${clone.innerHTML}</body></html>`);
+  win.document.close();
+  win.focus();
+  // Small delay so SVG chart renders before printing
+  setTimeout(() => {
+    win.print();
+    win.close();
+  }, 400);
+}
+
 export function ReportClient({ data }: { data: ReportData }) {
+  const reportId = "report-content";
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-6">
-      <div className="flex items-center justify-between mb-4 print:hidden">
+    <div id={reportId} className="bg-white dark:bg-gray-900 rounded-2xl shadow p-6">
+      <div data-print-exclude className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold">
           Raport: {data.playerName} ({data.startDate} → {data.endDate})
         </h2>
-        <button onClick={() => window.print()} className="btn-primary">
+        <button
+          onClick={() => exportToPdf(reportId, data.playerName, data.startDate, data.endDate)}
+          className="btn-primary"
+        >
           Exportă PDF
         </button>
       </div>
 
-      {/* Print header — hidden on screen, visible on print */}
-      <div className="hidden print:block mb-6">
-        <h2 className="text-xl font-bold">SportMentor — Raport</h2>
-        <p className="text-gray-600 mt-1">Jucător: {data.playerName}</p>
-        <p className="text-gray-600">Perioadă: {data.startDate} – {data.endDate}</p>
+      {/* Print header — shown inside the cloned window */}
+      <div className="mb-2">
+        <p className="text-gray-500 text-sm">
+          Jucător: <span className="font-medium text-gray-800 dark:text-gray-100">{data.playerName}</span>
+          &nbsp;·&nbsp;Perioadă: {data.startDate} – {data.endDate}
+        </p>
       </div>
 
       {data.rows.length === 0 ? (
@@ -147,7 +192,11 @@ export function ReportClient({ data }: { data: ReportData }) {
         </div>
       )}
 
-      {data.rows.length > 0 && <ReportChart data={data} />}
+      {data.rows.length > 0 && (
+        <div className="print-chart">
+          <ReportChart data={data} />
+        </div>
+      )}
     </div>
   );
 }
