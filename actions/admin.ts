@@ -160,6 +160,17 @@ export async function deleteMentor(id: number): Promise<ActionResult> {
 }
 
 
+export async function toggleMentorActive(id: number): Promise<ActionResult> {
+  await requireSuperAdmin();
+
+  const mentor = await db.mentor.findUnique({ where: { id }, select: { isActive: true } });
+  if (!mentor) return { error: "Mentorul nu a fost găsit." };
+
+  await db.mentor.update({ where: { id }, data: { isActive: !mentor.isActive } });
+  revalidatePath("/admin/mentors");
+  return { success: true };
+}
+
 export async function changeMentorPassword(
   _prev: ActionResult | null,
   formData: FormData

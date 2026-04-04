@@ -10,6 +10,7 @@ import {
   BookOpen,
   MessageSquare,
   TrendingUp,
+  FileText,
   MoreHorizontal,
   LogOut,
 } from "lucide-react";
@@ -20,6 +21,7 @@ const mainLinks = [
 ];
 
 const moreLinks = [
+  { href: "/mentor/reports", label: "Rapoarte", icon: FileText },
   { href: "/mentor/checkin-form", label: "Formular Checkin", icon: ClipboardCheck },
   { href: "/mentor/improvement-ways", label: "Îmbunătățiri", icon: TrendingUp },
   { href: "/mentor/library", label: "Bibliotecă", icon: BookOpen },

@@ -38,7 +38,7 @@ export default async function PlayersPage() {
         <table className="w-full text-sm">
           <thead className="bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
             <tr>
-              <th className="text-left px-4 py-3">Utilizator</th>
+              <th className="hidden sm:table-cell text-left px-4 py-3">Utilizator</th>
               <th className="text-left px-4 py-3">Nume</th>
               <th className="text-left px-4 py-3">Echipă</th>
               <th className="text-left px-4 py-3">Poziție</th>

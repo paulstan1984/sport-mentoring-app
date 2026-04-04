@@ -32,7 +32,10 @@ export async function login(
 
   if (user.role === "MENTOR") {
     const mentor = await db.mentor.findUnique({ where: { userId: user.id } });
-    if (mentor) session.mentorId = mentor.id;
+    if (!mentor || !mentor.isActive) {
+      return { error: "Contul tău a fost dezactivat. Contactează administratorul." };
+    }
+    session.mentorId = mentor.id;
   } else if (user.role === "PLAYER") {
     const player = await db.player.findUnique({ where: { userId: user.id } });
     if (!player || !player.isActive) {

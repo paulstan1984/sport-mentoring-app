@@ -87,7 +87,7 @@ export function PlayerRow({
 
   return (
     <tr className={`hover:bg-gray-50 dark:hover:bg-gray-800/50 ${!player.isActive ? "opacity-60" : ""}`}>
-      <td className="px-4 py-3 font-mono text-xs text-gray-500">
+      <td className="hidden sm:table-cell px-4 py-3 font-mono text-xs text-gray-500">
         {player.user.username}
         {!player.isActive && (
           <span className="ml-2 inline-block rounded bg-red-100 dark:bg-red-900/40 px-1.5 py-0.5 text-xs text-red-600 dark:text-red-400">

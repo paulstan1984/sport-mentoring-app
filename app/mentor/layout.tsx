@@ -11,6 +11,7 @@ import {
   MessageSquare,
   Settings,
   TrendingUp,
+  FileText,
   LogOut,
 } from "lucide-react";
 
@@ -34,6 +35,7 @@ export default async function MentorLayout({
   const navLinks = [
     { href: "/mentor/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/mentor/players", label: "Jucători", icon: Users },
+    { href: "/mentor/reports", label: "Rapoarte", icon: FileText },
     { href: "/mentor/checkin-form", label: "Formular Checkin", icon: ClipboardCheck },
     { href: "/mentor/improvement-ways", label: "Îmbunătățiri", icon: TrendingUp },
     { href: "/mentor/library", label: "Bibliotecă", icon: BookOpen },
