@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@prisma/adapter-libsql": "^7.5.0",
+    "better-sqlite3": "^11.0.0",
     "@prisma/client": "^7.5.0",
     "@tiptap/extension-link": "^3.20.4",
     "@tiptap/pm": "^3.20.4",
