@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { logout } from "@/actions/auth";
 import { requirePlayer } from "@/lib/auth";
 import { db } from "@/lib/db";
@@ -53,7 +52,8 @@ export default async function PlayerLayout({
       <header className="bg-blue-600 text-white px-4 py-3 flex items-center justify-between sticky top-0 z-10">
         <Link href="/player/dashboard" className="flex items-center gap-2 hover:opacity-90">
           {mentor?.photo ? (
-            <Image
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
               src={mentor.photo}
               alt={mentor.name ?? "Antrenor"}
               width={28}
@@ -103,7 +103,7 @@ export default async function PlayerLayout({
         <div className="px-6 py-5 border-b border-gray-100">
           <Link href="/player/dashboard" className="flex items-center gap-2 hover:opacity-90">
             {mentor?.photo ? (
-              <Image
+              <img
                 src={mentor.photo}
                 alt={mentor.name ?? "Antrenor"}
                 width={32}
