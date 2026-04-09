@@ -11,6 +11,7 @@ type PlayerSummary = {
   username: string;
   team: string | null;
   position: string | null;
+  photo: string | null;
   lastActiveAt: string | null;
   checkedInToday: boolean;
   confidenceToday: "GOOD" | "OK" | "HARD" | null;
@@ -51,10 +52,24 @@ export function DashboardClient({ players }: { players: PlayerSummary[] }) {
             href={`/mentor/players/${p.id}`}
             className="bg-white dark:bg-gray-900 rounded-2xl shadow p-5 hover:shadow-md transition-shadow flex flex-col gap-2"
           >
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="font-semibold text-sm">{p.name}</p>
-                <p className="text-xs text-gray-400">{p.team ?? "—"}</p>
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-3">
+                {p.photo ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={p.photo}
+                    alt={p.name}
+                    className="w-10 h-10 rounded-full object-cover shrink-0"
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center shrink-0 text-gray-500 dark:text-gray-400 text-sm font-semibold">
+                    {p.name.charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <div>
+                  <p className="font-semibold text-sm">{p.name}</p>
+                  <p className="text-xs text-gray-400">{p.team ?? "—"}</p>
+                </div>
               </div>
               <PresenceBadge lastActiveAt={p.lastActiveAt ? new Date(p.lastActiveAt) : null} />
             </div>
