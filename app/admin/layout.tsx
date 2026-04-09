@@ -21,7 +21,7 @@ export default function AdminLayout({
     <div className="min-h-screen flex flex-col">
       {/* Top header (mobile) */}
       <header className="bg-blue-600 text-white px-4 py-3 flex items-center justify-between sticky top-0 z-10 md:hidden">
-        <span className="font-bold text-sm">⚽ SportMentor</span>
+        <span className="font-bold text-sm">⚽ Sport Mentor</span>
         <span className="text-sm text-blue-200">Super Admin</span>
       </header>
 
@@ -64,7 +64,7 @@ export default function AdminLayout({
       {/* Side nav (desktop) */}
       <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-56 bg-white border-r border-gray-200 flex-col shadow-sm">
         <div className="px-6 py-5 border-b border-gray-100">
-          <span className="text-lg font-bold text-blue-600">⚽ SportMentor</span>
+          <span className="text-lg font-bold text-blue-600">⚽ Sport Mentor</span>
           <p className="text-xs text-gray-400 mt-0.5">Super Admin</p>
         </div>
         <nav className="flex-1 px-3 py-4 space-y-1">
