@@ -58,7 +58,7 @@ export default async function PlayerLayout({
               alt={mentor.name ?? "Antrenor"}
               width={28}
               height={28}
-              className="rounded-full object-cover border border-white/30"
+              className="w-7 h-7 rounded-full object-cover border border-white/30 shrink-0"
             />
           ) : (
             <span className="text-base">⚽</span>
@@ -108,7 +108,7 @@ export default async function PlayerLayout({
                 alt={mentor.name ?? "Antrenor"}
                 width={32}
                 height={32}
-                className="rounded-full object-cover border border-gray-200"
+                className="w-8 h-8 rounded-full object-cover border border-gray-200 shrink-0"
               />
             ) : (
               <span className="text-lg">⚽</span>
