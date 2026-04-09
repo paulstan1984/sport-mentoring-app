@@ -3,7 +3,7 @@
 import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
-import { requireSuperAdmin } from "@/lib/auth";
+import { requireSuperAdmin, getSession } from "@/lib/auth";
 import {
   ALLOWED_IMAGE_TYPES,
   MAX_SIZE_BYTES,
@@ -230,5 +230,50 @@ export async function deletePosition(id: number): Promise<ActionResult> {
   await requireSuperAdmin();
   await db.playfieldPosition.delete({ where: { id } });
   revalidatePath("/admin/positions");
+  return { success: true };
+}
+
+// ── Super Admin Profile ────────────────────────────────────────────────────────
+
+export async function updateSuperAdminProfile(
+  _prev: ActionResult | null,
+  formData: FormData
+): Promise<ActionResult> {
+  const session = await requireSuperAdmin();
+
+  const username = (formData.get("username") as string)?.trim();
+  if (!username) return { error: "Utilizatorul este obligatoriu." };
+
+  const existing = await db.user.findUnique({ where: { username } });
+  if (existing && existing.id !== session.userId) {
+    return { error: "Utilizatorul există deja." };
+  }
+
+  await db.user.update({ where: { id: session.userId }, data: { username } });
+  revalidatePath("/admin/profile");
+  return { success: true };
+}
+
+export async function changeSuperAdminPassword(
+  _prev: ActionResult | null,
+  formData: FormData
+): Promise<ActionResult> {
+  const session = await requireSuperAdmin();
+
+  const currentPassword = formData.get("currentPassword") as string;
+  const newPassword = formData.get("newPassword") as string;
+
+  if (!currentPassword || !newPassword) return { error: "Completați toate câmpurile." };
+  if (newPassword.length < 8) return { error: "Parola nouă trebuie să aibă cel puțin 8 caractere." };
+
+  const user = await db.user.findUnique({ where: { id: session.userId } });
+  if (!user) return { error: "Utilizator negăsit." };
+
+  const valid = await bcrypt.compare(currentPassword, user.passwordHash);
+  if (!valid) return { error: "Parola curentă este greșită." };
+
+  const passwordHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
+  await db.user.update({ where: { id: user.id }, data: { passwordHash } });
+
   return { success: true };
 }
