@@ -146,10 +146,10 @@ export function PlayerNotes({ playerId, notes }: PlayerNotesProps) {
   return (
     <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-5">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="font-semibold">Note antrenor</h2>
+        <h2 className="font-semibold">Notițe antrenor</h2>
         {!adding && (
           <button onClick={() => setAdding(true)} className="btn-xs">
-            + Adaugă notă
+            + Adaugă notiță
           </button>
         )}
       </div>
@@ -160,7 +160,7 @@ export function PlayerNotes({ playerId, notes }: PlayerNotesProps) {
         )}
 
         {notes.length === 0 && !adding && (
-          <p className="text-sm text-gray-400">Nicio notă.</p>
+          <p className="text-sm text-gray-400">Nicio notiță.</p>
         )}
 
         {notes.map((note) => (
