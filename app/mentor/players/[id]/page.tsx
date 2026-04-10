@@ -92,6 +92,18 @@ export default async function PlayerDetailPage({
       <div className="flex items-start gap-4">
         <div className="flex-1">
           <div className="flex items-center gap-3">
+            {player.photo ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={player.photo}
+                alt={player.name}
+                className="w-12 h-12 rounded-full object-cover border-2 border-blue-200 dark:border-blue-700 shrink-0"
+              />
+            ) : (
+              <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white text-xl font-bold shrink-0">
+                {player.name.charAt(0).toUpperCase()}
+              </div>
+            )}
             <h1 className="text-2xl font-bold">{player.name}</h1>
             <PresenceBadge lastActiveAt={player.lastActiveAt} />
             {!player.isActive && (

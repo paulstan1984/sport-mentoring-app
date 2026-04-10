@@ -96,9 +96,23 @@ export function PlayerRow({
         )}
       </td>
       <td className="px-4 py-3 font-medium">
-        <Link href={`/mentor/players/${player.id}`} className="hover:text-blue-600 hover:underline">
-          {player.name}
-        </Link>
+        <div className="flex items-center gap-2">
+          {player.photo ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={player.photo}
+              alt={player.name}
+              className="w-8 h-8 rounded-full object-cover shrink-0"
+            />
+          ) : (
+            <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center shrink-0 text-gray-500 dark:text-gray-400 text-xs font-semibold">
+              {player.name.charAt(0).toUpperCase()}
+            </div>
+          )}
+          <Link href={`/mentor/players/${player.id}`} className="hover:text-blue-600 hover:underline">
+            {player.name}
+          </Link>
+        </div>
       </td>
       <td className="px-4 py-3 text-gray-400 text-xs">{player.team ?? "—"}</td>
       <td className="px-4 py-3 text-gray-400 text-xs">

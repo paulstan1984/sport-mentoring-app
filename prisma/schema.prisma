@@ -57,6 +57,7 @@ model Player {
   userId                Int                    @unique
   user                  User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
   name                  String
+  photo                 String?
   dateOfBirth           DateTime?
   playfieldPositionId   Int?
   playfieldPosition     PlayfieldPosition?     @relation(fields: [playfieldPositionId], references: [id])

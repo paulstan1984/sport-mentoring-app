@@ -31,6 +31,7 @@ export default async function MentorDashboard() {
     username: p.user.username,
     team: p.team,
     position: p.playfieldPosition?.name ?? null,
+    photo: p.photo ?? null,
     lastActiveAt: p.lastActiveAt?.toISOString() ?? null,
     checkedInToday: p.checkinAnswers.length > 0,
     confidenceToday: p.confidenceLevels[0]?.level ?? null,
