@@ -48,7 +48,7 @@ export default async function MentorLayout({
       {/* Top header (mobile) */}
       <header className="bg-blue-600 text-white px-4 py-3 flex items-center justify-between sticky top-0 z-10 md:hidden">
         <Link href="/mentor/dashboard" className="font-bold text-sm text-white hover:text-blue-100">
-          ⚽ SportMentor
+          ⚽ Sport Mentor
         </Link>
         <Link href="/mentor/profile" className="text-sm text-blue-200 hover:text-white">
           {mentor?.name ?? "Mentor"}
@@ -65,7 +65,7 @@ export default async function MentorLayout({
       <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-56 bg-white border-r border-gray-200 flex-col shadow-sm">
         <div className="px-6 py-5 border-b border-gray-100">
           <Link href="/mentor/dashboard" className="text-lg font-bold text-blue-600 hover:text-blue-700">
-            ⚽ SportMentor
+            ⚽ Sport Mentor
           </Link>
           <Link href="/mentor/profile" className="block text-xs text-gray-400 mt-0.5 truncate hover:text-gray-600">
             {mentor?.name ?? "Mentor"}

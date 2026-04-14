@@ -111,3 +111,37 @@ export function resolveMentorPhotoPath(
   const uploadDir = process.env.UPLOAD_DIR ?? "./uploads";
   return join(uploadDir, rest);
 }
+
+export async function savePlayerPhotoFile(
+  file: File,
+  playerId: number,
+  ext: string
+): Promise<{ filePath: string; filename: string }> {
+  const uploadDir = process.env.UPLOAD_DIR ?? "./uploads";
+  const playerDir = join(uploadDir, "players", String(playerId));
+  await mkdir(playerDir, { recursive: true });
+
+  const filename = `${uuidv4()}.${ext}`;
+  const filePath = join(playerDir, filename);
+
+  const buffer = Buffer.from(await file.arrayBuffer());
+  await writeFile(filePath, buffer);
+
+  return { filePath, filename };
+}
+
+/**
+ * Extracts the filesystem path for a player photo stored by this application.
+ * Returns null when `photoUrl` is not a local application photo.
+ */
+export function resolvePlayerPhotoPath(
+  photoUrl: string | null
+): string | null {
+  if (!photoUrl) return null;
+  // Local photos have the format /api/player-photo/{playerId}/{filename}
+  const prefix = "/api/player-photo/";
+  if (!photoUrl.startsWith(prefix)) return null;
+  const rest = photoUrl.slice(prefix.length); // "{playerId}/{filename}"
+  const uploadDir = process.env.UPLOAD_DIR ?? "./uploads";
+  return join(uploadDir, "players", rest);
+}

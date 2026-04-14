@@ -12,7 +12,7 @@ export default function LoginPage() {
         {/* Logo / Brand */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-            ⚽ SportMentor
+            ⚽ Sport Mentor
           </h1>
           <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
             Platformă de mentorat sportiv
