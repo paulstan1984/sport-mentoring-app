@@ -114,6 +114,7 @@ model CheckinAnswer {
   day         DateTime
   checked     Boolean         @default(false)
   stringValue String?
+  updatedAt   DateTime        @updatedAt @default(now())
 
   @@unique([playerId, flagId, day])
 }
@@ -127,6 +128,7 @@ model DailyJournal {
   whatDidWrong    String?
   whatCanDoBetter String?
   myScore         Int      @default(0)
+  updatedAt       DateTime @updatedAt @default(now())
 
   @@unique([playerId, day])
 }
@@ -139,6 +141,7 @@ model WeeklyScope {
   year         Int
   scope        String?
   accomplished Boolean?
+  updatedAt    DateTime @updatedAt @default(now())
 
   @@unique([playerId, weekNumber, year])
 }

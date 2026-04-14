@@ -164,6 +164,11 @@ export default async function PlayerDetailPage({
 
           {checkinsByDay.map((group) => {
             const checkedCount = group.answers.filter((a) => a.checked).length;
+            const latestUpdate = group.answers.reduce((latest, answer) => {
+              const answerTime = new Date(answer.updatedAt).getTime();
+              const latestTime = new Date(latest.updatedAt).getTime();
+              return answerTime > latestTime ? answer : latest;
+            });
 
             return (
               <div key={group.dayKey} className="border-l-4 border-gray-200 dark:border-gray-700 pl-4">
@@ -176,6 +181,10 @@ export default async function PlayerDetailPage({
                   })}
                   {" · "}
                   {checkedCount}/{group.answers.length} bifate
+                  <br />
+                  {new Date(latestUpdate.updatedAt).toLocaleDateString("ro-RO", { day: "numeric", month: "long", year: "numeric" })}
+                  {" "}
+                  {new Date(latestUpdate.updatedAt).toLocaleTimeString("ro-RO", { hour: "2-digit", minute: "2-digit" })}
                 </p>
 
                 <div className="space-y-1">
@@ -211,6 +220,10 @@ export default async function PlayerDetailPage({
               <p className="text-xs font-medium text-gray-400 mb-2">
                 {new Date(j.day).toLocaleDateString("ro-RO", { weekday: "long", day: "numeric", month: "long" })}
                 {" · "}Scor: {j.myScore}/5
+                <br />
+                {new Date(j.updatedAt).toLocaleDateString("ro-RO", { day: "numeric", month: "long", year: "numeric" })}
+                {" "}
+                {new Date(j.updatedAt).toLocaleTimeString("ro-RO", { hour: "2-digit", minute: "2-digit" })}
               </p>
               {j.whatDidGood && (
                 <div className="mb-2">
@@ -246,6 +259,12 @@ export default async function PlayerDetailPage({
             <div key={s.id} className="flex items-start gap-3">
               <span className="text-xs text-gray-400 shrink-0 mt-1">
                 Săpt. {getWeekLabelFromWeekNumber(s.weekNumber, s.year)}
+                <br />
+                <span className="text-gray-500">
+                  {new Date(s.updatedAt).toLocaleDateString("ro-RO", { day: "numeric", month: "long", year: "numeric" })}
+                  {" "}
+                  {new Date(s.updatedAt).toLocaleTimeString("ro-RO", { hour: "2-digit", minute: "2-digit" })}
+                </span>
               </span>
               <div className="flex-1">
                 <RichTextViewer html={s.scope} className="text-sm" />
