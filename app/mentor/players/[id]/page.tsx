@@ -6,6 +6,7 @@ import { getStreak } from "@/lib/streak";
 import { getWeekLabelFromWeekNumber } from "@/lib/weekUtils";
 import { RichTextViewer } from "@/components/RichTextViewer";
 import { PresenceBadge } from "@/components/PresenceBadge";
+import { LocalDateTime } from "@/components/LocalDateTime";
 import { PlayerProfileEditor } from "./PlayerProfileEditor";
 import { PlayerNotes } from "./PlayerNotes";
 
@@ -182,9 +183,7 @@ export default async function PlayerDetailPage({
                   {" · "}
                   {checkedCount}/{group.answers.length} bifate
                   <br />
-                  {new Date(latestUpdate.updatedAt).toLocaleDateString("ro-RO", { day: "numeric", month: "long", year: "numeric" })}
-                  {" "}
-                  {new Date(latestUpdate.updatedAt).toLocaleTimeString("ro-RO", { hour: "2-digit", minute: "2-digit" })}
+                  <LocalDateTime date={latestUpdate.updatedAt} />
                 </p>
 
                 <div className="space-y-1">
@@ -221,9 +220,7 @@ export default async function PlayerDetailPage({
                 {new Date(j.day).toLocaleDateString("ro-RO", { weekday: "long", day: "numeric", month: "long" })}
                 {" · "}Scor: {j.myScore}/5
                 <br />
-                {new Date(j.updatedAt).toLocaleDateString("ro-RO", { day: "numeric", month: "long", year: "numeric" })}
-                {" "}
-                {new Date(j.updatedAt).toLocaleTimeString("ro-RO", { hour: "2-digit", minute: "2-digit" })}
+                <LocalDateTime date={j.updatedAt} />
               </p>
               {j.whatDidGood && (
                 <div className="mb-2">
@@ -261,9 +258,7 @@ export default async function PlayerDetailPage({
                 Săpt. {getWeekLabelFromWeekNumber(s.weekNumber, s.year)}
                 <br />
                 <span className="text-gray-500">
-                  {new Date(s.updatedAt).toLocaleDateString("ro-RO", { day: "numeric", month: "long", year: "numeric" })}
-                  {" "}
-                  {new Date(s.updatedAt).toLocaleTimeString("ro-RO", { hour: "2-digit", minute: "2-digit" })}
+                  <LocalDateTime date={s.updatedAt} />
                 </span>
               </span>
               <div className="flex-1">
