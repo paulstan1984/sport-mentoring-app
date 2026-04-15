@@ -60,7 +60,7 @@ interface WeeklyScope {
   id: number;
   weekNumber: number;
   year: number;
-  scope: string;
+  scope: string | null;
   accomplished: boolean | null;
   updatedAt: Date | string;
 }
