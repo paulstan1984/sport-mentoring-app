@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { RichTextViewer } from '@/components/RichTextViewer';
 import { LocalDateTime } from '@/components/LocalDateTime';
@@ -184,10 +184,14 @@ export function PlayerSections({
   libraryItems,
 }: PlayerSectionsProps) {
   const [modal, setModal] = useState<{ section: ModalSection; page: number } | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const openModal = (section: ModalSection) => setModal({ section, page: 1 });
   const closeModal = () => setModal(null);
-  const setPage = (p: number) => setModal((prev) => (prev ? { ...prev, page: p } : null));
+  const setPage = (p: number) => {
+    setModal((prev) => (prev ? { ...prev, page: p } : null));
+    scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   // Sliced previews
   const recentConfidence = confidenceLevels.slice(0, RECENT_RECORDS);
@@ -795,7 +799,7 @@ export function PlayerSections({
                 <X size={20} />
               </button>
             </div>
-            <div className="overflow-y-auto px-6 py-4 flex-1">
+            <div ref={scrollRef} className="overflow-y-auto px-6 py-4 flex-1">
               {renderModalContent()}
             </div>
           </div>
