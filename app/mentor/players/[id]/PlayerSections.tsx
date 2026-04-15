@@ -6,8 +6,18 @@ import { RichTextViewer } from '@/components/RichTextViewer';
 import { LocalDateTime } from '@/components/LocalDateTime';
 import { getWeekLabelFromWeekNumber } from '@/lib/weekUtils';
 
+// Per-section: how many records to show in the preview and per modal page
+const SECTION_CONFIG: Record<ModalSectionKey, { recent: number; pageSize: number }> = {
+  confidence:  { recent: 5, pageSize: 12 },
+  checkin:     { recent: 3, pageSize: 3 },
+  journal:     { recent: 3, pageSize: 3 },
+  scope:       { recent: 3, pageSize: 3 },
+  improvement: { recent: 6, pageSize: 3 },
+  library:     { recent: 3, pageSize: 3 },
+};
+
+// Keep a named export so other files can reference it if needed
 export const RECENT_RECORDS = 3;
-const PAGE_SIZE = 10;
 
 const CONFIDENCE_LABEL: Record<string, string> = {
   GOOD: '😊 Bine',
@@ -82,13 +92,15 @@ export interface PlayerSectionsProps {
   libraryItems: LibraryItem[];
 }
 
-type ModalSection =
+type ModalSectionKey =
   | 'confidence'
   | 'checkin'
   | 'journal'
   | 'scope'
   | 'improvement'
   | 'library';
+
+type ModalSection = ModalSectionKey;
 
 const MODAL_TITLES: Record<ModalSection, string> = {
   confidence: 'Nivelul de încredere — Istoric complet',
@@ -101,12 +113,12 @@ const MODAL_TITLES: Record<ModalSection, string> = {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function paginate<T>(arr: T[], page: number): T[] {
-  return arr.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+function paginate<T>(arr: T[], page: number, pageSize: number): T[] {
+  return arr.slice((page - 1) * pageSize, page * pageSize);
 }
 
-function calcTotalPages(count: number): number {
-  return Math.max(1, Math.ceil(count / PAGE_SIZE));
+function calcTotalPages(count: number, pageSize: number): number {
+  return Math.max(1, Math.ceil(count / pageSize));
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -114,18 +126,20 @@ function calcTotalPages(count: number): number {
 function SectionHeader({
   title,
   totalCount,
+  recentCount,
   section,
   onOpen,
 }: {
   title: string;
   totalCount: number;
+  recentCount: number;
   section: ModalSection;
   onOpen: (s: ModalSection) => void;
 }) {
   return (
     <div className="flex items-center justify-between mb-3">
       <h2 className="font-semibold">{title}</h2>
-      {totalCount > RECENT_RECORDS && (
+      {totalCount > recentCount && (
         <button
           type="button"
           onClick={() => onOpen(section)}
@@ -194,14 +208,14 @@ export function PlayerSections({
   };
 
   // Sliced previews
-  const recentConfidence = confidenceLevels.slice(0, RECENT_RECORDS);
-  const recentCheckins = checkinsByDay.slice(0, RECENT_RECORDS);
-  const recentJournals = dailyJournals.slice(0, RECENT_RECORDS);
-  const recentScopes = weeklyScopes.slice(0, RECENT_RECORDS);
-  const recentLibrary = libraryItems.slice(0, RECENT_RECORDS);
+  const recentConfidence = confidenceLevels.slice(0, SECTION_CONFIG.confidence.recent);
+  const recentCheckins = checkinsByDay.slice(0, SECTION_CONFIG.checkin.recent);
+  const recentJournals = dailyJournals.slice(0, SECTION_CONFIG.journal.recent);
+  const recentScopes = weeklyScopes.slice(0, SECTION_CONFIG.scope.recent);
+  const recentLibrary = libraryItems.slice(0, SECTION_CONFIG.library.recent);
   const recentImprovementWays = improvementWays.map((way) => ({
     ...way,
-    ratings: way.ratings.slice(0, RECENT_RECORDS),
+    ratings: way.ratings.slice(0, SECTION_CONFIG.improvement.recent),
   }));
 
   // Flat ratings list for the improvement modal (all ways, all ratings, sorted by date desc)
@@ -223,7 +237,8 @@ export function PlayerSections({
     const { section, page } = modal;
 
     if (section === 'confidence') {
-      const items = paginate(confidenceLevels, page);
+      const { pageSize } = SECTION_CONFIG.confidence;
+      const items = paginate(confidenceLevels, page, pageSize);
       return (
         <>
           <div className="flex gap-2 flex-wrap">
@@ -244,7 +259,7 @@ export function PlayerSections({
           </div>
           <Pagination
             page={page}
-            total={calcTotalPages(confidenceLevels.length)}
+            total={calcTotalPages(confidenceLevels.length, SECTION_CONFIG.confidence.pageSize)}
             onChange={setPage}
           />
         </>
@@ -252,7 +267,8 @@ export function PlayerSections({
     }
 
     if (section === 'checkin') {
-      const items = paginate(checkinsByDay, page);
+      const { pageSize } = SECTION_CONFIG.checkin;
+      const items = paginate(checkinsByDay, page, pageSize);
       return (
         <>
           <div className="space-y-4">
@@ -311,7 +327,7 @@ export function PlayerSections({
           </div>
           <Pagination
             page={page}
-            total={calcTotalPages(checkinsByDay.length)}
+            total={calcTotalPages(checkinsByDay.length, SECTION_CONFIG.checkin.pageSize)}
             onChange={setPage}
           />
         </>
@@ -319,7 +335,8 @@ export function PlayerSections({
     }
 
     if (section === 'journal') {
-      const items = paginate(dailyJournals, page);
+      const { pageSize } = SECTION_CONFIG.journal;
+      const items = paginate(dailyJournals, page, pageSize);
       return (
         <>
           <div className="space-y-4">
@@ -367,7 +384,7 @@ export function PlayerSections({
           </div>
           <Pagination
             page={page}
-            total={calcTotalPages(dailyJournals.length)}
+            total={calcTotalPages(dailyJournals.length, SECTION_CONFIG.journal.pageSize)}
             onChange={setPage}
           />
         </>
@@ -375,7 +392,8 @@ export function PlayerSections({
     }
 
     if (section === 'scope') {
-      const items = paginate(weeklyScopes, page);
+      const { pageSize } = SECTION_CONFIG.scope;
+      const items = paginate(weeklyScopes, page, pageSize);
       return (
         <>
           <div className="space-y-3">
@@ -414,7 +432,7 @@ export function PlayerSections({
           </div>
           <Pagination
             page={page}
-            total={calcTotalPages(weeklyScopes.length)}
+            total={calcTotalPages(weeklyScopes.length, SECTION_CONFIG.scope.pageSize)}
             onChange={setPage}
           />
         </>
@@ -422,7 +440,8 @@ export function PlayerSections({
     }
 
     if (section === 'improvement') {
-      const items = paginate(allImprovementRatings, page);
+      const { pageSize } = SECTION_CONFIG.improvement;
+      const items = paginate(allImprovementRatings, page, pageSize);
       return (
         <>
           <div className="overflow-x-auto">
@@ -464,7 +483,7 @@ export function PlayerSections({
           </div>
           <Pagination
             page={page}
-            total={calcTotalPages(allImprovementRatings.length)}
+            total={calcTotalPages(allImprovementRatings.length, SECTION_CONFIG.improvement.pageSize)}
             onChange={setPage}
           />
         </>
@@ -472,7 +491,8 @@ export function PlayerSections({
     }
 
     if (section === 'library') {
-      const items = paginate(libraryItems, page);
+      const { pageSize } = SECTION_CONFIG.library;
+      const items = paginate(libraryItems, page, pageSize);
       return (
         <>
           <div className="space-y-2">
@@ -500,7 +520,7 @@ export function PlayerSections({
           </div>
           <Pagination
             page={page}
-            total={calcTotalPages(libraryItems.length)}
+            total={calcTotalPages(libraryItems.length, SECTION_CONFIG.library.pageSize)}
             onChange={setPage}
           />
         </>
@@ -519,6 +539,7 @@ export function PlayerSections({
         <SectionHeader
           title="Nivelul de încredere"
           totalCount={confidenceLevels.length}
+          recentCount={SECTION_CONFIG.confidence.recent}
           section="confidence"
           onOpen={openModal}
         />
@@ -532,7 +553,7 @@ export function PlayerSections({
                 day: 'numeric',
                 month: 'short',
               })}
-              {': '}
+              {' '}
               {CONFIDENCE_LABEL[c.level]}
             </span>
           ))}
@@ -547,6 +568,7 @@ export function PlayerSections({
         <SectionHeader
           title="Checkin"
           totalCount={checkinsByDay.length}
+          recentCount={SECTION_CONFIG.checkin.recent}
           section="checkin"
           onOpen={openModal}
         />
@@ -611,6 +633,7 @@ export function PlayerSections({
         <SectionHeader
           title="Jurnal"
           totalCount={dailyJournals.length}
+          recentCount={SECTION_CONFIG.journal.recent}
           section="journal"
           onOpen={openModal}
         />
@@ -664,6 +687,7 @@ export function PlayerSections({
         <SectionHeader
           title="Obiective săptămânale"
           totalCount={weeklyScopes.length}
+          recentCount={SECTION_CONFIG.scope.recent}
           section="scope"
           onOpen={openModal}
         />
@@ -709,6 +733,7 @@ export function PlayerSections({
           <SectionHeader
             title="Modalități de îmbunătățire"
             totalCount={allImprovementRatings.length}
+            recentCount={SECTION_CONFIG.improvement.recent}
             section="improvement"
             onOpen={openModal}
           />
@@ -748,6 +773,7 @@ export function PlayerSections({
         <SectionHeader
           title="Bibliotecă — status citire"
           totalCount={libraryItems.length}
+          recentCount={SECTION_CONFIG.library.recent}
           section="library"
           onOpen={openModal}
         />
