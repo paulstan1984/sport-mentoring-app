@@ -1,7 +1,7 @@
 import { requireMentor, getSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { ReportClient } from "./ReportClient";
-import type { ReportData, ReportRow, SelectedImprovementWay } from "./ReportClient";
+import type { ReportData, ReportRow, SelectedImprovementWay, PlayerNoteRow } from "./ReportClient";
 
 // Returns all dates (UTC midnight) between startDate and endDate (inclusive)
 function getDatesInRange(startDate: Date, endDate: Date): Date[] {
@@ -66,6 +66,7 @@ export default async function ReportsPage({
   const includeJournalScore = !isReportRequested || params.includeJournalScore === "1";
   const includeWeeklyGoal = !isReportRequested || params.includeWeeklyGoal === "1";
   const includeCheckinCount = !isReportRequested || params.includeCheckinCount === "1";
+  const includePlayerNotes = !isReportRequested || params.includePlayerNotes === "1";
 
   // Improvement ways: default all selected; after submission use param values
   let selectedImprovementWayIds: number[];
@@ -92,7 +93,7 @@ export default async function ReportsPage({
       const dates = getDatesInRange(startDate, endDate);
 
       // Fetch all required data in parallel
-      const [improvementRatings, confidenceLevels, dailyJournals, weeklyScopes, checkinAnswers] =
+      const [improvementRatings, confidenceLevels, dailyJournals, weeklyScopes, checkinAnswers, rawPlayerNotes] =
         await Promise.all([
           selectedImprovementWayIds.length > 0
             ? db.improvementWayRating.findMany({
@@ -129,6 +130,15 @@ export default async function ReportsPage({
                   checked: true,
                   day: { gte: startDate, lte: new Date(`${endDateStr}T23:59:59.999Z`) },
                 },
+              })
+            : Promise.resolve([]),
+          includePlayerNotes
+            ? db.playerNote.findMany({
+                where: {
+                  playerId,
+                  date: { gte: startDate, lte: new Date(`${endDateStr}T23:59:59.999Z`) },
+                },
+                orderBy: { date: "asc" },
               })
             : Promise.resolve([]),
         ]);
@@ -181,6 +191,13 @@ export default async function ReportsPage({
         return { date: dayStr, iwRatings, confidence, journalScore, weeklyGoal, checkinCount };
       });
 
+      const playerNotes: PlayerNoteRow[] = rawPlayerNotes.map((n) => ({
+        id: n.id,
+        date: toDateStr(n.date),
+        checkinPresence: n.checkinPresence,
+        content: n.content,
+      }));
+
       reportData = {
         playerName: player.name,
         startDate: startDateStr,
@@ -190,7 +207,9 @@ export default async function ReportsPage({
         includeJournalScore,
         includeWeeklyGoal,
         includeCheckinCount,
+        includePlayerNotes,
         rows,
+        playerNotes,
       };
     }
   }
@@ -304,6 +323,16 @@ export default async function ReportsPage({
                 className="rounded"
               />
               Checkin efectuat
+            </label>
+            <label className="flex items-center gap-2 text-sm cursor-pointer">
+              <input
+                type="checkbox"
+                name="includePlayerNotes"
+                value="1"
+                defaultChecked={includePlayerNotes}
+                className="rounded"
+              />
+              Notițe antrenor
             </label>
           </div>
 

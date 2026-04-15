@@ -25,6 +25,13 @@ export interface SelectedImprovementWay {
   title: string;
 }
 
+export interface PlayerNoteRow {
+  id: number;
+  date: string;
+  checkinPresence: boolean;
+  content: string;
+}
+
 export interface ReportData {
   playerName: string;
   startDate: string;
@@ -34,7 +41,9 @@ export interface ReportData {
   includeJournalScore: boolean;
   includeWeeklyGoal: boolean;
   includeCheckinCount: boolean;
+  includePlayerNotes: boolean;
   rows: ReportRow[];
+  playerNotes: PlayerNoteRow[];
 }
 
 function confidenceLabel(c: string | null): string {
@@ -195,6 +204,48 @@ export function ReportClient({ data }: { data: ReportData }) {
       {data.rows.length > 0 && (
         <div className="print-chart">
           <ReportChart data={data} />
+        </div>
+      )}
+
+      {/* Player notes table */}
+      {data.includePlayerNotes && (
+        <div className="mt-8">
+          <h3 className="text-base font-semibold mb-3">Notițe antrenor</h3>
+          {data.playerNotes.length === 0 ? (
+            <p className="text-sm text-gray-400">Nu există notițe pentru perioada selectată.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm border-collapse">
+                <thead>
+                  <tr className="bg-gray-50 dark:bg-gray-800">
+                    <th className="text-left px-3 py-2 border border-gray-200 dark:border-gray-700 font-semibold whitespace-nowrap">Dată</th>
+                    <th className="text-left px-3 py-2 border border-gray-200 dark:border-gray-700 font-semibold whitespace-nowrap">Checkin (Prezența)</th>
+                    <th className="text-left px-3 py-2 border border-gray-200 dark:border-gray-700 font-semibold">Mesaj notă</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.playerNotes.map((note) => (
+                    <tr key={note.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 align-top">
+                      <td className="px-3 py-2 border border-gray-200 dark:border-gray-700 font-mono text-xs whitespace-nowrap">
+                        {note.date}
+                      </td>
+                      <td className="px-3 py-2 border border-gray-200 dark:border-gray-700 text-center">
+                        {note.checkinPresence ? (
+                          <span className="text-green-600 font-medium">✅ Prezent</span>
+                        ) : (
+                          <span className="text-gray-400">⬜ Absent</span>
+                        )}
+                      </td>
+                      <td
+                        className="px-3 py-2 border border-gray-200 dark:border-gray-700 text-xs"
+                        dangerouslySetInnerHTML={{ __html: note.content }}
+                      />
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
     </div>
