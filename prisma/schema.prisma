@@ -78,13 +78,14 @@ model Player {
 }
 
 model PlayerNote {
-  id        Int      @id @default(autoincrement())
-  playerId  Int
-  player    Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
-  mentorId  Int
-  date      DateTime
-  content   String
-  createdAt DateTime @default(now())
+  id               Int      @id @default(autoincrement())
+  playerId         Int
+  player           Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  mentorId         Int
+  date             DateTime
+  content          String
+  checkinPresence  Boolean  @default(false)
+  createdAt        DateTime @default(now())
 }
 
 model CheckinForm {

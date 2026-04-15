@@ -630,6 +630,7 @@ export async function createPlayerNote(
   const playerId = Number(formData.get("playerId"));
   const dateStr = (formData.get("date") as string)?.trim();
   const content = (formData.get("content") as string)?.trim();
+  const checkinPresence = formData.get("checkinPresence") === "on";
 
   if (!playerId || !dateStr || !content) return { error: "Toate câmpurile sunt obligatorii." };
 
@@ -644,7 +645,7 @@ export async function createPlayerNote(
   if (Number.isNaN(date.getTime())) return { error: "Data este invalidă." };
 
   await db.playerNote.create({
-    data: { playerId, mentorId, date, content },
+    data: { playerId, mentorId, date, content, checkinPresence },
   });
 
   revalidatePath(`/mentor/players/${playerId}`);
@@ -661,6 +662,7 @@ export async function updatePlayerNote(
   const noteId = Number(formData.get("noteId"));
   const dateStr = (formData.get("date") as string)?.trim();
   const content = (formData.get("content") as string)?.trim();
+  const checkinPresence = formData.get("checkinPresence") === "on";
 
   if (!noteId || !dateStr || !content) return { error: "Toate câmpurile sunt obligatorii." };
 
@@ -676,7 +678,7 @@ export async function updatePlayerNote(
 
   await db.playerNote.update({
     where: { id: noteId },
-    data: { date, content },
+    data: { date, content, checkinPresence },
   });
 
   revalidatePath(`/mentor/players/${note.playerId}`);
