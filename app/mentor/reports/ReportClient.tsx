@@ -133,7 +133,7 @@ export function ReportClient({ data }: { data: ReportData }) {
                 {data.selectedImprovementWays.map((iw) => (
                   <th
                     key={iw.id}
-                    className="text-left px-3 py-2 border border-gray-200 dark:border-gray-700 font-semibold text-xs whitespace-nowrap"
+                    className="text-center px-3 py-2 border border-gray-200 dark:border-gray-700 font-semibold text-xs whitespace-nowrap"
                   >
                     {iw.title}
                   </th>
@@ -144,17 +144,17 @@ export function ReportClient({ data }: { data: ReportData }) {
                   </th>
                 )}
                 {data.includeJournalScore && (
-                  <th className="text-left px-3 py-2 border border-gray-200 dark:border-gray-700 font-semibold whitespace-nowrap">
+                  <th className="text-center px-3 py-2 border border-gray-200 dark:border-gray-700 font-semibold whitespace-nowrap">
                     Scor jurnal
                   </th>
                 )}
                 {data.includeWeeklyGoal && (
-                  <th className="text-left px-3 py-2 border border-gray-200 dark:border-gray-700 font-semibold whitespace-nowrap">
+                  <th className="text-center px-3 py-2 border border-gray-200 dark:border-gray-700 font-semibold whitespace-nowrap">
                     Obiectiv săpt.
                   </th>
                 )}
                 {data.includeCheckinCount && (
-                  <th className="text-left px-3 py-2 border border-gray-200 dark:border-gray-700 font-semibold whitespace-nowrap">
+                  <th className="text-center px-3 py-2 border border-gray-200 dark:border-gray-700 font-semibold whitespace-nowrap">
                     Checkin
                   </th>
                 )}
@@ -219,7 +219,7 @@ export function ReportClient({ data }: { data: ReportData }) {
                 <thead>
                   <tr className="bg-gray-50 dark:bg-gray-800">
                     <th className="text-left px-3 py-2 border border-gray-200 dark:border-gray-700 font-semibold whitespace-nowrap">Dată</th>
-                    <th className="text-left px-3 py-2 border border-gray-200 dark:border-gray-700 font-semibold whitespace-nowrap">Checkin (Prezența)</th>
+                    <th className="text-center px-3 py-2 border border-gray-200 dark:border-gray-700 font-semibold whitespace-nowrap">Checkin (Prezența)</th>
                     <th className="text-left px-3 py-2 border border-gray-200 dark:border-gray-700 font-semibold">Mesaj notă</th>
                   </tr>
                 </thead>
