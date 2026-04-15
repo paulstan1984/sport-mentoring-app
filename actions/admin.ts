@@ -277,3 +277,18 @@ export async function changeSuperAdminPassword(
 
   return { success: true };
 }
+
+// ── Tools ─────────────────────────────────────────────────────────────────────
+
+export async function deleteOrphanUsers(): Promise<ActionResult & { count?: number }> {
+  await requireSuperAdmin();
+
+  const result = await db.$executeRaw`
+    DELETE FROM "User"
+    WHERE role != 'SUPER_ADMIN'
+      AND id NOT IN (SELECT userId FROM "Mentor")
+      AND id NOT IN (SELECT userId FROM "Player")
+  `;
+
+  return { success: true, count: result };
+}

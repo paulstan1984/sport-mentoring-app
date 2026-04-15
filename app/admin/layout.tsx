@@ -6,6 +6,7 @@ import {
   Database,
   LogOut,
   UserCircle,
+  Wrench,
 } from "lucide-react";
 
 export default function AdminLayout({
@@ -16,6 +17,7 @@ export default function AdminLayout({
   const navLinks = [
     { href: "/admin/mentors", label: "Mentori", icon: Users },
     { href: "/admin/positions", label: "Poziții", icon: LayoutGrid },
+    { href: "/admin/tools", label: "Unelte", icon: Wrench },
     { href: "/admin/profile", label: "Profil", icon: UserCircle },
   ];
 
