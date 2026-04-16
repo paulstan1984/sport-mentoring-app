@@ -292,7 +292,7 @@ export default async function ReportsPage({
                 defaultChecked={includeConfidence}
                 className="rounded"
               />
-              Nivel de stare
+              Nivelul de încredere
             </label>
             <label className="flex items-center gap-2 text-sm cursor-pointer">
               <input

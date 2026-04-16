@@ -135,7 +135,7 @@ The UI language is **Romanian**. All user-facing text (labels, buttons, messages
 | Message                  | Mesaj                       |
 | Profile                  | Profil                      |
 | Positions                | Poziții pe teren            |
-| Confidence level         | Nivel de stare              |
+| Confidence level         | Nivelul de încredere        |
 | Good (confidence)        | Bine                        |
 | OK (confidence)          | OK                          |
 | Hard (confidence)        | Greu                        |
