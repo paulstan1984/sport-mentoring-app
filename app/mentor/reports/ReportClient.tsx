@@ -140,7 +140,7 @@ export function ReportClient({ data }: { data: ReportData }) {
                 ))}
                 {data.includeConfidence && (
                   <th className="text-left px-3 py-2 border border-gray-200 dark:border-gray-700 font-semibold whitespace-nowrap">
-                    Nivel stare
+                    Nivel încredere
                   </th>
                 )}
                 {data.includeJournalScore && (
@@ -298,7 +298,7 @@ function ReportChart({ data }: { data: ReportData }) {
             formatter={((value: any, name: string) => {
               if (name === "confidence") {
                 const labels: Record<number, string> = { 3: "Bine", 2: "OK", 1: "Greu" };
-                return [typeof value === "number" ? (labels[value] ?? value) : value, "Nivel stare"];
+                return [typeof value === "number" ? (labels[value] ?? value) : value, "Nivel încredere"];
               }
               return [value, name];
             }) as any}
@@ -321,7 +321,7 @@ function ReportChart({ data }: { data: ReportData }) {
             <Line
               type="monotone"
               dataKey="confidence"
-              name="Nivel stare"
+              name="Nivel încredere"
               stroke="#6b7280"
               strokeDasharray="4 2"
               dot={false}
