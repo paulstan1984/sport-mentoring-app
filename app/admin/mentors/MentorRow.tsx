@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useActionState } from "react";
 import { updateMentor, deleteMentor, changeMentorPassword, toggleMentorActive } from "@/actions/admin";
+import { impersonateMentor } from "@/actions/auth";
 import type { Mentor, User } from "@/app/generated/prisma/client";
 
 type MentorWithUser = Mentor & { user: Pick<User, "username"> };
@@ -101,6 +102,12 @@ export function MentorRow({ mentor }: { mentor: MentorWithUser }) {
       </td>
       <td className="px-4 py-3">
         <div className="flex gap-2 justify-end">
+          <form action={impersonateMentor}>
+            <input type="hidden" name="mentorId" value={mentor.id} />
+            <button type="submit" className="btn-xs text-purple-600 border-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/20">
+              Impersonează
+            </button>
+          </form>
           <button onClick={() => setEditing(true)} className="btn-xs">Editează</button>
           <button
             onClick={handleToggleActive}

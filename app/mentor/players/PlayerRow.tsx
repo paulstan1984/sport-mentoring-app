@@ -8,6 +8,7 @@ import {
   resetPlayerPassword,
   togglePlayerActive,
 } from "@/actions/mentor";
+import { impersonatePlayer } from "@/actions/auth";
 import type { Player, User, PlayfieldPosition } from "@/app/generated/prisma/client";
 import { PlayerProfileForm } from "./PlayerProfileForm";
 
@@ -19,9 +20,11 @@ type PlayerWithRelations = Player & {
 export function PlayerRow({
   player,
   positions,
+  canImpersonate = false,
 }: {
   player: PlayerWithRelations;
   positions: PlayfieldPosition[];
+  canImpersonate?: boolean;
 }) {
   const [editing, setEditing] = useState(false);
   const [resettingPwd, setResettingPwd] = useState(false);
@@ -120,6 +123,14 @@ export function PlayerRow({
       </td>
       <td className="px-4 py-3">
         <div className="flex gap-2 justify-end">
+          {canImpersonate && (
+            <form action={impersonatePlayer}>
+              <input type="hidden" name="playerId" value={player.id} />
+              <button type="submit" className="btn-xs text-purple-600 border-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/20">
+                Impersonează
+              </button>
+            </form>
+          )}
           <button onClick={() => setEditing(true)} className="btn-xs flex items-center gap-1">
             <svg className="w-3 h-3 sm:hidden" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125" />

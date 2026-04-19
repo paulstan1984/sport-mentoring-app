@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { deleteMentor, updateMentor, changeMentorPassword, toggleMentorActive } from "@/actions/admin";
+import { impersonateMentor } from "@/actions/auth";
 import type { Mentor, User } from "@/app/generated/prisma/client";
 
 type MentorWithUser = Mentor & { user: Pick<User, "username"> };
@@ -100,7 +101,13 @@ export function MentorCard({ mentor }: { mentor: MentorWithUser }) {
       </div>
       <p className="font-mono text-xs text-gray-500 mt-1">{mentor.user.username}</p>
       <p className="text-xs text-gray-500 mt-2 line-clamp-2">{mentor.description ?? "Fără descriere"}</p>
-      <div className="flex gap-2 mt-3">
+      <div className="flex gap-2 mt-3 flex-wrap">
+        <form action={impersonateMentor}>
+          <input type="hidden" name="mentorId" value={mentor.id} />
+          <button type="submit" className="btn-xs text-purple-600 border-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/20">
+            Impersonează
+          </button>
+        </form>
         <button onClick={() => setEditing(true)} className="btn-xs">
           Editează
         </button>

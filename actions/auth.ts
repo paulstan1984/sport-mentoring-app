@@ -56,3 +56,71 @@ export async function logout() {
   session.destroy();
   redirect("/login");
 }
+
+// ── Impersonation ─────────────────────────────────────────────────────────────
+
+export async function impersonateMentor(formData: FormData): Promise<void> {
+  const session = await getSession();
+  if (session.role !== "SUPER_ADMIN") throw new Error("Neautorizat.");
+
+  const mentorId = Number(formData.get("mentorId"));
+  if (!mentorId) throw new Error("ID antrenor lipsă.");
+
+  const mentor = await db.mentor.findUnique({ where: { id: mentorId } });
+  if (!mentor) throw new Error("Antrenorul nu a fost găsit.");
+
+  const originalUserId = session.userId;
+
+  session.role = "MENTOR";
+  session.userId = mentor.userId;
+  session.mentorId = mentor.id;
+  session.playerId = undefined;
+  session.impersonating = true;
+  session.originalUserId = originalUserId;
+  await session.save();
+
+  redirect("/mentor/dashboard");
+}
+
+export async function impersonatePlayer(formData: FormData): Promise<void> {
+  const session = await getSession();
+  const isSuperAdmin = session.role === "SUPER_ADMIN";
+  const isImpersonating = session.impersonating === true;
+  if (!isSuperAdmin && !isImpersonating) throw new Error("Neautorizat.");
+
+  const playerId = Number(formData.get("playerId"));
+  if (!playerId) throw new Error("ID jucător lipsă.");
+
+  const player = await db.player.findUnique({ where: { id: playerId } });
+  if (!player) throw new Error("Jucătorul nu a fost găsit.");
+
+  // Preserve the root super-admin user id across nested impersonation
+  const originalUserId = session.originalUserId ?? session.userId;
+
+  session.role = "PLAYER";
+  session.userId = player.userId;
+  session.playerId = player.id;
+  session.mentorId = undefined;
+  session.impersonating = true;
+  session.originalUserId = originalUserId;
+  await session.save();
+
+  redirect("/player/dashboard");
+}
+
+export async function stopImpersonation(_formData: FormData): Promise<void> {
+  const session = await getSession();
+  if (!session.impersonating || !session.originalUserId) {
+    redirect("/login");
+  }
+
+  session.role = "SUPER_ADMIN";
+  session.userId = session.originalUserId;
+  session.mentorId = undefined;
+  session.playerId = undefined;
+  session.impersonating = undefined;
+  session.originalUserId = undefined;
+  await session.save();
+
+  redirect("/admin/mentors");
+}

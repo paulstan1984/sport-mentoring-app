@@ -5,6 +5,10 @@ export interface SessionData {
   role: "SUPER_ADMIN" | "MENTOR" | "PLAYER";
   mentorId?: number;
   playerId?: number;
+  /** True when SUPER_ADMIN is viewing as another user */
+  impersonating?: boolean;
+  /** Original SUPER_ADMIN userId, preserved across nested impersonation */
+  originalUserId?: number;
 }
 
 export const sessionOptions: SessionOptions = {

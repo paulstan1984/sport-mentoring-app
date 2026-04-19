@@ -3,6 +3,7 @@ import { logout } from "@/actions/auth";
 import { requireMentor } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { MentorMobileNav } from "./MentorMobileNav";
+import { ImpersonationBanner } from "@/components/ImpersonationBanner";
 import {
   LayoutDashboard,
   Users,
@@ -45,6 +46,7 @@ export default async function MentorLayout({
 
   return (
     <div className="min-h-screen flex flex-col">
+      <ImpersonationBanner />
       {/* Top header (mobile) */}
       <header className="bg-blue-600 text-white px-4 py-3 flex items-center justify-between sticky top-0 z-10 md:hidden">
         <Link href="/mentor/dashboard" className="font-bold text-sm text-white hover:text-blue-100">

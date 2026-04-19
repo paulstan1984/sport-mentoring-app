@@ -54,7 +54,7 @@ export default async function PlayersPage() {
               </tr>
             )}
             {players.map((p) => (
-              <PlayerRow key={p.id} player={p} positions={positions} />
+              <PlayerRow key={p.id} player={p} positions={positions} canImpersonate={session.impersonating === true} />
             ))}
           </tbody>
         </table>
