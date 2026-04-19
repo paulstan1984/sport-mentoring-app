@@ -26,7 +26,7 @@ export async function ImpersonationBanner() {
   }
 
   return (
-    <div className="bg-amber-400 text-amber-900 px-4 py-2 flex items-center justify-between text-sm font-medium z-50 sticky top-0">
+    <div className="bg-amber-400 text-amber-900 px-4 py-2 flex items-center justify-between text-sm font-medium">
       <span>
         👁 Vizualizezi ca {roleLabel}:{" "}
         <strong>{name}</strong>

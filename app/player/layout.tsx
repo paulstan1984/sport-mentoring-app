@@ -49,9 +49,10 @@ export default async function PlayerLayout({
 
   return (
     <div className="min-h-screen flex flex-col">
-      <ImpersonationBanner />
-      {/* Top header (mobile) */}
-      <header className="bg-blue-600 text-white px-4 py-3 flex items-center justify-between sticky top-0 z-10">
+      <div className="sticky top-0 z-20">
+        <ImpersonationBanner />
+        {/* Top header (mobile) */}
+        <header className="bg-blue-600 text-white px-4 py-3 flex items-center justify-between">
         <Link href="/player/dashboard" className="flex items-center gap-2 hover:opacity-90">
           {mentor?.photo ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -70,7 +71,8 @@ export default async function PlayerLayout({
         <Link href="/player/profile" className="text-sm text-blue-200 hover:text-white">
           {player?.name ?? "Jucător"}
         </Link>
-      </header>
+        </header>
+      </div>
 
       {/* Main content */}
       <main className="flex-1 overflow-auto p-4 pb-20 md:pb-4 md:px-8 md:pt-8">
@@ -101,28 +103,7 @@ export default async function PlayerLayout({
       </nav>
 
       {/* Side nav (desktop) */}
-      <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-52 bg-white border-r border-gray-200 flex-col shadow-sm">
-        <div className="px-6 py-5 border-b border-gray-100">
-          <Link href="/player/dashboard" className="flex items-center gap-2 hover:opacity-90">
-            {mentor?.photo ? (
-              <img
-                src={mentor.photo}
-                alt={mentor.name ?? "Antrenor"}
-                width={32}
-                height={32}
-                className="w-8 h-8 rounded-full object-cover border border-gray-200 shrink-0"
-              />
-            ) : (
-              <span className="text-lg">⚽</span>
-            )}
-            <span className="text-base font-bold text-blue-600 hover:text-blue-700 truncate">
-              {mentor?.name ?? "Antrenor"}
-            </span>
-          </Link>
-          <Link href="/player/profile" className="block text-xs text-gray-400 mt-0.5 truncate hover:text-gray-600">
-            {player?.name ?? "Jucător"}
-          </Link>
-        </div>
+      <aside className={`hidden md:flex fixed left-0 ${session.impersonating ? 'top-10' : 'top-0'} bottom-0 w-52 bg-white border-r border-gray-200 flex-col shadow-sm`}>
         <nav className="flex-1 px-3 py-4 space-y-1">
           {navLinks.map((l) => (
             <Link

@@ -49,16 +49,18 @@ export default async function MentorLayout({
 
   return (
     <div className="min-h-screen flex flex-col">
-      <ImpersonationBanner />
-      {/* Top header (mobile) */}
-      <header className="bg-blue-600 text-white px-4 py-3 flex items-center justify-between sticky top-0 z-10 md:hidden">
+      <div className="sticky top-0 z-20">
+        <ImpersonationBanner />
+        {/* Top header (mobile) */}
+        <header className="bg-blue-600 text-white px-4 py-3 flex items-center justify-between md:hidden">
         <Link href="/mentor/dashboard" className="font-bold text-sm text-white hover:text-blue-100">
           ⚽ Sport Mentor
         </Link>
         <Link href="/mentor/profile" className="text-sm text-blue-200 hover:text-white">
           {mentor?.name ?? "Mentor"}
         </Link>
-      </header>
+        </header>
+      </div>
 
       {/* Main content */}
       <main className="flex-1 overflow-auto p-4 pb-20 md:pb-8 md:px-8 md:pt-8">{children}</main>
@@ -67,7 +69,7 @@ export default async function MentorLayout({
       <MentorMobileNav playersLabel={playersLabel} />
 
       {/* Side nav (desktop) */}
-      <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-56 bg-white border-r border-gray-200 flex-col shadow-sm">
+      <aside className={`hidden md:flex fixed left-0 ${session.impersonating ? 'top-10' : 'top-0'} bottom-0 w-56 bg-white border-r border-gray-200 flex-col shadow-sm`}>
         <div className="px-6 py-5 border-b border-gray-100">
           <Link href="/mentor/dashboard" className="text-lg font-bold text-blue-600 hover:text-blue-700">
             ⚽ Sport Mentor
