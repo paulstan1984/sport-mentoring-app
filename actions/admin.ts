@@ -55,7 +55,10 @@ export async function createMentor(
           description,
           photo: null,
           labels: {
-            create: [{ key: "players", value: "Clienți" }],
+            create: [
+              { key: "players", value: "Clienți" },
+              { key: "player", value: "Client" },
+            ],
           },
         },
       },

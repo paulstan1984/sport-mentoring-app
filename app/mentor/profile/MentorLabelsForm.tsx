@@ -10,9 +10,14 @@ type Label = {
 
 const LABEL_META: Record<string, { displayName: string; description: string; defaultValue: string }> = {
   players: {
-    displayName: "Jucători",
-    description: "Termenul folosit pentru a denumi jucătorii/clienții tăi.",
+    displayName: "Jucători (plural)",
+    description: "Termenul folosit pentru a denumi lista jucătorilor/clienților tăi.",
     defaultValue: "Clienți",
+  },
+  player: {
+    displayName: "Jucător (singular)",
+    description: "Termenul folosit când se face referire la un singur jucător/client.",
+    defaultValue: "Client",
   },
 };
 

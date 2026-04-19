@@ -6,8 +6,10 @@ import type { PlayfieldPosition } from "@/app/generated/prisma/client";
 
 export function PlayerForm({
   positions,
+  playerLabel,
 }: {
   positions: PlayfieldPosition[];
+  playerLabel: string;
 }) {
   const [state, formAction, isPending] = useActionState(createPlayer, null);
   const [isOpen, setIsOpen] = useState(false);
@@ -19,7 +21,7 @@ export function PlayerForm({
         onClick={() => setIsOpen((prev) => !prev)}
         className="btn-secondary text-sm"
       >
-        {isOpen ? "Ascunde formularul" : "Adaugă jucător"}
+        {isOpen ? "Ascunde formularul" : `Adaugă ${playerLabel}`}
       </button>
 
       {isOpen && (
@@ -66,14 +68,14 @@ export function PlayerForm({
           {state?.success && (
             <div className="sm:col-span-2">
               <p className="text-sm text-green-600 bg-green-50 dark:bg-green-950 px-3 py-2 rounded-lg">
-                Jucătorul a fost adăugat.
+                {playerLabel} a fost adăugat.
               </p>
             </div>
           )}
 
           <div className="sm:col-span-2">
             <button type="submit" disabled={isPending} className="btn-primary">
-              {isPending ? "Se salvează..." : "Adaugă Jucător"}
+              {isPending ? "Se salvează..." : `Adaugă ${playerLabel}`}
             </button>
           </div>
         </form>

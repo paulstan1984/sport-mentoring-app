@@ -9,7 +9,7 @@ export default async function PlayersPage() {
   const session = await getSession();
   const mentorId = session.mentorId!;
 
-  const [players, positions] = await Promise.all([
+  const [players, positions, labels] = await Promise.all([
     db.player.findMany({
       where: { mentorId },
       include: {
@@ -19,16 +19,21 @@ export default async function PlayersPage() {
       orderBy: { name: "asc" },
     }),
     db.playfieldPosition.findMany({ orderBy: { name: "asc" } }),
+    db.mentorLabel.findMany({ where: { mentorId }, select: { key: true, value: true } }),
   ]);
+
+  const labelsMap = Object.fromEntries(labels.map((l) => [l.key, l.value]));
+  const playerLabel = labelsMap["player"] ?? "Client";
+  const playersLabel = labelsMap["players"] ?? "Clienți";
 
   return (
     <div className="max-w-4xl">
-      <h1 className="text-2xl font-bold mb-6">Jucători</h1>
+      <h1 className="text-2xl font-bold mb-6">{playersLabel}</h1>
 
       {/* Add player form */}
       <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-6 mb-8">
-        <h2 className="text-lg font-semibold mb-4">Adaugă Jucător</h2>
-        <PlayerForm positions={positions} />
+        <h2 className="text-lg font-semibold mb-4">Adaugă {playerLabel}</h2>
+        <PlayerForm positions={positions} playerLabel={playerLabel} />
 
         <PlayerCsvImportToggle />
       </div>
@@ -49,7 +54,7 @@ export default async function PlayersPage() {
             {players.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-4 py-6 text-center text-gray-400">
-                  Nu există jucători.
+                  Nu există {playersLabel.toLowerCase()}.
                 </td>
               </tr>
             )}
