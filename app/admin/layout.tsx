@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { logout } from "@/actions/auth";
+import { db } from "@/lib/db";
 import {
   Users,
   LayoutGrid,
@@ -7,15 +8,26 @@ import {
   LogOut,
   UserCircle,
   Wrench,
+  ClipboardList,
 } from "lucide-react";
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const pendingCount = await db.mentorSignupRequest.count({
+    where: { status: "PENDING" },
+  });
+
   const navLinks = [
     { href: "/admin/mentors", label: "Mentori", icon: Users },
+    {
+      href: "/admin/signups",
+      label: "Cereri",
+      icon: ClipboardList,
+      badge: pendingCount > 0 ? pendingCount : undefined,
+    },
     { href: "/admin/positions", label: "Poziții", icon: LayoutGrid },
     { href: "/admin/tools", label: "Unelte", icon: Wrench },
     { href: "/admin/profile", label: "Profil", icon: UserCircle },
@@ -40,9 +52,16 @@ export default function AdminLayout({
           <Link
             key={l.href}
             href={l.href}
-            className="flex-1 flex flex-col items-center py-2 text-xs text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            className="flex-1 flex flex-col items-center py-2 text-xs text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors relative"
           >
-            <l.icon size={22} className="mb-0.5" />
+            <div className="relative">
+              <l.icon size={22} className="mb-0.5" />
+              {l.badge !== undefined && (
+                <span className="absolute -top-1 -right-2 w-4 h-4 bg-yellow-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                  {l.badge}
+                </span>
+              )}
+            </div>
             <span className="mt-0.5 truncate">{l.label}</span>
           </Link>
         ))}
@@ -78,7 +97,14 @@ export default function AdminLayout({
               href={l.href}
               className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
             >
-              <l.icon size={20} />
+              <div className="relative">
+                <l.icon size={20} />
+                {l.badge !== undefined && (
+                  <span className="absolute -top-1 -right-2 w-4 h-4 bg-yellow-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                    {l.badge}
+                  </span>
+                )}
+              </div>
               {l.label}
             </Link>
           ))}
