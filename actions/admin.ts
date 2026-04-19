@@ -50,7 +50,14 @@ export async function createMentor(
       passwordHash,
       role: "MENTOR",
       mentor: {
-        create: { name, description, photo: null },
+        create: {
+          name,
+          description,
+          photo: null,
+          labels: {
+            create: [{ key: "players", value: "Clienți" }],
+          },
+        },
       },
     },
     include: { mentor: true },

@@ -1,6 +1,7 @@
 import { requireMentor, getSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { ProfileForm, PasswordForm } from "./ProfileForm";
+import { MentorLabelsForm } from "./MentorLabelsForm";
 
 export default async function MentorProfilePage() {
   await requireMentor();
@@ -8,7 +9,10 @@ export default async function MentorProfilePage() {
 
   const mentor = await db.mentor.findUnique({
     where: { id: session.mentorId },
-    include: { user: { select: { username: true } } },
+    include: {
+      user: { select: { username: true } },
+      labels: { select: { key: true, value: true } },
+    },
   });
 
   if (!mentor) return null;
@@ -20,6 +24,11 @@ export default async function MentorProfilePage() {
       <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-6">
         <h2 className="font-semibold mb-4">Informații profil</h2>
         <ProfileForm mentor={mentor} />
+      </div>
+
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-6">
+        <h2 className="font-semibold mb-4">Etichete personalizate</h2>
+        <MentorLabelsForm labels={mentor.labels} />
       </div>
 
       <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-6">

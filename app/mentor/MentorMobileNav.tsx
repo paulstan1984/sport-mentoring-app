@@ -15,12 +15,7 @@ import {
   LogOut,
 } from "lucide-react";
 
-const mainLinks = [
-  { href: "/mentor/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/mentor/players", label: "Jucători", icon: Users },
-];
-
-const moreLinks = [
+const mobileMoreLinks = [
   { href: "/mentor/reports", label: "Rapoarte", icon: FileText },
   { href: "/mentor/checkin-form", label: "Formular Checkin", icon: ClipboardCheck },
   { href: "/mentor/improvement-ways", label: "Îmbunătățiri", icon: TrendingUp },
@@ -28,8 +23,15 @@ const moreLinks = [
   { href: "/mentor/message", label: "Mesajul Zilei", icon: MessageSquare },
 ];
 
-export function MentorMobileNav() {
+
+
+export function MentorMobileNav({ playersLabel }: { playersLabel: string }) {
   const [moreOpen, setMoreOpen] = useState(false);
+
+  const mainLinks = [
+    { href: "/mentor/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/mentor/players", label: playersLabel, icon: Users },
+  ];
 
   function closeMore() {
     setMoreOpen(false);
@@ -57,7 +59,7 @@ export function MentorMobileNav() {
             className="fixed bottom-16 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 px-4 py-3 space-y-1 z-30 shadow-lg"
             onClick={(e) => e.stopPropagation()}
           >
-            {moreLinks.map((l) => (
+            {mobileMoreLinks.map((l) => (
               <Link
                 key={l.href}
                 href={l.href}

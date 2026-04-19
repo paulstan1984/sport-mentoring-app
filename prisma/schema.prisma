@@ -43,7 +43,18 @@ model Mentor {
   libraryItems     LibraryItem[]
   dailyMessages    DailyMessage[]
   improvementWays  ImprovementWay[]
+  labels           MentorLabel[]
   createdAt        DateTime         @default(now())
+}
+
+model MentorLabel {
+  id       Int    @id @default(autoincrement())
+  mentorId Int
+  mentor   Mentor @relation(fields: [mentorId], references: [id], onDelete: Cascade)
+  key      String
+  value    String
+
+  @@unique([mentorId, key])
 }
 
 model PlayfieldPosition {

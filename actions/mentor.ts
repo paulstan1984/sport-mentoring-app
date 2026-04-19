@@ -796,3 +796,28 @@ export async function moveImprovementWay(
   return { success: true };
 }
 
+// ── Mentor Labels ─────────────────────────────────────────────────────────────
+
+export async function updateMentorLabel(
+  _prev: ActionResult | null,
+  formData: FormData
+): Promise<ActionResult> {
+  await requireMentor();
+  const mentorId = await getMentorId();
+
+  const key = (formData.get("key") as string)?.trim();
+  const value = (formData.get("value") as string)?.trim();
+
+  if (!key) return { error: "Cheia etichetei lipsește." };
+  if (!value) return { error: "Valoarea nu poate fi goală." };
+
+  await db.mentorLabel.upsert({
+    where: { mentorId_key: { mentorId, key } },
+    update: { value },
+    create: { mentorId, key, value },
+  });
+
+  revalidatePath("/mentor/profile");
+  return { success: true };
+}
+

@@ -24,8 +24,11 @@ export default async function MentorLayout({
   const session = await requireMentor();
   const mentor = await db.mentor.findUnique({
     where: { id: session.mentorId },
-    select: { name: true },
+    select: { name: true, labels: { select: { key: true, value: true } } },
   });
+
+  const playersLabel =
+    mentor?.labels.find((l) => l.key === "players")?.value ?? "Clienți";
 
   // Update last_active_at on every request to a mentor route
   await db.mentor.update({
@@ -35,7 +38,7 @@ export default async function MentorLayout({
 
   const navLinks = [
     { href: "/mentor/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/mentor/players", label: "Jucători", icon: Users },
+    { href: "/mentor/players", label: playersLabel, icon: Users },
     { href: "/mentor/reports", label: "Rapoarte", icon: FileText },
     { href: "/mentor/checkin-form", label: "Formular Checkin", icon: ClipboardCheck },
     { href: "/mentor/improvement-ways", label: "Îmbunătățiri", icon: TrendingUp },
@@ -61,7 +64,7 @@ export default async function MentorLayout({
       <main className="flex-1 overflow-auto p-4 pb-20 md:pb-8 md:px-8 md:pt-8">{children}</main>
 
       {/* Bottom navigation (mobile-first) */}
-      <MentorMobileNav />
+      <MentorMobileNav playersLabel={playersLabel} />
 
       {/* Side nav (desktop) */}
       <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-56 bg-white border-r border-gray-200 flex-col shadow-sm">
