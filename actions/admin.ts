@@ -3,6 +3,7 @@
 import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
+import { SignupRequestStatus } from "@/app/generated/prisma/client";
 import { requireSuperAdmin, getSession } from "@/lib/auth";
 import {
   ALLOWED_IMAGE_TYPES,
@@ -308,7 +309,7 @@ export async function approveMentorSignup(
   }
 
   const request = await db.mentorSignupRequest.findUnique({ where: { id: requestId } });
-  if (!request || request.status !== "PENDING") {
+  if (!request || request.status !== SignupRequestStatus.PENDING) {
     return { error: "Cererea nu a fost găsită sau a fost deja procesată." };
   }
 
@@ -342,7 +343,7 @@ export async function approveMentorSignup(
 
   await db.mentorSignupRequest.update({
     where: { id: requestId },
-    data: { status: "APPROVED", processedAt: new Date() },
+    data: { status: SignupRequestStatus.APPROVED, processedAt: new Date() },
   });
 
   revalidatePath("/admin/signups");
@@ -354,13 +355,13 @@ export async function rejectMentorSignup(requestId: number): Promise<ActionResul
   await requireSuperAdmin();
 
   const request = await db.mentorSignupRequest.findUnique({ where: { id: requestId } });
-  if (!request || request.status !== "PENDING") {
+  if (!request || request.status !== SignupRequestStatus.PENDING) {
     return { error: "Cererea nu a fost găsită sau a fost deja procesată." };
   }
 
   await db.mentorSignupRequest.update({
     where: { id: requestId },
-    data: { status: "REJECTED", processedAt: new Date() },
+    data: { status: SignupRequestStatus.REJECTED, processedAt: new Date() },
   });
 
   revalidatePath("/admin/signups");

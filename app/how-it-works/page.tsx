@@ -91,7 +91,7 @@ export default function HowItWorksPage() {
               },
               {
                 q: "Jucătorii pot vedea activitatea altor jucători?",
-                a: "Nu. Fiecare jucător vede doar propriile date — journal, checkin, obiective și biblioteacă.",
+                a: "Nu. Fiecare jucător vede doar propriile date — journal, checkin, obiective și bibliotecă.",
               },
               {
                 q: "Cum se autentifică jucătorii?",

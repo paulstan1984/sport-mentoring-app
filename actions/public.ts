@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
+import { SignupRequestStatus } from "@/app/generated/prisma/client";
 
 type ActionResult = { error?: string; success?: boolean };
 
@@ -23,14 +24,14 @@ export async function submitMentorSignup(
 
   // Prevent duplicate pending requests for the same email
   const existing = await db.mentorSignupRequest.findFirst({
-    where: { email, status: "PENDING" },
+    where: { email, status: SignupRequestStatus.PENDING },
   });
   if (existing) {
     return { error: "Există deja o cerere în așteptare pentru această adresă de email." };
   }
 
   await db.mentorSignupRequest.create({
-    data: { name, email, description, status: "PENDING" },
+    data: { name, email, description, status: SignupRequestStatus.PENDING },
   });
 
   return { success: true };

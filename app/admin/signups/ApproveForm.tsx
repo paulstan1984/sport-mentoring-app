@@ -30,7 +30,7 @@ export function ApproveForm({ requestId, defaultUsername }: Props) {
         />
         <input
           name="password"
-          type="text"
+          type="password"
           required
           className="input text-xs py-1"
           placeholder="Parolă (min 8 car.)"

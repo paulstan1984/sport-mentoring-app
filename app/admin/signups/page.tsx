@@ -1,5 +1,6 @@
 import { requireSuperAdmin } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { SignupRequestStatus } from "@/app/generated/prisma/client";
 import { ApproveForm } from "./ApproveForm";
 import { RejectButton } from "./RejectButton";
 
@@ -10,12 +11,12 @@ export default async function SignupsPage() {
     orderBy: { createdAt: "desc" },
   });
 
-  const pending = requests.filter((r) => r.status === "PENDING");
-  const processed = requests.filter((r) => r.status !== "PENDING");
+  const pending = requests.filter((r) => r.status === SignupRequestStatus.PENDING);
+  const processed = requests.filter((r) => r.status !== SignupRequestStatus.PENDING);
 
-  function statusLabel(status: string) {
-    if (status === "APPROVED") return <span className="text-xs font-medium text-green-600 dark:text-green-400">Aprobat</span>;
-    if (status === "REJECTED") return <span className="text-xs font-medium text-red-600 dark:text-red-400">Respins</span>;
+  function statusLabel(status: SignupRequestStatus) {
+    if (status === SignupRequestStatus.APPROVED) return <span className="text-xs font-medium text-green-600 dark:text-green-400">Aprobat</span>;
+    if (status === SignupRequestStatus.REJECTED) return <span className="text-xs font-medium text-red-600 dark:text-red-400">Respins</span>;
     return <span className="text-xs font-medium text-yellow-600 dark:text-yellow-400">În așteptare</span>;
   }
 

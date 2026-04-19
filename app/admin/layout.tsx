@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { logout } from "@/actions/auth";
 import { db } from "@/lib/db";
+import { SignupRequestStatus } from "@/app/generated/prisma/client";
 import {
   Users,
   LayoutGrid,
@@ -17,7 +18,7 @@ export default async function AdminLayout({
   children: React.ReactNode;
 }) {
   const pendingCount = await db.mentorSignupRequest.count({
-    where: { status: "PENDING" },
+    where: { status: SignupRequestStatus.PENDING },
   });
 
   const navLinks = [
