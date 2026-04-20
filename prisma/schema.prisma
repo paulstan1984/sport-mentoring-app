@@ -19,6 +19,12 @@ enum Confidence {
   HARD
 }
 
+enum SignupRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model User {
   id           Int      @id @default(autoincrement())
   username     String   @unique
@@ -222,5 +228,15 @@ model ImprovementWayRating {
   score            Int
 
   @@unique([playerId, improvementWayId, day])
+}
+
+model MentorSignupRequest {
+  id          Int                 @id @default(autoincrement())
+  name        String
+  email       String
+  description String?
+  status      SignupRequestStatus @default(PENDING)
+  createdAt   DateTime            @default(now())
+  processedAt DateTime?
 }
 

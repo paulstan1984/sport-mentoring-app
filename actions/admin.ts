@@ -3,6 +3,7 @@
 import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
+import { SignupRequestStatus } from "@/app/generated/prisma/client";
 import { requireSuperAdmin, getSession } from "@/lib/auth";
 import {
   ALLOWED_IMAGE_TYPES,
@@ -285,6 +286,85 @@ export async function changeSuperAdminPassword(
   const passwordHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
   await db.user.update({ where: { id: user.id }, data: { passwordHash } });
 
+  return { success: true };
+}
+
+// ── Mentor Signup Requests ────────────────────────────────────────────────────
+
+export async function approveMentorSignup(
+  _prev: ActionResult | null,
+  formData: FormData
+): Promise<ActionResult> {
+  await requireSuperAdmin();
+
+  const requestId = Number(formData.get("requestId"));
+  const username = (formData.get("username") as string)?.trim();
+  const password = formData.get("password") as string;
+
+  if (!requestId || !username || !password) {
+    return { error: "Câmpurile marcate sunt obligatorii." };
+  }
+  if (password.length < 8) {
+    return { error: "Parola trebuie să aibă cel puțin 8 caractere." };
+  }
+
+  const request = await db.mentorSignupRequest.findUnique({ where: { id: requestId } });
+  if (!request || request.status !== SignupRequestStatus.PENDING) {
+    return { error: "Cererea nu a fost găsită sau a fost deja procesată." };
+  }
+
+  const existing = await db.user.findUnique({ where: { username } });
+  if (existing) {
+    return { error: "Utilizatorul există deja." };
+  }
+
+  const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
+
+  await db.user.create({
+    data: {
+      username,
+      passwordHash,
+      role: "MENTOR",
+      mentor: {
+        create: {
+          name: request.name,
+          description: request.description,
+          photo: null,
+          labels: {
+            create: [
+              { key: "players", value: "Clienți" },
+              { key: "player", value: "Client" },
+            ],
+          },
+        },
+      },
+    },
+  });
+
+  await db.mentorSignupRequest.update({
+    where: { id: requestId },
+    data: { status: SignupRequestStatus.APPROVED, processedAt: new Date() },
+  });
+
+  revalidatePath("/admin/signups");
+  revalidatePath("/admin/mentors");
+  return { success: true };
+}
+
+export async function rejectMentorSignup(requestId: number): Promise<ActionResult> {
+  await requireSuperAdmin();
+
+  const request = await db.mentorSignupRequest.findUnique({ where: { id: requestId } });
+  if (!request || request.status !== SignupRequestStatus.PENDING) {
+    return { error: "Cererea nu a fost găsită sau a fost deja procesată." };
+  }
+
+  await db.mentorSignupRequest.update({
+    where: { id: requestId },
+    data: { status: SignupRequestStatus.REJECTED, processedAt: new Date() },
+  });
+
+  revalidatePath("/admin/signups");
   return { success: true };
 }
 
