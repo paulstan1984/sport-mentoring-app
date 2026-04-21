@@ -821,3 +821,90 @@ export async function updateMentorLabel(
   return { success: true };
 }
 
+// ── Player record deletions ───────────────────────────────────────────────────
+
+export async function deletePlayerConfidenceLevel(
+  id: number,
+  playerId: number
+): Promise<ActionResult> {
+  await requireMentor();
+  const mentorId = await getMentorId();
+
+  const player = await db.player.findFirst({ where: { id: playerId, mentorId } });
+  if (!player) return { error: "Jucătorul nu a fost găsit." };
+
+  await db.confidenceLevel.delete({ where: { id } });
+  revalidatePath(`/mentor/players/${playerId}`);
+  return { success: true };
+}
+
+export async function deletePlayerCheckinDay(
+  playerId: number,
+  dayKey: string
+): Promise<ActionResult> {
+  await requireMentor();
+  const mentorId = await getMentorId();
+
+  const player = await db.player.findFirst({ where: { id: playerId, mentorId } });
+  if (!player) return { error: "Jucătorul nu a fost găsit." };
+
+  const dayStart = new Date(`${dayKey}T00:00:00.000Z`);
+  const dayEnd = new Date(`${dayKey}T23:59:59.999Z`);
+
+  await db.checkinAnswer.deleteMany({
+    where: { playerId, day: { gte: dayStart, lte: dayEnd } },
+  });
+  revalidatePath(`/mentor/players/${playerId}`);
+  return { success: true };
+}
+
+export async function deletePlayerDailyJournal(
+  id: number,
+  playerId: number
+): Promise<ActionResult> {
+  await requireMentor();
+  const mentorId = await getMentorId();
+
+  const player = await db.player.findFirst({ where: { id: playerId, mentorId } });
+  if (!player) return { error: "Jucătorul nu a fost găsit." };
+
+  await db.dailyJournal.delete({ where: { id } });
+  revalidatePath(`/mentor/players/${playerId}`);
+  return { success: true };
+}
+
+export async function deletePlayerWeeklyScope(
+  id: number,
+  playerId: number
+): Promise<ActionResult> {
+  await requireMentor();
+  const mentorId = await getMentorId();
+
+  const player = await db.player.findFirst({ where: { id: playerId, mentorId } });
+  if (!player) return { error: "Jucătorul nu a fost găsit." };
+
+  await db.weeklyScope.delete({ where: { id } });
+  revalidatePath(`/mentor/players/${playerId}`);
+  return { success: true };
+}
+
+export async function deletePlayerImprovementRatingsForDay(
+  playerId: number,
+  dayKey: string
+): Promise<ActionResult> {
+  await requireMentor();
+  const mentorId = await getMentorId();
+
+  const player = await db.player.findFirst({ where: { id: playerId, mentorId } });
+  if (!player) return { error: "Jucătorul nu a fost găsit." };
+
+  const dayStart = new Date(`${dayKey}T00:00:00.000Z`);
+  const dayEnd = new Date(`${dayKey}T23:59:59.999Z`);
+
+  await db.improvementWayRating.deleteMany({
+    where: { playerId, day: { gte: dayStart, lte: dayEnd } },
+  });
+  revalidatePath(`/mentor/players/${playerId}`);
+  return { success: true };
+}
+

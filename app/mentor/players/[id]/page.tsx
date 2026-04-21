@@ -132,6 +132,7 @@ export default async function PlayerDetailPage({
       <PlayerNotes playerId={player.id} notes={player.notes} />
 
       <PlayerSections
+        playerId={player.id}
         confidenceLevels={player.confidenceLevels}
         checkinsByDay={checkinsByDay}
         dailyJournals={player.dailyJournals}

@@ -1,7 +1,15 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState, useRef, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+import { X, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
+import {
+  deletePlayerConfidenceLevel,
+  deletePlayerCheckinDay,
+  deletePlayerDailyJournal,
+  deletePlayerWeeklyScope,
+  deletePlayerImprovementRatingsForDay,
+} from '@/actions/mentor';
 import { RichTextViewer } from '@/components/RichTextViewer';
 import { LocalDateTime } from '@/components/LocalDateTime';
 import { getWeekLabelFromWeekNumber } from '@/lib/weekUtils';
@@ -84,6 +92,7 @@ interface LibraryItem {
 }
 
 export interface PlayerSectionsProps {
+  playerId: number;
   confidenceLevels: ConfidenceLevel[];
   checkinsByDay: CheckinDay[];
   dailyJournals: DailyJournal[];
@@ -187,9 +196,37 @@ function Pagination({
   );
 }
 
+function DeleteButton({
+  onDelete,
+  confirm: confirmMsg = 'Sigur vrei să ștergi această înregistrare?',
+}: {
+  onDelete: () => Promise<void>;
+  confirm?: string;
+}) {
+  const [isPending, startTransition] = useTransition();
+  return (
+    <button
+      type="button"
+      disabled={isPending}
+      onClick={() => {
+        if (!window.confirm(confirmMsg)) return;
+        startTransition(async () => {
+          await onDelete();
+        });
+      }}
+      className="text-red-400 hover:text-red-600 disabled:opacity-40 shrink-0"
+      title="Șterge"
+      aria-label="Șterge"
+    >
+      <Trash2 size={13} />
+    </button>
+  );
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export function PlayerSections({
+  playerId,
   confidenceLevels,
   checkinsByDay,
   dailyJournals,
@@ -197,6 +234,7 @@ export function PlayerSections({
   improvementWays,
   libraryItems,
 }: PlayerSectionsProps) {
+  const router = useRouter();
   const [modal, setModal] = useState<{ section: ModalSection; page: number } | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -243,15 +281,23 @@ export function PlayerSections({
         <>
           <div className="flex gap-2 flex-wrap">
             {items.map((c) => (
-              <span key={c.id} className="text-xs bg-gray-100 dark:bg-gray-800 rounded px-2 py-1">
-                {new Date(c.day).toLocaleDateString('ro-RO', {
-                  day: 'numeric',
-                  month: 'short',
-                  year: 'numeric',
-                })}
-                {': '}
-                {CONFIDENCE_LABEL[c.level]}
-              </span>
+              <div key={c.id} className="flex items-center gap-1 text-xs bg-gray-100 dark:bg-gray-800 rounded px-2 py-1">
+                <span>
+                  {new Date(c.day).toLocaleDateString('ro-RO', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric',
+                  })}
+                  {': '}
+                  {CONFIDENCE_LABEL[c.level]}
+                </span>
+                <DeleteButton
+                  onDelete={async () => {
+                    await deletePlayerConfidenceLevel(c.id, playerId);
+                    router.refresh();
+                  }}
+                />
+              </div>
             ))}
             {items.length === 0 && (
               <p className="text-sm text-gray-400">Nicio înregistrare.</p>
@@ -288,18 +334,27 @@ export function PlayerSections({
                   key={group.dayKey}
                   className="border-l-4 border-gray-200 dark:border-gray-700 pl-4"
                 >
-                  <p className="text-xs font-medium text-gray-400 mb-2">
-                    {new Date(group.dayKey).toLocaleDateString('ro-RO', {
-                      weekday: 'long',
-                      day: 'numeric',
-                      month: 'long',
-                      year: 'numeric',
-                    })}
-                    {' · '}
-                    {checkedCount}/{group.answers.length} bifate
-                    <br />
-                    <LocalDateTime date={latestUpdate.updatedAt} />
-                  </p>
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <p className="text-xs font-medium text-gray-400">
+                      {new Date(group.dayKey).toLocaleDateString('ro-RO', {
+                        weekday: 'long',
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                      })}
+                      {' · '}
+                      {checkedCount}/{group.answers.length} bifate
+                      <br />
+                      <LocalDateTime date={latestUpdate.updatedAt} />
+                    </p>
+                    <DeleteButton
+                      confirm="Sigur vrei să ștergi toate răspunsurile din această zi?"
+                      onDelete={async () => {
+                        await deletePlayerCheckinDay(playerId, group.dayKey);
+                        router.refresh();
+                      }}
+                    />
+                  </div>
                   <div className="space-y-1">
                     {group.answers.map((answer) => (
                       <div key={answer.id} className="text-sm flex items-start gap-2">
@@ -345,16 +400,24 @@ export function PlayerSections({
             )}
             {items.map((j) => (
               <div key={j.id} className="border-l-4 border-blue-400 pl-4">
-                <p className="text-xs font-medium text-gray-400 mb-2">
-                  {new Date(j.day).toLocaleDateString('ro-RO', {
-                    weekday: 'long',
-                    day: 'numeric',
-                    month: 'long',
-                  })}
-                  {' · '}Scor: {j.myScore}/5
-                  <br />
-                  <LocalDateTime date={j.updatedAt} />
-                </p>
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <p className="text-xs font-medium text-gray-400">
+                    {new Date(j.day).toLocaleDateString('ro-RO', {
+                      weekday: 'long',
+                      day: 'numeric',
+                      month: 'long',
+                    })}
+                    {' · '}Scor: {j.myScore}/5
+                    <br />
+                    <LocalDateTime date={j.updatedAt} />
+                  </p>
+                  <DeleteButton
+                    onDelete={async () => {
+                      await deletePlayerDailyJournal(j.id, playerId);
+                      router.refresh();
+                    }}
+                  />
+                </div>
                 {j.whatDidGood && (
                   <div className="mb-2">
                     <p className="text-xs font-semibold text-green-600 mb-1">
@@ -427,6 +490,12 @@ export function PlayerSections({
                     ? '❌ Nerealizat'
                     : '—'}
                 </span>
+                <DeleteButton
+                  onDelete={async () => {
+                    await deletePlayerWeeklyScope(s.id, playerId);
+                    router.refresh();
+                  }}
+                />
               </div>
             ))}
           </div>
@@ -441,49 +510,56 @@ export function PlayerSections({
 
     if (section === 'improvement') {
       const { pageSize } = SECTION_CONFIG.improvement;
-      const items = paginate(allImprovementRatings, page, pageSize);
+      // Group flat ratings by day
+      const ratingsByDay = allImprovementRatings.reduce<
+        Array<{ dayKey: string; items: typeof allImprovementRatings }>
+      >((acc, r) => {
+        const dayKey = new Date(r.day).toISOString().slice(0, 10);
+        const existing = acc.find((g) => g.dayKey === dayKey);
+        if (existing) { existing.items.push(r); }
+        else { acc.push({ dayKey, items: [r] }); }
+        return acc;
+      }, []);
+      const dayGroups = paginate(ratingsByDay, page, pageSize);
       return (
         <>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-xs text-gray-400 border-b border-gray-200 dark:border-gray-700">
-                  <th className="text-left pb-2 pr-4">Modalitate</th>
-                  <th className="text-left pb-2 pr-4">Data</th>
-                  <th className="text-left pb-2">Scor</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-                {items.length === 0 && (
-                  <tr>
-                    <td colSpan={3} className="py-4 text-gray-400 text-center">
-                      Nicio evaluare.
-                    </td>
-                  </tr>
-                )}
-                {items.map((r) => (
-                  <tr key={r.id}>
-                    <td className="py-2 pr-4 text-gray-700 dark:text-gray-300">
-                      {r.wayTitle}
-                    </td>
-                    <td className="py-2 pr-4 text-gray-500">
-                      {new Date(r.day).toLocaleDateString('ro-RO', {
-                        day: 'numeric',
-                        month: 'short',
-                        year: 'numeric',
-                      })}
-                    </td>
-                    <td className="py-2 font-semibold text-blue-600">
-                      {r.score}/5
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="space-y-4">
+            {ratingsByDay.length === 0 && (
+              <p className="text-sm text-gray-400">Nicio evaluare.</p>
+            )}
+            {dayGroups.map((group) => (
+              <div key={group.dayKey} className="border-l-4 border-indigo-300 dark:border-indigo-700 pl-4">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-xs font-medium text-gray-400">
+                    {new Date(group.dayKey).toLocaleDateString('ro-RO', {
+                      weekday: 'long',
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric',
+                    })}
+                  </p>
+                  <DeleteButton
+                    confirm="Sigur vrei să ștergi toate evaluările din această zi?"
+                    onDelete={async () => {
+                      await deletePlayerImprovementRatingsForDay(playerId, group.dayKey);
+                      router.refresh();
+                    }}
+                  />
+                </div>
+                <div className="space-y-1">
+                  {group.items.map((r) => (
+                    <div key={r.id} className="flex items-center justify-between text-sm">
+                      <span className="text-gray-700 dark:text-gray-300">{r.wayTitle}</span>
+                      <span className="font-semibold text-blue-600 shrink-0">{r.score}/5</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
           <Pagination
             page={page}
-            total={calcTotalPages(allImprovementRatings.length, SECTION_CONFIG.improvement.pageSize)}
+            total={calcTotalPages(ratingsByDay.length, SECTION_CONFIG.improvement.pageSize)}
             onChange={setPage}
           />
         </>
@@ -545,17 +621,25 @@ export function PlayerSections({
         />
         <div className="flex gap-2 flex-wrap">
           {recentConfidence.map((c) => (
-            <span
+            <div
               key={c.id}
-              className="text-xs bg-gray-100 dark:bg-gray-800 rounded px-2 py-1"
+              className="flex items-center gap-1 text-xs bg-gray-100 dark:bg-gray-800 rounded px-2 py-1"
             >
-              {new Date(c.day).toLocaleDateString('ro-RO', {
-                day: 'numeric',
-                month: 'short',
-              })}
-              {' '}
-              {CONFIDENCE_LABEL[c.level]}
-            </span>
+              <span>
+                {new Date(c.day).toLocaleDateString('ro-RO', {
+                  day: 'numeric',
+                  month: 'short',
+                })}
+                {' '}
+                {CONFIDENCE_LABEL[c.level]}
+              </span>
+              <DeleteButton
+                onDelete={async () => {
+                  await deletePlayerConfidenceLevel(c.id, playerId);
+                  router.refresh();
+                }}
+              />
+            </div>
           ))}
           {recentConfidence.length === 0 && (
             <p className="text-sm text-gray-400">Nicio înregistrare.</p>
@@ -589,18 +673,27 @@ export function PlayerSections({
                 key={group.dayKey}
                 className="border-l-4 border-gray-200 dark:border-gray-700 pl-4"
               >
-                <p className="text-xs font-medium text-gray-400 mb-2">
-                  {new Date(group.dayKey).toLocaleDateString('ro-RO', {
-                    weekday: 'long',
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric',
-                  })}
-                  {' · '}
-                  {checkedCount}/{group.answers.length} bifate
-                  <br />
-                  <LocalDateTime date={latestUpdate.updatedAt} />
-                </p>
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <p className="text-xs font-medium text-gray-400">
+                    {new Date(group.dayKey).toLocaleDateString('ro-RO', {
+                      weekday: 'long',
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric',
+                    })}
+                    {' · '}
+                    {checkedCount}/{group.answers.length} bifate
+                    <br />
+                    <LocalDateTime date={latestUpdate.updatedAt} />
+                  </p>
+                  <DeleteButton
+                    confirm="Sigur vrei să ștergi toate răspunsurile din această zi?"
+                    onDelete={async () => {
+                      await deletePlayerCheckinDay(playerId, group.dayKey);
+                      router.refresh();
+                    }}
+                  />
+                </div>
                 <div className="space-y-1">
                   {group.answers.map((answer) => (
                     <div key={answer.id} className="text-sm flex items-start gap-2">
@@ -643,16 +736,24 @@ export function PlayerSections({
           )}
           {recentJournals.map((j) => (
             <div key={j.id} className="border-l-4 border-blue-400 pl-4">
-              <p className="text-xs font-medium text-gray-400 mb-2">
-                {new Date(j.day).toLocaleDateString('ro-RO', {
-                  weekday: 'long',
-                  day: 'numeric',
-                  month: 'long',
-                })}
-                {' · '}Scor: {j.myScore}/5
-                <br />
-                <LocalDateTime date={j.updatedAt} />
-              </p>
+              <div className="flex items-start justify-between gap-2 mb-2">
+                <p className="text-xs font-medium text-gray-400">
+                  {new Date(j.day).toLocaleDateString('ro-RO', {
+                    weekday: 'long',
+                    day: 'numeric',
+                    month: 'long',
+                  })}
+                  {' · '}Scor: {j.myScore}/5
+                  <br />
+                  <LocalDateTime date={j.updatedAt} />
+                </p>
+                <DeleteButton
+                  onDelete={async () => {
+                    await deletePlayerDailyJournal(j.id, playerId);
+                    router.refresh();
+                  }}
+                />
+              </div>
               {j.whatDidGood && (
                 <div className="mb-2">
                   <p className="text-xs font-semibold text-green-600 mb-1">
@@ -722,6 +823,12 @@ export function PlayerSections({
                   ? '❌ Nerealizat'
                   : '—'}
               </span>
+              <DeleteButton
+                onDelete={async () => {
+                  await deletePlayerWeeklyScope(s.id, playerId);
+                  router.refresh();
+                }}
+              />
             </div>
           ))}
         </div>
