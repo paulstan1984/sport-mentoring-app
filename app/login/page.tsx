@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import Link from "next/link";
 import { login } from "@/actions/auth";
 
 export default function LoginPage() {
@@ -74,6 +75,22 @@ export default function LoginPage() {
             </button>
           </form>
         </div>
+
+        <p className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
+          <Link
+            href="/how-it-works"
+            className="text-blue-600 dark:text-blue-400 hover:underline"
+          >
+            Cum funcționează?
+          </Link>
+          {" · "}
+          <Link
+            href="/signup"
+            className="text-blue-600 dark:text-blue-400 hover:underline"
+          >
+            Înregistrare antrenor
+          </Link>
+        </p>
       </div>
     </main>
   );

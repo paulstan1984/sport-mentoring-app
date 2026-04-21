@@ -4,7 +4,7 @@ import type { SessionData } from "./lib/session";
 
 const COOKIE_NAME = "sport-session";
 
-const PUBLIC_PATHS = ["/login", "/_next", "/favicon.ico", "/public"];
+const PUBLIC_PATHS = ["/login", "/signup", "/how-it-works", "/_next", "/favicon.ico", "/public"];
 
 function isPublic(pathname: string): boolean {
   return PUBLIC_PATHS.some((p) => pathname.startsWith(p));
