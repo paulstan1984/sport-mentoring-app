@@ -20,7 +20,7 @@ const SECTION_CONFIG: Record<ModalSectionKey, { recent: number; pageSize: number
   checkin:     { recent: 3, pageSize: 3 },
   journal:     { recent: 3, pageSize: 3 },
   scope:       { recent: 3, pageSize: 3 },
-  improvement: { recent: 6, pageSize: 3 },
+  improvement: { recent: 3, pageSize: 3 },
   library:     { recent: 3, pageSize: 3 },
 };
 
@@ -251,10 +251,6 @@ export function PlayerSections({
   const recentJournals = dailyJournals.slice(0, SECTION_CONFIG.journal.recent);
   const recentScopes = weeklyScopes.slice(0, SECTION_CONFIG.scope.recent);
   const recentLibrary = libraryItems.slice(0, SECTION_CONFIG.library.recent);
-  const recentImprovementWays = improvementWays.map((way) => ({
-    ...way,
-    ratings: way.ratings.slice(0, SECTION_CONFIG.improvement.recent),
-  }));
 
   // Flat ratings list for the improvement modal (all ways, all ratings, sorted by date desc)
   const allImprovementRatings = improvementWays
@@ -267,6 +263,18 @@ export function PlayerSections({
       }))
     )
     .sort((a, b) => new Date(b.day).getTime() - new Date(a.day).getTime());
+
+  // Day-grouped ratings for preview and modal
+  const allImprovementDayGroups = allImprovementRatings.reduce<
+    Array<{ dayKey: string; items: typeof allImprovementRatings }>
+  >((acc, r) => {
+    const dayKey = new Date(r.day).toISOString().slice(0, 10);
+    const existing = acc.find((g) => g.dayKey === dayKey);
+    if (existing) { existing.items.push(r); }
+    else { acc.push({ dayKey, items: [r] }); }
+    return acc;
+  }, []);
+  const recentImprovementDayGroups = allImprovementDayGroups.slice(0, SECTION_CONFIG.improvement.recent);
 
   // ─── Modal content renderer ─────────────────────────────────────────────────
 
@@ -510,21 +518,11 @@ export function PlayerSections({
 
     if (section === 'improvement') {
       const { pageSize } = SECTION_CONFIG.improvement;
-      // Group flat ratings by day
-      const ratingsByDay = allImprovementRatings.reduce<
-        Array<{ dayKey: string; items: typeof allImprovementRatings }>
-      >((acc, r) => {
-        const dayKey = new Date(r.day).toISOString().slice(0, 10);
-        const existing = acc.find((g) => g.dayKey === dayKey);
-        if (existing) { existing.items.push(r); }
-        else { acc.push({ dayKey, items: [r] }); }
-        return acc;
-      }, []);
-      const dayGroups = paginate(ratingsByDay, page, pageSize);
+      const dayGroups = paginate(allImprovementDayGroups, page, pageSize);
       return (
         <>
           <div className="space-y-4">
-            {ratingsByDay.length === 0 && (
+            {allImprovementDayGroups.length === 0 && (
               <p className="text-sm text-gray-400">Nicio evaluare.</p>
             )}
             {dayGroups.map((group) => (
@@ -559,7 +557,7 @@ export function PlayerSections({
           </div>
           <Pagination
             page={page}
-            total={calcTotalPages(ratingsByDay.length, SECTION_CONFIG.improvement.pageSize)}
+            total={calcTotalPages(allImprovementDayGroups.length, SECTION_CONFIG.improvement.pageSize)}
             onChange={setPage}
           />
         </>
@@ -839,39 +837,46 @@ export function PlayerSections({
         <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-5">
           <SectionHeader
             title="Modalități de îmbunătățire"
-            totalCount={allImprovementRatings.length}
+            totalCount={allImprovementDayGroups.length}
             recentCount={SECTION_CONFIG.improvement.recent}
             section="improvement"
             onOpen={openModal}
           />
-          <div className="space-y-5">
-            {recentImprovementWays.map((way) => (
-              <div key={way.id}>
-                <p className="text-sm font-medium mb-2">{way.title}</p>
-                {way.ratings.length === 0 ? (
-                  <p className="text-xs text-gray-400">Nicio evaluare.</p>
-                ) : (
-                  <div className="flex gap-2 flex-wrap">
-                    {way.ratings.map((r) => (
-                      <span
-                        key={r.id}
-                        className="text-xs bg-gray-100 dark:bg-gray-800 rounded px-2 py-1"
-                      >
-                        {new Date(r.day).toLocaleDateString('ro-RO', {
-                          day: 'numeric',
-                          month: 'short',
-                        })}
-                        {': '}
-                        <span className="font-semibold text-blue-600">
-                          {r.score}/5
-                        </span>
-                      </span>
+          {allImprovementRatings.length === 0 ? (
+            <p className="text-sm text-gray-400">Nicio evaluare.</p>
+          ) : (
+            <div className="space-y-4">
+              {recentImprovementDayGroups.map((group) => (
+                <div key={group.dayKey} className="border-l-4 border-indigo-300 dark:border-indigo-700 pl-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-xs font-medium text-gray-400">
+                      {new Date(group.dayKey).toLocaleDateString('ro-RO', {
+                        weekday: 'long',
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                      })}
+                    </p>
+                    <DeleteButton
+                      confirm="Sigur vrei să ștergi toate evaluările din această zi?"
+                      onDelete={async () => {
+                        await deletePlayerImprovementRatingsForDay(playerId, group.dayKey);
+                        router.refresh();
+                      }}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    {group.items.map((r) => (
+                      <div key={r.id} className="flex items-center justify-between text-sm">
+                        <span className="text-gray-700 dark:text-gray-300">{r.wayTitle}</span>
+                        <span className="font-semibold text-blue-600 shrink-0">{r.score}/5</span>
+                      </div>
                     ))}
                   </div>
-                )}
-              </div>
-            ))}
-          </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
