@@ -23,7 +23,7 @@ const CONFIDENCE_LABEL: Record<string, string> = {
   HARD: "😓 Greu",
 };
 
-export function DashboardClient({ players }: { players: PlayerSummary[] }) {
+export function DashboardClient({ players, playerLabel }: { players: PlayerSummary[]; playerLabel: string }) {
   const router = useRouter();
 
   // Poll every 60 seconds to refresh presence data
@@ -39,9 +39,9 @@ export function DashboardClient({ players }: { players: PlayerSummary[] }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {players.length === 0 && (
           <p className="text-gray-400 col-span-full">
-            Nu ai jucători adăugați.{" "}
+            Nu ai {playerLabel.toLowerCase()}i adăugați.{" "}
             <Link href="/mentor/players" className="text-blue-500 underline">
-              Adaugă un jucător
+              Adaugă un {playerLabel.toLowerCase()}
             </Link>
             .
           </p>

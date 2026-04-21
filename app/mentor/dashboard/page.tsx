@@ -8,22 +8,28 @@ export default async function MentorDashboard() {
   const session = await getSession();
   const mentorId = session.mentorId!;
 
-  const players = await db.player.findMany({
-    where: { mentorId },
-    include: {
-      user: { select: { username: true } },
-      playfieldPosition: true,
-      checkinAnswers: {
-        where: { day: startOfDayUTC(new Date()) },
-        take: 1,
+  const [players, labels] = await Promise.all([
+    db.player.findMany({
+      where: { mentorId },
+      include: {
+        user: { select: { username: true } },
+        playfieldPosition: true,
+        checkinAnswers: {
+          where: { day: startOfDayUTC(new Date()) },
+          take: 1,
+        },
+        confidenceLevels: {
+          where: { day: startOfDayUTC(new Date()) },
+          take: 1,
+        },
       },
-      confidenceLevels: {
-        where: { day: startOfDayUTC(new Date()) },
-        take: 1,
-      },
-    },
-    orderBy: { name: "asc" },
-  });
+      orderBy: { name: "asc" },
+    }),
+    db.mentorLabel.findMany({ where: { mentorId }, select: { key: true, value: true } }),
+  ]);
+
+  const labelsMap = Object.fromEntries(labels.map((l) => [l.key, l.value]));
+  const playerLabel = labelsMap["player"] ?? "Client";
 
   const serialized = players.map((p) => ({
     id: p.id,
@@ -37,5 +43,5 @@ export default async function MentorDashboard() {
     confidenceToday: p.confidenceLevels[0]?.level ?? null,
   }));
 
-  return <DashboardClient players={serialized} />;
+  return <DashboardClient players={serialized} playerLabel={playerLabel} />;
 }
