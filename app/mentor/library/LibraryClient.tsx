@@ -116,7 +116,14 @@ export function LibraryClient({
             <div key={item.id} className="bg-white dark:bg-gray-900 rounded-2xl shadow p-5">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="font-medium">{item.name}</p>
+                  <a
+                    href={`/api/files/${item.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium hover:underline text-blue-600 dark:text-blue-400"
+                  >
+                    {item.name}
+                  </a>
                   <p className="text-xs text-gray-400 mt-0.5">
                     {item.fileType} ·{" "}
                     {new Date(item.createdAt).toLocaleDateString("ro-RO")}
