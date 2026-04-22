@@ -3,7 +3,7 @@
 import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
-import { SignupRequestStatus } from "@/app/generated/prisma/client";
+import { SignupRequestStatus, RequestType, MentorLevel } from "@/app/generated/prisma/client";
 import { requireSuperAdmin, getSession } from "@/lib/auth";
 import {
   ALLOWED_IMAGE_TYPES,
@@ -289,7 +289,7 @@ export async function changeSuperAdminPassword(
   return { success: true };
 }
 
-// ── Mentor Signup Requests ────────────────────────────────────────────────────
+// ── Admin Requests (signups & level upgrades) ─────────────────────────────────
 
 export async function approveMentorSignup(
   _prev: ActionResult | null,
@@ -308,7 +308,7 @@ export async function approveMentorSignup(
     return { error: "Parola trebuie să aibă cel puțin 8 caractere." };
   }
 
-  const request = await db.mentorSignupRequest.findUnique({ where: { id: requestId } });
+  const request = await db.adminRequest.findUnique({ where: { id: requestId } });
   if (!request || request.status !== SignupRequestStatus.PENDING) {
     return { error: "Cererea nu a fost găsită sau a fost deja procesată." };
   }
@@ -327,7 +327,7 @@ export async function approveMentorSignup(
       role: "MENTOR",
       mentor: {
         create: {
-          name: request.name,
+          name: request.name ?? username,
           description: request.description,
           photo: null,
           labels: {
@@ -341,7 +341,33 @@ export async function approveMentorSignup(
     },
   });
 
-  await db.mentorSignupRequest.update({
+  await db.adminRequest.update({
+    where: { id: requestId },
+    data: { status: SignupRequestStatus.APPROVED, processedAt: new Date() },
+  });
+
+  revalidatePath("/admin/signups");
+  revalidatePath("/admin/mentors");
+  return { success: true };
+}
+
+export async function approveLevelUpgradeRequest(requestId: number): Promise<ActionResult> {
+  await requireSuperAdmin();
+
+  const request = await db.adminRequest.findUnique({ where: { id: requestId } });
+  if (!request || request.status !== SignupRequestStatus.PENDING || request.requestType !== RequestType.LEVEL_UPGRADE) {
+    return { error: "Cererea nu a fost găsită sau a fost deja procesată." };
+  }
+  if (!request.mentorId || !request.requestedLevel) {
+    return { error: "Date invalide în cerere." };
+  }
+
+  await db.mentor.update({
+    where: { id: request.mentorId },
+    data: { level: request.requestedLevel },
+  });
+
+  await db.adminRequest.update({
     where: { id: requestId },
     data: { status: SignupRequestStatus.APPROVED, processedAt: new Date() },
   });
@@ -354,12 +380,12 @@ export async function approveMentorSignup(
 export async function rejectMentorSignup(requestId: number): Promise<ActionResult> {
   await requireSuperAdmin();
 
-  const request = await db.mentorSignupRequest.findUnique({ where: { id: requestId } });
+  const request = await db.adminRequest.findUnique({ where: { id: requestId } });
   if (!request || request.status !== SignupRequestStatus.PENDING) {
     return { error: "Cererea nu a fost găsită sau a fost deja procesată." };
   }
 
-  await db.mentorSignupRequest.update({
+  await db.adminRequest.update({
     where: { id: requestId },
     data: { status: SignupRequestStatus.REJECTED, processedAt: new Date() },
   });
@@ -367,6 +393,24 @@ export async function rejectMentorSignup(requestId: number): Promise<ActionResul
   revalidatePath("/admin/signups");
   return { success: true };
 }
+
+export async function changeMentorLevel(
+  _prev: ActionResult | null,
+  formData: FormData
+): Promise<ActionResult> {
+  await requireSuperAdmin();
+
+  const id = Number(formData.get("id"));
+  const level = formData.get("level") as string;
+
+  const validLevels: string[] = ["FREE", "MINIMUM", "MEDIUM", "PRO", "ENTERPRISE"];
+  if (!id || !validLevels.includes(level)) return { error: "Date invalide." };
+
+  await db.mentor.update({ where: { id }, data: { level: level as MentorLevel } });
+  revalidatePath("/admin/mentors");
+  return { success: true };
+}
+
 
 // ── Tools ─────────────────────────────────────────────────────────────────────
 

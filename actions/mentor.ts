@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import { requireMentor, getSession } from "@/lib/auth";
 import { startOfDayUTC } from "@/lib/streak";
 import { deleteFile } from "@/lib/upload";
+import { MentorLevel, RequestType, SignupRequestStatus } from "@/app/generated/prisma/client";
 
 const SALT_ROUNDS = 12;
 type ActionResult = {
@@ -908,3 +909,47 @@ export async function deletePlayerImprovementRatingsForDay(
   return { success: true };
 }
 
+export async function requestLevelUpgrade(
+  _prev: ActionResult | null,
+  formData: FormData
+): Promise<ActionResult> {
+  await requireMentor();
+  const session = await getSession();
+  const mentorId = session.mentorId!;
+
+  const requestedLevel = formData.get("requestedLevel") as string;
+  const validLevels: string[] = ["MINIMUM", "MEDIUM", "PRO", "ENTERPRISE"];
+  if (!validLevels.includes(requestedLevel)) {
+    return { error: "Nivel invalid." };
+  }
+
+  const mentor = await db.mentor.findUnique({
+    where: { id: mentorId },
+    select: { name: true, level: true },
+  });
+  if (!mentor) return { error: "Mentorul nu a fost găsit." };
+
+  const existing = await db.adminRequest.findFirst({
+    where: {
+      mentorId,
+      requestType: RequestType.LEVEL_UPGRADE,
+      status: SignupRequestStatus.PENDING,
+    },
+  });
+  if (existing) {
+    return { error: "Există deja o cerere de upgrade în așteptare." };
+  }
+
+  await db.adminRequest.create({
+    data: {
+      requestType: RequestType.LEVEL_UPGRADE,
+      name: mentor.name,
+      status: SignupRequestStatus.PENDING,
+      mentorId,
+      requestedLevel: requestedLevel as MentorLevel,
+    },
+  });
+
+  revalidatePath("/mentor/profile");
+  return { success: true };
+}

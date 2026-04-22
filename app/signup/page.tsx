@@ -80,6 +80,19 @@ export default function SignupPage() {
             </div>
 
             <div>
+              <label htmlFor="phone" className="label">
+                Număr de telefon (opțional)
+              </label>
+              <input
+                id="phone"
+                name="phone"
+                type="tel"
+                className="input"
+                placeholder="ex: 0740 123 456"
+              />
+            </div>
+
+            <div>
               <label htmlFor="description" className="label">
                 Scurtă descriere (opțional)
               </label>

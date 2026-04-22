@@ -2,17 +2,34 @@
 
 import { useState } from "react";
 import { useActionState } from "react";
-import { updateMentor, deleteMentor, changeMentorPassword, toggleMentorActive } from "@/actions/admin";
+import { updateMentor, deleteMentor, changeMentorPassword, toggleMentorActive, changeMentorLevel } from "@/actions/admin";
 import { impersonateMentor } from "@/actions/auth";
-import type { Mentor, User } from "@/app/generated/prisma/client";
+import type { Mentor, User, MentorLevel } from "@/app/generated/prisma/client";
 
 type MentorWithUser = Mentor & { user: Pick<User, "username"> };
+
+const LEVEL_LABELS: Record<MentorLevel, string> = {
+  FREE: "Gratuit",
+  MINIMUM: "Minimum",
+  MEDIUM: "Medium",
+  PRO: "Pro",
+  ENTERPRISE: "Enterprise",
+};
+
+const LEVEL_COLORS: Record<MentorLevel, string> = {
+  FREE: "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400",
+  MINIMUM: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400",
+  MEDIUM: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400",
+  PRO: "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-400",
+  ENTERPRISE: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-400",
+};
 
 export function MentorRow({ mentor }: { mentor: MentorWithUser }) {
   const [editing, setEditing] = useState(false);
   const [changingPwd, setChangingPwd] = useState(false);
   const [updateState, updateAction, isUpdating] = useActionState(updateMentor, null);
   const [pwdState, pwdAction, isPwdPending] = useActionState(changeMentorPassword, null);
+  const [levelState, levelAction, isLevelPending] = useActionState(changeMentorLevel, null);
 
   async function handleDelete() {
     if (!confirm(`Ștergi mentorul "${mentor.name}"? Toți jucătorii săi vor fi șterși.`))
@@ -29,7 +46,7 @@ export function MentorRow({ mentor }: { mentor: MentorWithUser }) {
   if (editing) {
     return (
       <tr className="bg-blue-50 dark:bg-blue-950">
-        <td colSpan={4} className="px-4 py-4">
+        <td colSpan={5} className="px-4 py-4">
           <form action={updateAction} className="grid grid-cols-2 gap-3">
             <input type="hidden" name="id" value={mentor.id} />
             <div>
@@ -64,6 +81,26 @@ export function MentorRow({ mentor }: { mentor: MentorWithUser }) {
             </div>
           </form>
 
+          {/* Change level */}
+          <div className="mt-4 pt-4 border-t border-blue-200 dark:border-blue-800">
+            <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nivel cont</p>
+            <form action={levelAction} className="flex items-center gap-2 flex-wrap">
+              <input type="hidden" name="id" value={mentor.id} />
+              <select name="level" defaultValue={mentor.level} className="input text-sm py-1 w-auto">
+                <option value="FREE">Gratuit</option>
+                <option value="MINIMUM">Minimum</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="PRO">Pro</option>
+                <option value="ENTERPRISE">Enterprise</option>
+              </select>
+              <button type="submit" disabled={isLevelPending} className="btn-primary text-sm">
+                {isLevelPending ? "Se salvează..." : "Schimbă nivel"}
+              </button>
+            </form>
+            {levelState?.error && <p className="text-sm text-red-600 mt-1">{levelState.error}</p>}
+            {levelState?.success && <p className="text-sm text-green-600 mt-1">Nivelul a fost actualizat.</p>}
+          </div>
+
           {/* Change password */}
           <div className="mt-4 pt-4 border-t border-blue-200 dark:border-blue-800">
             {changingPwd ? (
@@ -97,6 +134,11 @@ export function MentorRow({ mentor }: { mentor: MentorWithUser }) {
         )}
       </td>
       <td className="px-4 py-3 font-medium">{mentor.name}</td>
+      <td className="px-4 py-3">
+        <span className={`inline-block text-xs font-medium px-2 py-0.5 rounded-full ${LEVEL_COLORS[mentor.level]}`}>
+          {LEVEL_LABELS[mentor.level]}
+        </span>
+      </td>
       <td className="px-4 py-3 text-gray-400 text-xs truncate max-w-48">
         {mentor.description ?? "—"}
       </td>

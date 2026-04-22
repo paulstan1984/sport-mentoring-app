@@ -17,7 +17,7 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const pendingCount = await db.mentorSignupRequest.count({
+  const pendingCount = await db.adminRequest.count({
     where: { status: SignupRequestStatus.PENDING },
   });
 

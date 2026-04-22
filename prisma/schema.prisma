@@ -25,6 +25,19 @@ enum SignupRequestStatus {
   REJECTED
 }
 
+enum MentorLevel {
+  FREE
+  MINIMUM
+  MEDIUM
+  PRO
+  ENTERPRISE
+}
+
+enum RequestType {
+  SIGNUP
+  LEVEL_UPGRADE
+}
+
 model User {
   id           Int      @id @default(autoincrement())
   username     String   @unique
@@ -43,6 +56,7 @@ model Mentor {
   photo            String?
   description      String?
   isActive         Boolean          @default(true)
+  level            MentorLevel      @default(FREE)
   lastActiveAt     DateTime?
   players          Player[]
   checkinForm      CheckinForm?
@@ -50,6 +64,7 @@ model Mentor {
   dailyMessages    DailyMessage[]
   improvementWays  ImprovementWay[]
   labels           MentorLabel[]
+  adminRequests    AdminRequest[]
   createdAt        DateTime         @default(now())
 }
 
@@ -230,13 +245,18 @@ model ImprovementWayRating {
   @@unique([playerId, improvementWayId, day])
 }
 
-model MentorSignupRequest {
-  id          Int                 @id @default(autoincrement())
-  name        String
-  email       String
-  description String?
-  status      SignupRequestStatus @default(PENDING)
-  createdAt   DateTime            @default(now())
-  processedAt DateTime?
+model AdminRequest {
+  id             Int                 @id @default(autoincrement())
+  requestType    RequestType         @default(SIGNUP)
+  name           String?
+  email          String?
+  phone          String?
+  description    String?
+  status         SignupRequestStatus @default(PENDING)
+  mentorId       Int?
+  mentor         Mentor?             @relation(fields: [mentorId], references: [id], onDelete: SetNull)
+  requestedLevel MentorLevel?
+  createdAt      DateTime            @default(now())
+  processedAt    DateTime?
 }
 

@@ -74,6 +74,111 @@ export default function HowItWorksPage() {
           </div>
         </section>
 
+        {/* Pricing */}
+        <section className="mb-14">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+            Pachete și prețuri
+          </h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+            Alege pachetul potrivit activității tale. Poți solicita upgrade oricând din profilul tău.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[
+              {
+                name: "Gratuit",
+                badge: "FREE",
+                price: "0 lei",
+                period: "",
+                clients: "1 client",
+                highlight: false,
+                desc: "Perfect pentru a testa platforma.",
+              },
+              {
+                name: "Minimum",
+                badge: "MINIMUM",
+                price: "70 lei",
+                period: "/lună",
+                clients: "până la 5 clienți",
+                highlight: false,
+                desc: "Ideal pentru antrenorii la început de drum.",
+              },
+              {
+                name: "Medium",
+                badge: "MEDIUM",
+                price: "120 lei",
+                period: "/lună",
+                clients: "până la 10 clienți",
+                highlight: true,
+                desc: "Cel mai popular pachet pentru antrenorii activi.",
+              },
+              {
+                name: "Pro",
+                badge: "PRO",
+                price: "200 lei",
+                period: "/lună",
+                clients: "până la 30 de clienți",
+                highlight: false,
+                desc: "Pentru antrenorii profesioniști cu echipe extinse.",
+              },
+              {
+                name: "Enterprise",
+                badge: "ENTERPRISE",
+                price: "Preț personalizat",
+                period: "",
+                clients: "peste 30 de clienți",
+                highlight: false,
+                desc: "Soluție dedicată pentru organizații sportive mari.",
+              },
+            ].map((pkg) => (
+              <div
+                key={pkg.badge}
+                className={`rounded-2xl shadow p-6 flex flex-col ${
+                  pkg.highlight
+                    ? "bg-blue-600 text-white"
+                    : "bg-white dark:bg-gray-900"
+                }`}
+              >
+                {pkg.highlight && (
+                  <span className="text-xs font-bold uppercase tracking-wide bg-white/20 text-white rounded-full px-2 py-0.5 self-start mb-3">
+                    Recomandat
+                  </span>
+                )}
+                <h3
+                  className={`text-lg font-bold mb-1 ${
+                    pkg.highlight ? "text-white" : "text-gray-900 dark:text-gray-100"
+                  }`}
+                >
+                  {pkg.name}
+                </h3>
+                <p
+                  className={`text-2xl font-extrabold mb-0.5 ${
+                    pkg.highlight ? "text-white" : "text-gray-900 dark:text-gray-100"
+                  }`}
+                >
+                  {pkg.price}
+                  <span className={`text-sm font-normal ${pkg.highlight ? "text-blue-100" : "text-gray-400"}`}>
+                    {pkg.period}
+                  </span>
+                </p>
+                <p
+                  className={`text-sm font-medium mb-3 ${
+                    pkg.highlight ? "text-blue-100" : "text-blue-600 dark:text-blue-400"
+                  }`}
+                >
+                  {pkg.clients}
+                </p>
+                <p
+                  className={`text-xs leading-relaxed ${
+                    pkg.highlight ? "text-blue-100" : "text-gray-500 dark:text-gray-400"
+                  }`}
+                >
+                  {pkg.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+
         {/* FAQ */}
         <section className="mb-14">
           <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-6">
@@ -83,11 +188,11 @@ export default function HowItWorksPage() {
             {[
               {
                 q: "Cât costă platforma?",
-                a: "În prezent platforma este gratuită. În viitor vor fi disponibile pachete cu funcționalități extinse la prețuri accesibile.",
+                a: "Există un pachet gratuit cu 1 client. Pachetele plătite încep de la 70 lei/lună (5 clienți), 120 lei/lună (10 clienți) și 200 lei/lună (30 de clienți). Pentru mai mult de 30 de clienți există un pachet Enterprise cu preț personalizat.",
               },
               {
                 q: "Câți jucători pot adăuga?",
-                a: "Nu există o limită impusă în prezent. Poți adăuga oricâți jucători dorești.",
+                a: "Depinde de pachetul ales: 1 client (Gratuit), 5 clienți (Minimum), 10 clienți (Medium), 30 de clienți (Pro) sau nelimitat (Enterprise). Poți solicita upgrade de pachet din profilul tău.",
               },
               {
                 q: "Jucătorii pot vedea activitatea altor jucători?",
