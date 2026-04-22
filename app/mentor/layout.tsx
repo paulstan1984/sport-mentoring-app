@@ -24,8 +24,17 @@ export default async function MentorLayout({
   const session = await requireMentor();
   const mentor = await db.mentor.findUnique({
     where: { id: session.mentorId },
-    select: { name: true, labels: { select: { key: true, value: true } } },
+    select: { name: true, level: true, labels: { select: { key: true, value: true } } },
   });
+
+  const LEVEL_LABEL: Record<string, string> = {
+    FREE: "Free",
+    MINIMUM: "Minimum",
+    MEDIUM: "Medium",
+    PRO: "Pro",
+    ENTERPRISE: "Enterprise",
+  };
+  const levelLabel = mentor?.level ? (LEVEL_LABEL[mentor.level] ?? mentor.level) : null;
 
   const playersLabel =
     mentor?.labels.find((l) => l.key === "players")?.value ?? "Clienți";
@@ -56,8 +65,13 @@ export default async function MentorLayout({
         <Link href="/mentor/dashboard" className="font-bold text-sm text-white hover:text-blue-100">
           ⚽ Sport Mentor
         </Link>
-        <Link href="/mentor/profile" className="text-sm text-blue-200 hover:text-white">
+        <Link href="/mentor/profile" className="text-sm text-blue-200 hover:text-white flex items-center gap-2">
           {mentor?.name ?? "Mentor"}
+          {levelLabel && (
+            <span className="text-xs bg-blue-500 text-white px-1.5 py-0.5 rounded font-medium">
+              {levelLabel}
+            </span>
+          )}
         </Link>
         </header>
       </div>
@@ -74,8 +88,13 @@ export default async function MentorLayout({
           <Link href="/mentor/dashboard" className="text-lg font-bold text-blue-600 hover:text-blue-700">
             ⚽ Sport Mentor
           </Link>
-          <Link href="/mentor/profile" className="block text-xs text-gray-400 mt-0.5 truncate hover:text-gray-600">
-            {mentor?.name ?? "Mentor"}
+          <Link href="/mentor/profile" className="flex items-center gap-2 mt-0.5 hover:text-gray-600">
+            <span className="text-xs text-gray-400 truncate">{mentor?.name ?? "Mentor"}</span>
+            {levelLabel && (
+              <span className="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-medium shrink-0">
+                {levelLabel}
+              </span>
+            )}
           </Link>
         </div>
         <nav className="flex-1 px-3 py-4 space-y-1">
