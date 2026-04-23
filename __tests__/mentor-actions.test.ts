@@ -17,6 +17,7 @@ vi.mock("@/lib/db", () => ({
     player: {
       findUnique: vi.fn(),
       update: vi.fn(),
+      count: vi.fn(),
     },
     checkinAnswer: {
       upsert: vi.fn(),
@@ -60,7 +61,8 @@ import { getSession, requireMentor } from "@/lib/auth";
 
 const mockDb = db as {
   user: { findUnique: ReturnType<typeof vi.fn>; create: ReturnType<typeof vi.fn> };
-  player: { findUnique: ReturnType<typeof vi.fn>; update: ReturnType<typeof vi.fn> };
+  player: { findUnique: ReturnType<typeof vi.fn>; update: ReturnType<typeof vi.fn>; count: ReturnType<typeof vi.fn> };
+  mentor: { findUnique: ReturnType<typeof vi.fn> };
   $transaction: ReturnType<typeof vi.fn>;
 };
 
@@ -92,6 +94,8 @@ describe("createPlayer", () => {
     vi.mocked(requireMentor).mockResolvedValue(mentorSession as never);
     mockDb.user.findUnique.mockResolvedValue(null);
     mockDb.user.create.mockResolvedValue({ id: 99 });
+    mockDb.mentor.findUnique.mockResolvedValue({ level: "PRO" });
+    mockDb.player.count.mockResolvedValue(0);
   });
 
   it("returns error when required fields are missing", async () => {
