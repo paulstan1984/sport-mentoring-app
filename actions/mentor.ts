@@ -7,6 +7,7 @@ import { requireMentor, getSession } from "@/lib/auth";
 import { startOfDayUTC } from "@/lib/streak";
 import { deleteFile } from "@/lib/upload";
 import { MentorLevel, RequestType, SignupRequestStatus } from "@/app/generated/prisma/client";
+import { PLAYER_LIMITS, MENTOR_LEVEL_LABELS } from "@/lib/playerLimits";
 
 const SALT_ROUNDS = 12;
 type ActionResult = {
@@ -94,6 +95,18 @@ export async function createPlayer(
 
   const existing = await db.user.findUnique({ where: { username } });
   if (existing) return { error: "Utilizatorul există deja." };
+
+  const mentor = await db.mentor.findUnique({ where: { id: mentorId }, select: { level: true } });
+  if (!mentor) return { error: "Antrenorul nu a fost găsit." };
+  const playerLimit = PLAYER_LIMITS[mentor.level];
+  if (playerLimit !== null) {
+    const currentCount = await db.player.count({ where: { mentorId } });
+    if (currentCount >= playerLimit) {
+      return {
+        error: `Ai atins limita de ${playerLimit} ${playerLimit === 1 ? "jucător" : "jucători"} pentru nivelul tău (${MENTOR_LEVEL_LABELS[mentor.level]}). Solicită un upgrade pentru a adăuga mai mulți jucători.`,
+      };
+    }
+  }
 
   const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
   const dateOfBirth = dateOfBirthStr ? new Date(dateOfBirthStr) : null;
@@ -274,6 +287,27 @@ export async function importPlayersFromCsv(
       continue;
     }
     rowsToCreate.push(row);
+  }
+
+  const mentor = await db.mentor.findUnique({ where: { id: mentorId }, select: { level: true } });
+  if (!mentor) return { error: "Antrenorul nu a fost găsit." };
+  const playerLimit = PLAYER_LIMITS[mentor.level];
+  if (playerLimit !== null) {
+    const currentCount = await db.player.count({ where: { mentorId } });
+    const availableSlots = playerLimit - currentCount;
+    if (availableSlots <= 0) {
+      return {
+        error: `Ai atins limita de ${playerLimit} ${playerLimit === 1 ? "jucător" : "jucători"} pentru nivelul tău (${MENTOR_LEVEL_LABELS[mentor.level]}). Solicită un upgrade pentru a adăuga mai mulți jucători.`,
+      };
+    }
+    if (rowsToCreate.length > availableSlots) {
+      const excess = rowsToCreate.splice(availableSlots);
+      for (const row of excess) {
+        issues.push(
+          `Linia ${row.lineNumber}: limita de ${playerLimit} ${playerLimit === 1 ? "jucător" : "jucători"} a fost atinsă. Solicită un upgrade.`
+        );
+      }
+    }
   }
 
   let createdCount = 0;
