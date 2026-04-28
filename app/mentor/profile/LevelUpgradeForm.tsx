@@ -6,9 +6,9 @@ import type { MentorLevel } from "@/app/generated/prisma/client";
 
 const LEVEL_LABELS: Record<MentorLevel, string> = {
   FREE: "Gratuit (1 client)",
-  MINIMUM: "Minimum (5 clienți, 70 lei/lună)",
-  MEDIUM: "Medium (10 clienți, 120 lei/lună)",
-  PRO: "Pro (30 clienți, 200 lei/lună)",
+  MINIMUM: "Minimum (5 clienți, 50 lei/lună)",
+  MEDIUM: "Medium (10 clienți, 70 lei/lună)",
+  PRO: "Pro (30 clienți, 100 lei/lună)",
   ENTERPRISE: "Enterprise (preț personalizat)",
 };
 
@@ -44,7 +44,7 @@ export function LevelUpgradeForm({ currentLevel, hasPendingRequest }: Props) {
       <div className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
         {currentLevel === "ENTERPRISE"
           ? "Ești pe cel mai înalt nivel disponibil."
-          : `Pachetele disponibile: Minimum (5 clienți, 70 lei/lună), Medium (10 clienți, 120 lei/lună), Pro (30 clienți, 200 lei/lună), Enterprise (personalizat).`}
+          : `Pachetele disponibile: Minimum (5 clienți, 50 lei/lună), Medium (10 clienți, 70 lei/lună), Pro (30 clienți, 100 lei/lună), Enterprise (personalizat).`}
       </div>
 
       {hasPendingRequest && (
