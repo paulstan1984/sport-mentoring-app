@@ -7,7 +7,14 @@ import type { Mentor, User } from "@/app/generated/prisma/client";
 type MentorWithUser = Mentor & { user: Pick<User, "username"> };
 
 export function ProfileForm({ mentor }: { mentor: MentorWithUser }) {
-  const [state, formAction, isPending] = useActionState(updateMentorProfile, null);
+  const wrappedUpdate = async (
+    prev: Awaited<ReturnType<typeof updateMentorProfile>> | null,
+    formData: FormData
+  ) => {
+    try { return await updateMentorProfile(prev, formData); }
+    catch { return { error: "Eroare de rețea. Verifică conexiunea și încearcă din nou." }; }
+  };
+  const [state, formAction, isPending] = useActionState(wrappedUpdate, null);
   const [photoUrl, setPhotoUrl] = useState<string | null>(mentor.photo);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -107,7 +114,14 @@ export function ProfileForm({ mentor }: { mentor: MentorWithUser }) {
 }
 
 export function PasswordForm() {
-  const [state, formAction, isPending] = useActionState(changeMentorPassword, null);
+  const wrappedAction = async (
+    prev: Awaited<ReturnType<typeof changeMentorPassword>> | null,
+    formData: FormData
+  ) => {
+    try { return await changeMentorPassword(prev, formData); }
+    catch { return { error: "Eroare de rețea. Verifică conexiunea și încearcă din nou." }; }
+  };
+  const [state, formAction, isPending] = useActionState(wrappedAction, null);
 
   return (
     <form action={formAction} className="space-y-4">

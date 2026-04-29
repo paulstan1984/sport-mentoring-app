@@ -11,7 +11,17 @@ export function PlayerForm({
   positions: PlayfieldPosition[];
   playerLabel: string;
 }) {
-  const [state, formAction, isPending] = useActionState(createPlayer, null);
+  const wrappedAction = async (
+    prev: Awaited<ReturnType<typeof createPlayer>> | null,
+    formData: FormData
+  ) => {
+    try {
+      return await createPlayer(prev, formData);
+    } catch {
+      return { error: "Eroare de rețea. Verifică conexiunea și încearcă din nou." };
+    }
+  };
+  const [state, formAction, isPending] = useActionState(wrappedAction, null);
   const [isOpen, setIsOpen] = useState(false);
 
   return (

@@ -39,7 +39,17 @@ export function PlayerProfileForm({
   secondaryAction?: ReactNode;
 }) {
   const router = useRouter();
-  const [state, formAction, isPending] = useActionState(updatePlayer, null);
+  const wrappedAction = async (
+    prev: Awaited<ReturnType<typeof updatePlayer>> | null,
+    formData: FormData
+  ) => {
+    try {
+      return await updatePlayer(prev, formData);
+    } catch {
+      return { error: "Eroare de rețea. Verifică conexiunea și încearcă din nou." };
+    }
+  };
+  const [state, formAction, isPending] = useActionState(wrappedAction, null);
 
   useEffect(() => {
     if (!state?.success) return;

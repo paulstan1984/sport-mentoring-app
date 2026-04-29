@@ -28,7 +28,14 @@ type Props = {
 };
 
 export function LevelUpgradeForm({ currentLevel, hasPendingRequest }: Props) {
-  const [state, formAction, isPending] = useActionState(requestLevelUpgrade, null);
+  const wrappedAction = async (
+    prev: Awaited<ReturnType<typeof requestLevelUpgrade>> | null,
+    formData: FormData
+  ) => {
+    try { return await requestLevelUpgrade(prev, formData); }
+    catch { return { error: "Eroare de rețea. Verifică conexiunea și încearcă din nou." }; }
+  };
+  const [state, formAction, isPending] = useActionState(wrappedAction, null);
 
   const availableLevels = LEVEL_ORDER.filter((l) => LEVEL_ORDER.indexOf(l) > LEVEL_ORDER.indexOf(currentLevel));
 

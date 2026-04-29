@@ -10,7 +10,14 @@ type PlayerWithRelations = Player & {
 };
 
 export function ProfileClient({ player }: { player: PlayerWithRelations }) {
-  const [pwdState, pwdAction, isPwdPending] = useActionState(changePlayerPassword, null);
+  const wrappedPwd = async (
+    prev: Awaited<ReturnType<typeof changePlayerPassword>> | null,
+    formData: FormData
+  ) => {
+    try { return await changePlayerPassword(prev, formData); }
+    catch { return { error: "Eroare de rețea. Verifică conexiunea și încearcă din nou." }; }
+  };
+  const [pwdState, pwdAction, isPwdPending] = useActionState(wrappedPwd, null);
   const [photoUrl, setPhotoUrl] = useState<string | null>(player.photo);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);

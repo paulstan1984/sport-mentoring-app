@@ -4,7 +4,14 @@ import { useActionState } from "react";
 import { updateSuperAdminProfile, changeSuperAdminPassword } from "@/actions/admin";
 
 export function ProfileForm({ username }: { username: string }) {
-  const [state, formAction, isPending] = useActionState(updateSuperAdminProfile, null);
+  const wrappedAction = async (
+    prev: Awaited<ReturnType<typeof updateSuperAdminProfile>> | null,
+    formData: FormData
+  ) => {
+    try { return await updateSuperAdminProfile(prev, formData); }
+    catch { return { error: "Eroare de rețea. Verifică conexiunea și încearcă din nou." }; }
+  };
+  const [state, formAction, isPending] = useActionState(wrappedAction, null);
 
   return (
     <form action={formAction} className="space-y-4">
@@ -24,7 +31,14 @@ export function ProfileForm({ username }: { username: string }) {
 }
 
 export function PasswordForm() {
-  const [state, formAction, isPending] = useActionState(changeSuperAdminPassword, null);
+  const wrappedAction = async (
+    prev: Awaited<ReturnType<typeof changeSuperAdminPassword>> | null,
+    formData: FormData
+  ) => {
+    try { return await changeSuperAdminPassword(prev, formData); }
+    catch { return { error: "Eroare de rețea. Verifică conexiunea și încearcă din nou." }; }
+  };
+  const [state, formAction, isPending] = useActionState(wrappedAction, null);
 
   return (
     <form action={formAction} className="space-y-4">

@@ -5,7 +5,14 @@ import Link from "next/link";
 import { login } from "@/actions/auth";
 
 export default function LoginPage() {
-  const [state, formAction, isPending] = useActionState(login, null);
+  const wrappedAction = async (
+    prev: Awaited<ReturnType<typeof login>> | null,
+    formData: FormData
+  ) => {
+    try { return await login(prev, formData); }
+    catch { return { error: "Eroare de rețea. Verifică conexiunea și încearcă din nou." }; }
+  };
+  const [state, formAction, isPending] = useActionState(wrappedAction, null);
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 px-4">

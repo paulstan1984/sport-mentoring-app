@@ -27,9 +27,30 @@ const LEVEL_COLORS: Record<MentorLevel, string> = {
 export function MentorRow({ mentor }: { mentor: MentorWithUser }) {
   const [editing, setEditing] = useState(false);
   const [changingPwd, setChangingPwd] = useState(false);
-  const [updateState, updateAction, isUpdating] = useActionState(updateMentor, null);
-  const [pwdState, pwdAction, isPwdPending] = useActionState(changeMentorPassword, null);
-  const [levelState, levelAction, isLevelPending] = useActionState(changeMentorLevel, null);
+  const wrappedUpdate = async (
+    prev: Awaited<ReturnType<typeof updateMentor>> | null,
+    formData: FormData
+  ) => {
+    try { return await updateMentor(prev, formData); }
+    catch { return { error: "Eroare de rețea. Verifică conexiunea și încearcă din nou." }; }
+  };
+  const wrappedPwd = async (
+    prev: Awaited<ReturnType<typeof changeMentorPassword>> | null,
+    formData: FormData
+  ) => {
+    try { return await changeMentorPassword(prev, formData); }
+    catch { return { error: "Eroare de rețea. Verifică conexiunea și încearcă din nou." }; }
+  };
+  const wrappedLevel = async (
+    prev: Awaited<ReturnType<typeof changeMentorLevel>> | null,
+    formData: FormData
+  ) => {
+    try { return await changeMentorLevel(prev, formData); }
+    catch { return { error: "Eroare de rețea. Verifică conexiunea și încearcă din nou." }; }
+  };
+  const [updateState, updateAction, isUpdating] = useActionState(wrappedUpdate, null);
+  const [pwdState, pwdAction, isPwdPending] = useActionState(wrappedPwd, null);
+  const [levelState, levelAction, isLevelPending] = useActionState(wrappedLevel, null);
 
   async function handleDelete() {
     if (!confirm(`Ștergi mentorul "${mentor.name}"? Toți jucătorii săi vor fi șterși.`))

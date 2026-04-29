@@ -28,7 +28,14 @@ export function PlayerRow({
 }) {
   const [editing, setEditing] = useState(false);
   const [resettingPwd, setResettingPwd] = useState(false);
-  const [pwdState, pwdAction, isPwdPending] = useActionState(resetPlayerPassword, null);
+  const wrappedPwd = async (
+    prev: Awaited<ReturnType<typeof resetPlayerPassword>> | null,
+    formData: FormData
+  ) => {
+    try { return await resetPlayerPassword(prev, formData); }
+    catch { return { error: "Eroare de rețea. Verifică conexiunea și încearcă din nou." }; }
+  };
+  const [pwdState, pwdAction, isPwdPending] = useActionState(wrappedPwd, null);
 
   async function handleDelete() {
     if (!confirm(`Ștergi jucătorul "${player.name}"?`)) return;

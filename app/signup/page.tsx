@@ -5,7 +5,14 @@ import { submitMentorSignup } from "@/actions/public";
 import Link from "next/link";
 
 export default function SignupPage() {
-  const [state, formAction, isPending] = useActionState(submitMentorSignup, null);
+  const wrappedAction = async (
+    prev: Awaited<ReturnType<typeof submitMentorSignup>> | null,
+    formData: FormData
+  ) => {
+    try { return await submitMentorSignup(prev, formData); }
+    catch { return { error: "Eroare de rețea. Verifică conexiunea și încearcă din nou." }; }
+  };
+  const [state, formAction, isPending] = useActionState(wrappedAction, null);
 
   if (state?.success) {
     return (

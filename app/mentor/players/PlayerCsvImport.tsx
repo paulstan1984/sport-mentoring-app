@@ -4,7 +4,14 @@ import { useActionState } from "react";
 import { importPlayersFromCsv } from "@/actions/mentor";
 
 export function PlayerCsvImport() {
-  const [state, formAction, isPending] = useActionState(importPlayersFromCsv, null);
+  const wrappedAction = async (
+    prev: Awaited<ReturnType<typeof importPlayersFromCsv>> | null,
+    formData: FormData
+  ) => {
+    try { return await importPlayersFromCsv(prev, formData); }
+    catch { return { error: "Eroare de rețea. Verifică conexiunea și încearcă din nou." }; }
+  };
+  const [state, formAction, isPending] = useActionState(wrappedAction, null);
 
   return (
     <div className="space-y-3">
