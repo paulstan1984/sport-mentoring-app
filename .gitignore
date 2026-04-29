@@ -44,3 +44,4 @@ next-env.d.ts
 uploads/
 data/db/app.db
 data/db/prod-app.db
+contracte/*
