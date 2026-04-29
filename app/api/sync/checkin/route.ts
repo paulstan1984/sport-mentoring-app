@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: "Date invalide." }, { status: 400 });
+    return NextResponse.json({ error: "Date nevalide." }, { status: 400 });
   }
 
   const { answers, day } = body;

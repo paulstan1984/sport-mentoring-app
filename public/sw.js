@@ -59,7 +59,7 @@ async function cacheFirst(request, cacheName) {
     if (response.ok) cache.put(request, response.clone());
     return response;
   } catch {
-    return new Response("Offline", { status: 503 });
+    return new Response("Fără conexiune", { status: 503 });
   }
 }
 
@@ -80,7 +80,7 @@ async function networkFirst(request, cacheName) {
       const offline = await offlineCache.match("/offline");
       if (offline) return offline;
     }
-    return new Response("Offline", { status: 503 });
+    return new Response("Fără conexiune", { status: 503 });
   }
 }
 

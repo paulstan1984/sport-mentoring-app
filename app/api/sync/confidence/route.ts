@@ -22,12 +22,12 @@ export async function POST(request: NextRequest) {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: "Date invalide." }, { status: 400 });
+    return NextResponse.json({ error: "Date nevalide." }, { status: 400 });
   }
 
   const { level, day } = body;
   if (!level || !VALID_LEVELS.has(level) || !day) {
-    return NextResponse.json({ error: "Date lipsă sau invalide." }, { status: 400 });
+    return NextResponse.json({ error: "Date lipsă sau nevalide." }, { status: 400 });
   }
 
   const dayDate = startOfDayUTC(new Date(day));

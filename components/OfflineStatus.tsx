@@ -111,11 +111,18 @@ export function OfflineStatus() {
     ? "bg-blue-500"
     : "bg-green-500";
 
-  const label = !isOnline
-    ? `⚡ Ești offline${pendingCount > 0 ? ` · ${pendingCount} ${pendingCount === 1 ? "intrare în așteptare" : "intrări în așteptare"}` : ""}`
-    : isSyncing
-    ? "🔄 Se sincronizează datele offline..."
-    : "✅ Date sincronizate cu serverul";
+  let label: string;
+  if (!isOnline) {
+    const pendingNote =
+      pendingCount > 0
+        ? ` · ${pendingCount} ${pendingCount === 1 ? "intrare în așteptare" : "intrări în așteptare"}`
+        : "";
+    label = `⚡ Ești offline${pendingNote}`;
+  } else if (isSyncing) {
+    label = "🔄 Se sincronizează datele offline...";
+  } else {
+    label = "✅ Date sincronizate cu serverul";
+  }
 
   return (
     <div className={`${bg} text-white text-xs text-center px-4 py-1.5 font-medium`}>
