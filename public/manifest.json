@@ -1,0 +1,17 @@
+{
+  "name": "Sport Mentoring App",
+  "short_name": "Sport Mentor",
+  "description": "Aplicație de mentorat sportiv pentru antrenori și jucători",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f9fafb",
+  "theme_color": "#2563eb",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ]
+}

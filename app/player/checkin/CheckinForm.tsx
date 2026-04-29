@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useState, useEffect, useRef } from "react";
 import { submitCheckin } from "@/actions/player";
 import type { CheckinFormItem, CheckinAnswer } from "@/app/generated/prisma/client";
 
@@ -17,12 +17,66 @@ export function CheckinForm({
   const [checked, setChecked] = useState<Record<number, boolean>>(
     Object.fromEntries(items.map((i) => [i.id, answerMap[i.id]?.checked ?? false]))
   );
+  const [isOnline, setIsOnline] = useState(true);
+  const [offlineQueued, setOfflineQueued] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    setIsOnline(navigator.onLine);
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
 
   const alreadySubmitted = Object.values(answerMap).some((a) => a.checked);
 
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    if (isOnline) return; // let the form action proceed normally
+
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const today = new Date().toISOString().split("T")[0];
+
+    const answers = items.map((item) => ({
+      flagId: item.id,
+      checked: formData.get(`flag_${item.id}`) === "on",
+      stringValue:
+        item.allowAdditionalString && formData.get(`flag_${item.id}`) === "on"
+          ? ((formData.get(`string_${item.id}`) as string) || null)
+          : null,
+    }));
+
+    const { enqueue } = await import("@/lib/offline-db");
+    await enqueue({
+      type: "checkin",
+      endpoint: "/api/sync/checkin",
+      payload: { answers, day: today },
+      day: today,
+    });
+
+    setOfflineQueued(true);
+    window.dispatchEvent(new CustomEvent("offline-enqueued"));
+  };
+
   return (
-    <form action={formAction} className="space-y-4">
-      {alreadySubmitted && (
+    <form
+      ref={formRef}
+      action={formAction}
+      onSubmit={handleSubmit}
+      className="space-y-4"
+    >
+      {!isOnline && (
+        <div className="bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 px-4 py-3 rounded-xl text-sm">
+          ⚠️ Ești offline. Datele vor fi salvate local și sincronizate automat când te reconectezi.
+        </div>
+      )}
+
+      {alreadySubmitted && isOnline && (
         <div className="bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 px-4 py-3 rounded-xl text-sm">
           ✅ Ai completat checkin-ul de astăzi. Poți actualiza oricând.
         </div>
@@ -65,6 +119,11 @@ export function CheckinForm({
       {state?.success && (
         <p className="text-sm text-green-600 bg-green-50 dark:bg-green-950 px-3 py-2 rounded-xl">
           Checkin-ul a fost salvat! ✅
+        </p>
+      )}
+      {offlineQueued && !isOnline && (
+        <p className="text-sm text-blue-600 bg-blue-50 dark:bg-blue-950 px-3 py-2 rounded-xl">
+          💾 Checkin-ul a fost salvat local. Va fi sincronizat automat când te reconectezi.
         </p>
       )}
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useState, useEffect } from "react";
 import { submitJournal } from "@/actions/player";
 import { RichTextEditor } from "@/components/RichTextEditor";
 import type { DailyJournal } from "@/app/generated/prisma/client";
@@ -8,10 +8,55 @@ import type { DailyJournal } from "@/app/generated/prisma/client";
 export function JournalForm({ existing }: { existing: DailyJournal | null }) {
   const [state, formAction, isPending] = useActionState(submitJournal, null);
   const [score, setScore] = useState(existing?.myScore ?? 0);
+  const [isOnline, setIsOnline] = useState(true);
+  const [offlineQueued, setOfflineQueued] = useState(false);
+
+  useEffect(() => {
+    setIsOnline(navigator.onLine);
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    if (isOnline) return; // let the form action proceed normally
+
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const today = new Date().toISOString().split("T")[0];
+
+    const { enqueue } = await import("@/lib/offline-db");
+    await enqueue({
+      type: "journal",
+      endpoint: "/api/sync/journal",
+      payload: {
+        whatDidGood: (formData.get("whatDidGood") as string) || null,
+        whatDidWrong: (formData.get("whatDidWrong") as string) || null,
+        whatCanDoBetter: (formData.get("whatCanDoBetter") as string) || null,
+        myScore: Math.min(5, Math.max(0, Number(formData.get("myScore")) || 0)),
+        day: today,
+      },
+      day: today,
+    });
+
+    setOfflineQueued(true);
+    window.dispatchEvent(new CustomEvent("offline-enqueued"));
+  };
 
   return (
-    <form action={formAction} className="space-y-6">
-      {existing && (
+    <form action={formAction} onSubmit={handleSubmit} className="space-y-6">
+      {!isOnline && (
+        <div className="bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 px-4 py-3 rounded-xl text-sm">
+          ⚠️ Ești offline. Datele vor fi salvate local și sincronizate automat când te reconectezi.
+        </div>
+      )}
+
+      {existing && isOnline && (
         <div className="bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 px-4 py-3 rounded-xl text-sm">
           ✅ Ai completat jurnalul de astăzi. Poți actualiza oricând.
         </div>
@@ -79,6 +124,11 @@ export function JournalForm({ existing }: { existing: DailyJournal | null }) {
       {state?.success && (
         <p className="text-sm text-green-600 bg-green-50 dark:bg-green-950 px-3 py-2 rounded-xl">
           Jurnalul a fost salvat! ✅
+        </p>
+      )}
+      {offlineQueued && !isOnline && (
+        <p className="text-sm text-blue-600 bg-blue-50 dark:bg-blue-950 px-3 py-2 rounded-xl">
+          💾 Jurnalul a fost salvat local. Va fi sincronizat automat când te reconectezi.
         </p>
       )}
 

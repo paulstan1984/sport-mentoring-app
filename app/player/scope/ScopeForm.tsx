@@ -1,10 +1,10 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState, useEffect } from "react";
 import { saveWeeklyScope, toggleWeeklyScope } from "@/actions/player";
 import { RichTextEditor } from "@/components/RichTextEditor";
 import { RichTextViewer } from "@/components/RichTextViewer";
-import { getWeekLabelFromWeekNumber } from "@/lib/weekUtils";
+import { getWeekLabelFromWeekNumber, getISOWeek } from "@/lib/weekUtils";
 import type { WeeklyScope } from "@/app/generated/prisma/client";
 
 export function ScopeForm({
@@ -15,13 +15,55 @@ export function ScopeForm({
   pastScopes: WeeklyScope[];
 }) {
   const [saveState, saveAction, isSaving] = useActionState(saveWeeklyScope, null);
+  const [isOnline, setIsOnline] = useState(true);
+  const [offlineQueued, setOfflineQueued] = useState(false);
+
+  useEffect(() => {
+    setIsOnline(navigator.onLine);
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    if (isOnline) return; // let the form action proceed normally
+
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const scope = (formData.get("scope") as string) || null;
+    const { weekNumber, year } = getISOWeek(new Date());
+    const today = new Date().toISOString().split("T")[0];
+
+    const { enqueue } = await import("@/lib/offline-db");
+    await enqueue({
+      type: "scope",
+      endpoint: "/api/sync/scope",
+      payload: { scope, weekNumber, year },
+      day: today,
+    });
+
+    setOfflineQueued(true);
+    window.dispatchEvent(new CustomEvent("offline-enqueued"));
+  };
 
   return (
     <div className="space-y-6">
       {/* Current week scope */}
       <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-5 space-y-4">
         <h2 className="font-semibold">Ce îmi propun în această săptămână</h2>
-        <form action={saveAction}>
+
+        {!isOnline && (
+          <div className="bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 px-4 py-3 rounded-xl text-sm">
+            ⚠️ Ești offline. Datele vor fi salvate local și sincronizate automat când te reconectezi.
+          </div>
+        )}
+
+        <form action={saveAction} onSubmit={handleSubmit}>
           <RichTextEditor
             name="scope"
             initialValue={currentScope?.scope ?? ""}
@@ -33,6 +75,11 @@ export function ScopeForm({
           )}
           {saveState?.success && (
             <p className="text-sm text-green-600 mt-2">Obiectivul a fost salvat! ✅</p>
+          )}
+          {offlineQueued && !isOnline && (
+            <p className="text-sm text-blue-600 mt-2">
+              💾 Obiectivul a fost salvat local. Va fi sincronizat automat când te reconectezi.
+            </p>
           )}
           <button type="submit" disabled={isSaving} className="btn-primary mt-4">
             {isSaving ? "Se salvează..." : "Salvează obiectivul"}

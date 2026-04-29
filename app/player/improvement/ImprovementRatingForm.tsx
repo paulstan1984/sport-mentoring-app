@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useState, useEffect } from "react";
 import { saveImprovementWayRatings } from "@/actions/player";
 import { RichTextViewer } from "@/components/RichTextViewer";
 import type { ImprovementWay, ImprovementWayRating } from "@/app/generated/prisma/client";
@@ -28,12 +28,55 @@ export function ImprovementRatingForm({
   const [scores, setScores] = useState<Record<number, number>>(
     Object.fromEntries(ways.map((w) => [w.id, ratingMap[w.id]?.score ?? DEFAULT_SCORE]))
   );
+  const [isOnline, setIsOnline] = useState(true);
+  const [offlineQueued, setOfflineQueued] = useState(false);
+
+  useEffect(() => {
+    setIsOnline(navigator.onLine);
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
 
   const alreadySubmitted = Object.values(ratingMap).length > 0;
 
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    if (isOnline) return; // let the form action proceed normally
+
+    e.preventDefault();
+    const today = new Date().toISOString().split("T")[0];
+
+    const ratings = ways.map((w) => ({
+      wayId: w.id,
+      score: Math.min(5, Math.max(1, scores[w.id] ?? DEFAULT_SCORE)),
+    }));
+
+    const { enqueue } = await import("@/lib/offline-db");
+    await enqueue({
+      type: "improvement",
+      endpoint: "/api/sync/improvement",
+      payload: { ratings, day: today },
+      day: today,
+    });
+
+    setOfflineQueued(true);
+    window.dispatchEvent(new CustomEvent("offline-enqueued"));
+  };
+
   return (
-    <form action={formAction} className="space-y-4">
-      {alreadySubmitted && (
+    <form action={formAction} onSubmit={handleSubmit} className="space-y-4">
+      {!isOnline && (
+        <div className="bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 px-4 py-3 rounded-xl text-sm">
+          ⚠️ Ești offline. Datele vor fi salvate local și sincronizate automat când te reconectezi.
+        </div>
+      )}
+
+      {alreadySubmitted && isOnline && (
         <div className="bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 px-4 py-3 rounded-xl text-sm">
           ✅ Ai completat evaluarea de astăzi. Poți actualiza oricând.
         </div>
@@ -75,6 +118,11 @@ export function ImprovementRatingForm({
       {state?.success && (
         <p className="text-sm text-green-600 bg-green-50 dark:bg-green-950 px-3 py-2 rounded-xl">
           Evaluarea a fost salvată! ✅
+        </p>
+      )}
+      {offlineQueued && !isOnline && (
+        <p className="text-sm text-blue-600 bg-blue-50 dark:bg-blue-950 px-3 py-2 rounded-xl">
+          💾 Evaluarea a fost salvată local. Va fi sincronizată automat când te reconectezi.
         </p>
       )}
 
