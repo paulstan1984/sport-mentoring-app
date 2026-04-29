@@ -14,7 +14,17 @@ export function ScopeForm({
   currentScope: WeeklyScope | null;
   pastScopes: WeeklyScope[];
 }) {
-  const [saveState, saveAction, isSaving] = useActionState(saveWeeklyScope, null);
+  const wrappedSave = async (
+    prev: Awaited<ReturnType<typeof saveWeeklyScope>> | null,
+    formData: FormData
+  ) => {
+    try {
+      return await saveWeeklyScope(prev, formData);
+    } catch {
+      return { error: "Eroare de rețea. Verifică conexiunea și încearcă din nou." };
+    }
+  };
+  const [saveState, saveAction, isSaving] = useActionState(wrappedSave, null);
   const [isOnline, setIsOnline] = useState(true);
   const [offlineQueued, setOfflineQueued] = useState(false);
 
@@ -31,7 +41,7 @@ export function ScopeForm({
   }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    if (isOnline) return; // let the form action proceed normally
+    if (navigator.onLine) return; // let the form action proceed normally
 
     e.preventDefault();
     const formData = new FormData(e.currentTarget);

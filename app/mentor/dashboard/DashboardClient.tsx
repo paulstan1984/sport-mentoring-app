@@ -26,9 +26,11 @@ const CONFIDENCE_LABEL: Record<string, string> = {
 export function DashboardClient({ players, playerLabel }: { players: PlayerSummary[]; playerLabel: string }) {
   const router = useRouter();
 
-  // Poll every 60 seconds to refresh presence data
+  // Poll every 60 seconds to refresh presence data (skip when offline)
   useEffect(() => {
-    const id = setInterval(() => router.refresh(), 60_000);
+    const id = setInterval(() => {
+      if (navigator.onLine) router.refresh();
+    }, 60_000);
     return () => clearInterval(id);
   }, [router]);
 

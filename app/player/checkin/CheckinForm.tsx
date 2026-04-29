@@ -13,7 +13,17 @@ export function CheckinForm({
   items: CheckinFormItem[];
   answerMap: AnswerMap;
 }) {
-  const [state, formAction, isPending] = useActionState(submitCheckin, null);
+  const wrappedAction = async (
+    prev: Awaited<ReturnType<typeof submitCheckin>> | null,
+    formData: FormData
+  ) => {
+    try {
+      return await submitCheckin(prev, formData);
+    } catch {
+      return { error: "Eroare de rețea. Verifică conexiunea și încearcă din nou." };
+    }
+  };
+  const [state, formAction, isPending] = useActionState(wrappedAction, null);
   const [checked, setChecked] = useState<Record<number, boolean>>(
     Object.fromEntries(items.map((i) => [i.id, answerMap[i.id]?.checked ?? false]))
   );
@@ -36,7 +46,7 @@ export function CheckinForm({
   const alreadySubmitted = Object.values(answerMap).some((a) => a.checked);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    if (isOnline) return; // let the form action proceed normally
+    if (navigator.onLine) return; // let the form action proceed normally
 
     e.preventDefault();
     const formData = new FormData(e.currentTarget);

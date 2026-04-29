@@ -6,7 +6,17 @@ import { RichTextEditor } from "@/components/RichTextEditor";
 import type { DailyJournal } from "@/app/generated/prisma/client";
 
 export function JournalForm({ existing }: { existing: DailyJournal | null }) {
-  const [state, formAction, isPending] = useActionState(submitJournal, null);
+  const wrappedAction = async (
+    prev: Awaited<ReturnType<typeof submitJournal>> | null,
+    formData: FormData
+  ) => {
+    try {
+      return await submitJournal(prev, formData);
+    } catch {
+      return { error: "Eroare de rețea. Verifică conexiunea și încearcă din nou." };
+    }
+  };
+  const [state, formAction, isPending] = useActionState(wrappedAction, null);
   const [score, setScore] = useState(existing?.myScore ?? 0);
   const [isOnline, setIsOnline] = useState(true);
   const [offlineQueued, setOfflineQueued] = useState(false);
@@ -24,7 +34,7 @@ export function JournalForm({ existing }: { existing: DailyJournal | null }) {
   }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    if (isOnline) return; // let the form action proceed normally
+    if (navigator.onLine) return; // let the form action proceed normally
 
     e.preventDefault();
     const formData = new FormData(e.currentTarget);

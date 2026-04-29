@@ -24,7 +24,17 @@ export function ImprovementRatingForm({
   ways: ImprovementWay[];
   ratingMap: RatingMap;
 }) {
-  const [state, formAction, isPending] = useActionState(saveImprovementWayRatings, null);
+  const wrappedAction = async (
+    prev: Awaited<ReturnType<typeof saveImprovementWayRatings>> | null,
+    formData: FormData
+  ) => {
+    try {
+      return await saveImprovementWayRatings(prev, formData);
+    } catch {
+      return { error: "Eroare de rețea. Verifică conexiunea și încearcă din nou." };
+    }
+  };
+  const [state, formAction, isPending] = useActionState(wrappedAction, null);
   const [scores, setScores] = useState<Record<number, number>>(
     Object.fromEntries(ways.map((w) => [w.id, ratingMap[w.id]?.score ?? DEFAULT_SCORE]))
   );
@@ -46,7 +56,7 @@ export function ImprovementRatingForm({
   const alreadySubmitted = Object.values(ratingMap).length > 0;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    if (isOnline) return; // let the form action proceed normally
+    if (navigator.onLine) return; // let the form action proceed normally
 
     e.preventDefault();
     const today = new Date().toISOString().split("T")[0];
