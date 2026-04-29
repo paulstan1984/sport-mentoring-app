@@ -96,7 +96,7 @@ export default function HowItWorksPage() {
               {
                 name: "Minimum",
                 badge: "MINIMUM",
-                price: "70 lei",
+                price: "50 lei",
                 period: "/lună",
                 clients: "până la 5 clienți",
                 highlight: false,
@@ -105,7 +105,7 @@ export default function HowItWorksPage() {
               {
                 name: "Medium",
                 badge: "MEDIUM",
-                price: "120 lei",
+                price: "70 lei",
                 period: "/lună",
                 clients: "până la 10 clienți",
                 highlight: true,
@@ -114,7 +114,7 @@ export default function HowItWorksPage() {
               {
                 name: "Pro",
                 badge: "PRO",
-                price: "200 lei",
+                price: "100 lei",
                 period: "/lună",
                 clients: "până la 30 de clienți",
                 highlight: false,
@@ -188,7 +188,7 @@ export default function HowItWorksPage() {
             {[
               {
                 q: "Cât costă platforma?",
-                a: "Există un pachet gratuit cu 1 client. Pachetele plătite încep de la 70 lei/lună (5 clienți), 120 lei/lună (10 clienți) și 200 lei/lună (30 de clienți). Pentru mai mult de 30 de clienți există un pachet Enterprise cu preț personalizat.",
+                a: "Există un pachet gratuit cu 1 client. Pachetele plătite încep de la 50 lei/lună (5 clienți), 70 lei/lună (10 clienți) și 100 lei/lună (30 de clienți). Pentru mai mult de 30 de clienți există un pachet Enterprise cu preț personalizat.",
               },
               {
                 q: "Câți jucători pot adăuga?",
