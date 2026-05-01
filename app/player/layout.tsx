@@ -79,7 +79,7 @@ export default async function PlayerLayout({
       </div>
 
       {/* Main content */}
-      <main className="flex-1 overflow-auto p-4 pb-20 md:pb-4 md:px-8 md:pt-8">
+      <main className="flex-1 overflow-auto p-2 pb-20 md:p-4 md:pb-4 md:px-8 md:pt-8">
         {children}
       </main>
 

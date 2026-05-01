@@ -52,6 +52,42 @@ body {
   }
 }
 
+/* ── Mobile improvements ──────────────────────────────────────────────── */
+
+@media (max-width: 767px) {
+  /* Larger, more visible buttons on mobile */
+  .btn-primary,
+  .btn-secondary {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+
+  /* Remove rounded corners and shadow from card containers on mobile */
+  div.rounded-2xl,
+  a.rounded-2xl {
+    border-radius: 0;
+  }
+
+  div.shadow,
+  div.shadow-md,
+  a.shadow,
+  a.shadow-md {
+    box-shadow: none;
+  }
+
+  /* Reduce internal card padding on mobile */
+  div.p-5,
+  div.p-6,
+  a.p-5,
+  a.p-6 {
+    padding: 0.75rem;
+  }
+}
+
 
 body {
   background: var(--background);

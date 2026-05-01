@@ -58,7 +58,7 @@ export default async function PlayerDashboard() {
     startOfDayUTC(new Date(messageToShow.day)).getTime() === today.getTime();
 
   return (
-    <div className="max-w-xl space-y-6">
+    <div className="max-w-xl space-y-4 md:space-y-6">
       {/* Mentor avatar */}
       <div className="flex items-center gap-4">
         {player.mentor.photo ? (
