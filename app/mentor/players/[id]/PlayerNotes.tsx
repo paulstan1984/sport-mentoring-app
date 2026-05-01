@@ -54,7 +54,14 @@ function CheckinPresenceField({ defaultChecked = false }: { defaultChecked?: boo
 }
 
 function AddNoteForm({ playerId, onClose }: { playerId: number; onClose: () => void }) {
-  const [state, action, isPending] = useActionState(createPlayerNote, null);
+  const wrappedCreate = async (
+    prev: Awaited<ReturnType<typeof createPlayerNote>> | null,
+    formData: FormData
+  ) => {
+    try { return await createPlayerNote(prev, formData); }
+    catch { return { error: "Eroare de rețea. Verifică conexiunea și încearcă din nou." }; }
+  };
+  const [state, action, isPending] = useActionState(wrappedCreate, null);
   const [editorKey, setEditorKey] = useState(0);
 
   useEffect(() => {
@@ -103,7 +110,14 @@ function AddNoteForm({ playerId, onClose }: { playerId: number; onClose: () => v
 }
 
 function EditNoteForm({ note, onClose }: { note: PlayerNote; onClose: () => void }) {
-  const [state, action, isPending] = useActionState(updatePlayerNote, null);
+  const wrappedUpdate = async (
+    prev: Awaited<ReturnType<typeof updatePlayerNote>> | null,
+    formData: FormData
+  ) => {
+    try { return await updatePlayerNote(prev, formData); }
+    catch { return { error: "Eroare de rețea. Verifică conexiunea și încearcă din nou." }; }
+  };
+  const [state, action, isPending] = useActionState(wrappedUpdate, null);
   const dateValue = new Date(note.date).toISOString().slice(0, 10);
 
   useEffect(() => {

@@ -56,7 +56,14 @@ function LabelRow({
   currentValue: string;
   placeholder: string;
 }) {
-  const [state, formAction, isPending] = useActionState(updateMentorLabel, null);
+  const wrappedAction = async (
+    prev: Awaited<ReturnType<typeof updateMentorLabel>> | null,
+    formData: FormData
+  ) => {
+    try { return await updateMentorLabel(prev, formData); }
+    catch { return { error: "Eroare de rețea. Verifică conexiunea și încearcă din nou." }; }
+  };
+  const [state, formAction, isPending] = useActionState(wrappedAction, null);
 
   return (
     <form action={formAction} className="flex flex-col gap-1">

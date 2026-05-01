@@ -6,6 +6,7 @@ import { requirePlayer } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { touchPlayerActivity } from "@/actions/player";
 import { ImpersonationBanner } from "@/components/ImpersonationBanner";
+import { OfflineStatus } from "@/components/OfflineStatus";
 import {
   Home,
   ClipboardCheck,
@@ -53,6 +54,7 @@ export default async function PlayerLayout({
     <div className="min-h-screen flex flex-col">
       <div className="sticky top-0 z-20">
         <ImpersonationBanner />
+        <OfflineStatus />
         {/* Top header (mobile) */}
         <header className="bg-blue-600 text-white px-4 py-3 flex items-center justify-between">
         <Link href="/player/dashboard" className="flex items-center gap-2 hover:opacity-90">

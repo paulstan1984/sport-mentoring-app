@@ -9,7 +9,14 @@ type Props = {
 };
 
 export function ApproveForm({ requestId, defaultUsername }: Props) {
-  const [state, formAction, isPending] = useActionState(approveMentorSignup, null);
+  const wrappedAction = async (
+    prev: Awaited<ReturnType<typeof approveMentorSignup>> | null,
+    formData: FormData
+  ) => {
+    try { return await approveMentorSignup(prev, formData); }
+    catch { return { error: "Eroare de rețea. Verifică conexiunea și încearcă din nou." }; }
+  };
+  const [state, formAction, isPending] = useActionState(wrappedAction, null);
 
   if (state?.success) {
     return (

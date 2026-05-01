@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { setConfidenceLevel } from "@/actions/player";
 import type { Confidence } from "@/app/generated/prisma/client";
 
@@ -14,26 +15,65 @@ export function ConfidencePicker({
 }: {
   current: Confidence | null;
 }) {
+  const [selected, setSelected] = useState<Confidence | null>(current);
+  const [isOnline, setIsOnline] = useState(true);
+  const [offlineQueued, setOfflineQueued] = useState(false);
+
+  useEffect(() => {
+    setIsOnline(navigator.onLine);
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
+
   async function pick(level: Confidence) {
+    setSelected(level);
+
+    if (!isOnline) {
+      const today = new Date().toISOString().split("T")[0];
+      const { enqueue } = await import("@/lib/offline-db");
+      await enqueue({
+        type: "confidence",
+        endpoint: "/api/sync/confidence",
+        payload: { level, day: today },
+        day: today,
+      });
+      setOfflineQueued(true);
+      window.dispatchEvent(new CustomEvent("offline-enqueued"));
+      return;
+    }
+
     await setConfidenceLevel(level);
   }
 
   return (
-    <div className="flex gap-3">
-      {OPTIONS.map((opt) => (
-        <button
-          key={opt.value}
-          onClick={() => pick(opt.value)}
-          className={`flex-1 flex flex-col items-center gap-1 py-3 rounded-xl border-2 transition-all text-sm font-medium ${
-            current === opt.value
-              ? `${opt.color} border-current`
-              : "bg-gray-50 dark:bg-gray-800 border-transparent text-gray-400"
-          }`}
-        >
-          <span className="text-2xl">{opt.emoji}</span>
-          {opt.label}
-        </button>
-      ))}
+    <div className="space-y-3">
+      {offlineQueued && !isOnline && (
+        <p className="text-xs text-blue-600 dark:text-blue-400">
+          💾 Nivelul de încredere salvat local. Va fi sincronizat automat.
+        </p>
+      )}
+      <div className="flex gap-3">
+        {OPTIONS.map((opt) => (
+          <button
+            key={opt.value}
+            onClick={() => pick(opt.value)}
+            className={`flex-1 flex flex-col items-center gap-1 py-3 rounded-xl border-2 transition-all text-sm font-medium ${
+              selected === opt.value
+                ? `${opt.color} border-current`
+                : "bg-gray-50 dark:bg-gray-800 border-transparent text-gray-400"
+            }`}
+          >
+            <span className="text-2xl">{opt.emoji}</span>
+            {opt.label}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

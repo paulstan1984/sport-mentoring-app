@@ -14,13 +14,27 @@ export function PositionManager({
 }: {
   positions: PlayfieldPosition[];
 }) {
+  const wrappedCreate = async (
+    prev: Awaited<ReturnType<typeof createPosition>> | null,
+    formData: FormData
+  ) => {
+    try { return await createPosition(prev, formData); }
+    catch { return { error: "Eroare de rețea. Verifică conexiunea și încearcă din nou." }; }
+  };
   const [createState, createAction, isCreating] = useActionState(
-    createPosition,
+    wrappedCreate,
     null
   );
   const [editingId, setEditingId] = useState<number | null>(null);
+  const wrappedUpdate = async (
+    prev: Awaited<ReturnType<typeof updatePosition>> | null,
+    formData: FormData
+  ) => {
+    try { return await updatePosition(prev, formData); }
+    catch { return { error: "Eroare de rețea. Verifică conexiunea și încearcă din nou." }; }
+  };
   const [updateState, updateAction, isUpdating] = useActionState(
-    updatePosition,
+    wrappedUpdate,
     null
   );
 

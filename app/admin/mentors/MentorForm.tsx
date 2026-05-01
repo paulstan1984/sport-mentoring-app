@@ -4,7 +4,14 @@ import { useActionState } from "react";
 import { createMentor } from "@/actions/admin";
 
 export function MentorForm() {
-  const [state, formAction, isPending] = useActionState(createMentor, null);
+  const wrappedAction = async (
+    prev: Awaited<ReturnType<typeof createMentor>> | null,
+    formData: FormData
+  ) => {
+    try { return await createMentor(prev, formData); }
+    catch { return { error: "Eroare de rețea. Verifică conexiunea și încearcă din nou." }; }
+  };
+  const [state, formAction, isPending] = useActionState(wrappedAction, null);
 
   return (
     <form action={formAction} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
