@@ -27,7 +27,7 @@ export default async function ScopePage() {
   ]);
 
   return (
-    <div className="max-w-lg space-y-8">
+    <div className="max-w-lg space-y-4 md:space-y-8">
       <div>
         <h1 className="text-2xl font-bold mb-1">Obiectiv săptămânal</h1>
         <p className="text-sm text-gray-400">

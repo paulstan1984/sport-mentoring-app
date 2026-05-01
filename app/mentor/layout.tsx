@@ -81,7 +81,7 @@ export default async function MentorLayout({
       </div>
 
       {/* Main content */}
-      <main className="flex-1 overflow-auto p-4 pb-20 md:pb-8 md:px-8 md:pt-8">{children}</main>
+      <main className="flex-1 overflow-auto p-2 pb-20 md:p-4 md:pb-8 md:px-8 md:pt-8">{children}</main>
 
       {/* Bottom navigation (mobile-first) */}
       <MentorMobileNav playersLabel={playersLabel} />

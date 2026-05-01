@@ -52,6 +52,44 @@ body {
   }
 }
 
+/* ── Mobile improvements ──────────────────────────────────────────────── */
+
+/* Applies to screens narrower than Tailwind's md breakpoint (768px) */
+@media (width < 768px) {
+  /* Larger, more visible buttons on mobile */
+  .btn-primary,
+  .btn-secondary {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+
+  /* Remove rounded corners and shadow from card containers on mobile.
+     Targets div and a (Link) elements — all card containers in this codebase. */
+  div.rounded-2xl,
+  a.rounded-2xl {
+    border-radius: 0;
+  }
+
+  div.shadow,
+  div.shadow-md,
+  a.shadow,
+  a.shadow-md {
+    box-shadow: none;
+  }
+
+  /* Reduce internal card padding on mobile (p-5 → p-3, p-6 → p-3) */
+  div.p-5,
+  div.p-6,
+  a.p-5,
+  a.p-6 {
+    padding: 0.75rem; /* Tailwind p-3 */
+  }
+}
+
 
 body {
   background: var(--background);
