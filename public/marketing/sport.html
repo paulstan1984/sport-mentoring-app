@@ -312,101 +312,194 @@
       padding: 24px;
     }
 
-    /* dashboard mockup */
-    .dash-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-      margin-bottom: 14px;
+    /* ── App UI mockup ─────────────────────────────────────── */
+    .browser-content {
+      padding: 0;
+      background: #f9fafb;
+      min-height: 340px;
+      display: flex;
     }
 
-    .dash-card {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 16px;
+    /* Sidebar */
+    .app-sidebar {
+      width: 200px;
+      flex-shrink: 0;
+      background: #ffffff;
+      border-right: 1px solid #e5e7eb;
+      display: flex;
+      flex-direction: column;
+      padding: 0;
     }
 
-    .dash-card-label {
-      font-size: 0.68rem;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      margin-bottom: 6px;
-    }
-
-    .dash-card-val {
-      font-size: 1.5rem;
+    .app-sidebar-brand {
+      padding: 16px 20px 14px;
+      border-bottom: 1px solid #f3f4f6;
+      font-size: 0.95rem;
       font-weight: 800;
-      color: var(--white);
+      color: #2563eb;
     }
 
-    .dash-card-sub {
-      font-size: 0.7rem;
-      color: var(--accent);
-      margin-top: 2px;
+    .app-sidebar-mentor {
+      padding: 8px 20px 10px;
+      border-bottom: 1px solid #f3f4f6;
     }
 
-    .dash-players {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 16px;
+    .app-sidebar-mentor-name {
+      font-size: 0.72rem;
+      color: #9ca3af;
     }
 
-    .dash-players-title {
-      font-size: 0.8rem;
+    .app-sidebar-level {
+      display: inline-block;
+      font-size: 0.62rem;
       font-weight: 700;
-      color: var(--text);
-      margin-bottom: 12px;
+      background: #dbeafe;
+      color: #1d4ed8;
+      border-radius: 4px;
+      padding: 1px 6px;
+      margin-left: 4px;
     }
 
-    .player-row {
+    .app-nav {
+      list-style: none;
+      padding: 10px 0;
+      flex: 1;
+    }
+
+    .app-nav li a {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 8px 0;
-      border-bottom: 1px solid var(--border);
+      gap: 8px;
+      padding: 8px 20px;
+      font-size: 0.78rem;
+      color: #6b7280;
+      text-decoration: none;
+      border-radius: 0;
+      transition: background 0.15s, color 0.15s;
     }
 
-    .player-row:last-child { border-bottom: none; }
+    .app-nav li a.active {
+      color: #2563eb;
+      background: #eff6ff;
+      font-weight: 600;
+    }
 
-    .avatar {
-      width: 32px; height: 32px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--green-dark), var(--green));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--white);
+    .app-nav li a:hover:not(.active) {
+      background: #f9fafb;
+      color: #374151;
+    }
+
+    .nav-icon {
+      width: 14px;
+      height: 14px;
+      opacity: 0.7;
       flex-shrink: 0;
     }
 
-    .player-info { flex: 1; }
-    .player-name { font-size: 0.8rem; font-weight: 600; color: var(--text); }
-    .player-pos  { font-size: 0.68rem; color: var(--muted); }
+    .active .nav-icon { opacity: 1; }
 
-    .presence-dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      background: var(--accent);
-      box-shadow: 0 0 6px var(--accent);
+    /* Main area */
+    .app-main {
+      flex: 1;
+      padding: 20px 20px 16px;
+      overflow: hidden;
     }
 
-    .presence-dot.offline { background: var(--muted); box-shadow: none; }
+    .app-page-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #111827;
+      margin-bottom: 14px;
+    }
 
-    .badge-confidence {
-      font-size: 0.65rem;
+    /* Player cards grid */
+    .player-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .player-card {
+      background: #ffffff;
+      border-radius: 14px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      padding: 12px 12px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .player-card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .player-card-identity {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .app-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.78rem;
       font-weight: 700;
-      padding: 2px 8px;
+      color: #6b7280;
+      flex-shrink: 0;
+    }
+
+    .app-player-name {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #111827;
+      line-height: 1.2;
+    }
+
+    .app-player-team {
+      font-size: 0.68rem;
+      color: #9ca3af;
+      margin-top: 1px;
+    }
+
+    /* Presence dot — matches PresenceBadge.tsx */
+    .pdot {
+      width: 11px; height: 11px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 3px;
+    }
+    .pdot-green  { background: #22c55e; }
+    .pdot-yellow { background: #facc15; }
+    .pdot-red    { background: #ef4444; }
+
+    /* Card badges */
+    .player-card-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .app-badge {
+      font-size: 0.62rem;
+      font-weight: 600;
+      padding: 2px 7px;
       border-radius: 100px;
     }
 
-    .conf-good { background: rgba(34,197,94,0.15); color: #4ade80; }
-    .conf-ok   { background: rgba(251,191,36,0.15); color: #fbbf24; }
-    .conf-hard { background: rgba(248,113,113,0.15); color: #f87171; }
+    .badge-pos      { background: #dbeafe; color: #1d4ed8; }
+    .badge-checkin  { background: #dcfce7; color: #166534; }
+    .badge-no-check { background: #f3f4f6; color: #9ca3af; }
+    .badge-good     { background: #ffedd5; color: #c2410c; }
+    .badge-ok       { background: #ffedd5; color: #c2410c; }
+    .badge-hard     { background: #ffedd5; color: #c2410c; }
 
     /* ─── Section shared ────────────────────────────────────── */
     section { padding: 96px 0; }
@@ -802,7 +895,8 @@
       .testimonials-grid { grid-template-columns: 1fr 1fr; }
       .pricing-card.featured { transform: scale(1); }
       .roles-grid { grid-template-columns: 1fr; }
-      .dash-grid  { grid-template-columns: 1fr 1fr; }
+      .player-cards-grid { grid-template-columns: 1fr 1fr; }
+      .app-sidebar { width: 160px; }
     }
 
     @media (max-width: 640px) {
@@ -912,65 +1006,181 @@
         <span class="browser-url">sport-mentoring-app.fly.dev/mentor/dashboard</span>
       </div>
       <div class="browser-content">
-        <!-- Stats row -->
-        <div class="dash-grid">
-          <div class="dash-card">
-            <div class="dash-card-label">Jucători activi</div>
-            <div class="dash-card-val">12</div>
-            <div class="dash-card-sub">↑ 2 față de săptămâna trecută</div>
+
+        <!-- Sidebar -->
+        <aside class="app-sidebar">
+          <div class="app-sidebar-brand">⚽ Sport Mentor</div>
+          <div class="app-sidebar-mentor">
+            <span class="app-sidebar-mentor-name">Ionuț Rada</span>
+            <span class="app-sidebar-level">Pro</span>
           </div>
-          <div class="dash-card">
-            <div class="dash-card-label">Checkin-uri azi</div>
-            <div class="dash-card-val">9</div>
-            <div class="dash-card-sub">75% rată de completare</div>
-          </div>
-          <div class="dash-card">
-            <div class="dash-card-label">Scor medie încredere</div>
-            <div class="dash-card-val" style="color:var(--accent)">Bine</div>
-            <div class="dash-card-sub">Echipa în formă excelentă</div>
+          <ul class="app-nav">
+            <li>
+              <a href="#" class="active">
+                <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                Dashboard
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                Clienți
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                Rapoarte
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                Formular Checkin
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+                Îmbunătățiri
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                Bibliotecă
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Mesajul Zilei
+              </a>
+            </li>
+          </ul>
+        </aside>
+
+        <!-- Main -->
+        <div class="app-main">
+          <div class="app-page-title">Dashboard</div>
+
+          <div class="player-cards-grid">
+
+            <!-- Card 1 -->
+            <div class="player-card">
+              <div class="player-card-top">
+                <div class="player-card-identity">
+                  <div class="app-avatar">A</div>
+                  <div>
+                    <div class="app-player-name">Alexandru M.</div>
+                    <div class="app-player-team">FC Cluj U19</div>
+                  </div>
+                </div>
+                <span class="pdot pdot-green" title="Online"></span>
+              </div>
+              <div class="player-card-badges">
+                <span class="app-badge badge-pos">Mijlocaș</span>
+                <span class="app-badge badge-checkin">✅ Checkin ok</span>
+                <span class="app-badge badge-good">😊 Bine</span>
+              </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="player-card">
+              <div class="player-card-top">
+                <div class="player-card-identity">
+                  <div class="app-avatar">I</div>
+                  <div>
+                    <div class="app-player-name">Ionuț Popescu</div>
+                    <div class="app-player-team">FC Cluj U19</div>
+                  </div>
+                </div>
+                <span class="pdot pdot-green" title="Online"></span>
+              </div>
+              <div class="player-card-badges">
+                <span class="app-badge badge-pos">Atacant</span>
+                <span class="app-badge badge-checkin">✅ Checkin ok</span>
+                <span class="app-badge badge-ok">😐 OK</span>
+              </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="player-card">
+              <div class="player-card-top">
+                <div class="player-card-identity">
+                  <div class="app-avatar">C</div>
+                  <div>
+                    <div class="app-player-name">Cătălin Stan</div>
+                    <div class="app-player-team">FC Cluj U19</div>
+                  </div>
+                </div>
+                <span class="pdot pdot-yellow" title="Inactiv"></span>
+              </div>
+              <div class="player-card-badges">
+                <span class="app-badge badge-pos">Fundaș</span>
+                <span class="app-badge badge-no-check">⏳ Fără checkin</span>
+              </div>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="player-card">
+              <div class="player-card-top">
+                <div class="player-card-identity">
+                  <div class="app-avatar">R</div>
+                  <div>
+                    <div class="app-player-name">Radu Dumitrescu</div>
+                    <div class="app-player-team">FC Cluj U19</div>
+                  </div>
+                </div>
+                <span class="pdot pdot-green" title="Online"></span>
+              </div>
+              <div class="player-card-badges">
+                <span class="app-badge badge-pos">Portar</span>
+                <span class="app-badge badge-checkin">✅ Checkin ok</span>
+                <span class="app-badge badge-good">😊 Bine</span>
+              </div>
+            </div>
+
+            <!-- Card 5 -->
+            <div class="player-card">
+              <div class="player-card-top">
+                <div class="player-card-identity">
+                  <div class="app-avatar">M</div>
+                  <div>
+                    <div class="app-player-name">Mihai Ionescu</div>
+                    <div class="app-player-team">FC Cluj U19</div>
+                  </div>
+                </div>
+                <span class="pdot pdot-red" title="Offline"></span>
+              </div>
+              <div class="player-card-badges">
+                <span class="app-badge badge-pos">Fundaș dr.</span>
+                <span class="app-badge badge-checkin">✅ Checkin ok</span>
+                <span class="app-badge badge-hard">😓 Greu</span>
+              </div>
+            </div>
+
+            <!-- Card 6 -->
+            <div class="player-card">
+              <div class="player-card-top">
+                <div class="player-card-identity">
+                  <div class="app-avatar">D</div>
+                  <div>
+                    <div class="app-player-name">Dan Vlad</div>
+                    <div class="app-player-team">FC Cluj U19</div>
+                  </div>
+                </div>
+                <span class="pdot pdot-yellow" title="Inactiv"></span>
+              </div>
+              <div class="player-card-badges">
+                <span class="app-badge badge-pos">Mijlocaș</span>
+                <span class="app-badge badge-no-check">⏳ Fără checkin</span>
+              </div>
+            </div>
+
           </div>
         </div>
 
-        <!-- Players list -->
-        <div class="dash-players">
-          <div class="dash-players-title">Activitate jucători — live</div>
-          <div class="player-row">
-            <div class="avatar">AM</div>
-            <div class="player-info">
-              <div class="player-name">Alexandru Mihai</div>
-              <div class="player-pos">Mijlocaș central</div>
-            </div>
-            <span class="badge-confidence conf-good">Bine</span>
-            <div class="presence-dot"></div>
-          </div>
-          <div class="player-row">
-            <div class="avatar">IP</div>
-            <div class="player-info">
-              <div class="player-name">Ionuț Popescu</div>
-              <div class="player-pos">Atacant</div>
-            </div>
-            <span class="badge-confidence conf-ok">OK</span>
-            <div class="presence-dot"></div>
-          </div>
-          <div class="player-row">
-            <div class="avatar">CS</div>
-            <div class="player-info">
-              <div class="player-name">Cătălin Stan</div>
-              <div class="player-pos">Fundaș stânga</div>
-            </div>
-            <span class="badge-confidence conf-hard">Greu</span>
-            <div class="presence-dot offline"></div>
-          </div>
-          <div class="player-row">
-            <div class="avatar">RD</div>
-            <div class="player-info">
-              <div class="player-name">Radu Dumitrescu</div>
-              <div class="player-pos">Portar</div>
-            </div>
-            <span class="badge-confidence conf-good">Bine</span>
-            <div class="presence-dot"></div>
-          </div>
-        </div>
       </div>
     </div>
   </div>
@@ -1355,10 +1565,9 @@
   style.textContent = `
     @keyframes pulse-dot {
       0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.5); }
-      50%       { box-shadow: 0 0 0 5px rgba(34,197,94,0); }
+      50%       { box-shadow: 0 0 0 4px rgba(34,197,94,0); }
     }
-    .presence-dot { animation: pulse-dot 2s infinite; }
-    .presence-dot.offline { animation: none; }
+    .pdot-green { animation: pulse-dot 2s infinite; }
   `;
   document.head.appendChild(style);
 </script>
