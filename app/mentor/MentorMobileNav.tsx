@@ -61,16 +61,14 @@ export function MentorMobileNav({
           >
             <div
               id="mentor-more-menu"
-              className="fixed bottom-16 left-0 right-0 px-4 py-3 space-y-1 z-30 shadow-lg"
-              style={{ background: "#1e293b", borderTop: "1px solid rgba(167,139,250,0.15)" }}
+              className="fixed bottom-16 left-0 right-0 mind-card mind-border-top px-4 py-3 space-y-1 z-30 shadow-lg"
               onClick={(e) => e.stopPropagation()}
             >
               {mobileMoreLinks.map((l) => (
                 <Link
                   key={l.href}
                   href={l.href}
-                  className="flex items-center gap-3 px-3 py-2 text-sm rounded-lg"
-                  style={{ color: "#94a3b8" }}
+                  className="flex items-center gap-3 px-3 py-2 text-sm rounded-lg mind-nav-link"
                   onClick={closeMore}
                 >
                   <l.icon size={20} />
@@ -80,16 +78,12 @@ export function MentorMobileNav({
             </div>
           </div>
         )}
-        <nav
-          className="fixed bottom-0 left-0 right-0 flex md:hidden z-10"
-          style={{ background: "#1e293b", borderTop: "1px solid rgba(167,139,250,0.15)" }}
-        >
+        <nav className="mind-card mind-border-top fixed bottom-0 left-0 right-0 flex md:hidden z-10">
           {mainLinks.map((l) => (
             <Link
               key={l.href}
               href={l.href}
-              className="flex-1 flex flex-col items-center py-2 text-xs transition-colors"
-              style={{ color: "#94a3b8" }}
+              className="flex-1 flex flex-col items-center py-2 text-xs transition-colors mind-muted"
             >
               <l.icon size={22} className="mb-0.5" />
               <span className="mt-0.5 truncate">{l.label}</span>
@@ -99,8 +93,7 @@ export function MentorMobileNav({
             onClick={() => setMoreOpen(!moreOpen)}
             aria-expanded={moreOpen}
             aria-controls="mentor-more-menu"
-            className="flex-1 flex flex-col items-center py-2 text-xs transition-colors"
-            style={{ color: "#94a3b8" }}
+            className="flex-1 flex flex-col items-center py-2 text-xs transition-colors mind-muted"
           >
             <MoreHorizontal size={22} className="mb-0.5" />
             <span className="mt-0.5 truncate">Mai mult</span>
@@ -108,8 +101,7 @@ export function MentorMobileNav({
           <form action={logout} className="flex-1">
             <button
               type="submit"
-              className="w-full h-full flex flex-col items-center py-2 text-xs transition-colors"
-              style={{ color: "#94a3b8" }}
+              className="w-full h-full flex flex-col items-center py-2 text-xs transition-colors mind-muted"
             >
               <LogOut size={22} className="mb-0.5" />
               <span className="mt-0.5 truncate">Ieșire</span>

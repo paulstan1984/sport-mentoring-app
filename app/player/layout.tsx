@@ -54,12 +54,12 @@ export default async function PlayerLayout({
 
   if (isMindMentor) {
     return (
-      <div className="min-h-screen flex flex-col" style={{ background: "#0f172a", color: "#f1f5f9" }}>
+      <div className="min-h-screen flex flex-col mind-bg">
         <div className="sticky top-0 z-20">
           <ImpersonationBanner />
           <OfflineStatus />
           {/* Top header — MindMentor */}
-          <header className="px-4 py-3 flex items-center justify-between" style={{ background: "#1e293b", borderBottom: "1px solid rgba(167,139,250,0.15)" }}>
+          <header className="mind-header px-4 py-3 flex items-center justify-between">
             <Link href="/player/dashboard" className="flex items-center gap-2 hover:opacity-80">
               {mentor?.photo ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -73,9 +73,9 @@ export default async function PlayerLayout({
               ) : (
                 <span className="text-base">🧠</span>
               )}
-              <span className="font-bold text-sm" style={{ color: "#a78bfa" }}>{mentor?.name ?? "Psiholog"}</span>
+              <span className="font-bold text-sm mind-accent">{mentor?.name ?? "Psiholog"}</span>
             </Link>
-            <Link href="/player/profile" className="text-sm hover:opacity-80" style={{ color: "#94a3b8" }}>
+            <Link href="/player/profile" className="text-sm hover:opacity-80 mind-muted">
               {player?.name ?? "Client"}
             </Link>
           </header>
@@ -87,16 +87,12 @@ export default async function PlayerLayout({
         </main>
 
         {/* Bottom navigation (mobile-first) — MindMentor */}
-        <nav
-          className="fixed bottom-0 left-0 right-0 flex md:hidden z-10"
-          style={{ background: "#1e293b", borderTop: "1px solid rgba(167,139,250,0.15)" }}
-        >
+        <nav className="mind-card mind-border-top fixed bottom-0 left-0 right-0 flex md:hidden z-10">
           {navLinks.slice(0, 3).map((l) => (
             <Link
               key={l.href}
               href={l.href}
-              className="flex-1 flex flex-col items-center py-2 text-xs transition-colors"
-              style={{ color: "#94a3b8" }}
+              className="flex-1 flex flex-col items-center py-2 text-xs transition-colors mind-muted"
             >
               <l.icon size={22} className="mb-0.5" />
               <span className="mt-0.5 truncate">{l.label}</span>
@@ -105,8 +101,7 @@ export default async function PlayerLayout({
           <form action={logout} className="flex-1">
             <button
               type="submit"
-              className="w-full h-full flex flex-col items-center py-2 text-xs transition-colors"
-              style={{ color: "#94a3b8" }}
+              className="w-full h-full flex flex-col items-center py-2 text-xs transition-colors mind-muted"
             >
               <LogOut size={22} className="mb-0.5" />
               <span className="mt-0.5 truncate">Ieșire</span>
@@ -116,28 +111,25 @@ export default async function PlayerLayout({
 
         {/* Side nav (desktop) — MindMentor */}
         <aside
-          className={`hidden md:flex fixed left-0 ${session.impersonating ? 'top-10' : 'top-0'} bottom-0 w-52 flex-col shadow-xl`}
-          style={{ background: "#1e293b", borderRight: "1px solid rgba(167,139,250,0.15)" }}
+          className={`hidden md:flex fixed left-0 ${session.impersonating ? 'top-10' : 'top-0'} bottom-0 w-52 flex-col shadow-xl mind-sidebar`}
         >
           <nav className="flex-1 px-3 py-4 space-y-1">
             {navLinks.map((l) => (
               <Link
                 key={l.href}
                 href={l.href}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors"
-                style={{ color: "#94a3b8" }}
+                className="mind-nav-link flex items-center gap-3 px-3 py-2.5 text-sm transition-colors"
               >
                 <l.icon size={20} />
                 {l.label}
               </Link>
             ))}
           </nav>
-          <div className="px-3 py-4" style={{ borderTop: "1px solid rgba(167,139,250,0.15)" }}>
+          <div className="px-3 py-4 mind-border-top">
             <form action={logout}>
               <button
                 type="submit"
-                className="w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors"
-                style={{ color: "#64748b" }}
+                className="w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors mind-logout"
               >
                 <LogOut size={20} />
                 Deconectare

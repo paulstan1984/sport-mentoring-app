@@ -52,6 +52,92 @@ body {
   }
 }
 
+/* ── MindMentor theme utilities ───────────────────────────────────────── */
+
+@layer utilities {
+  .mind-bg {
+    background: #0f172a;
+    color: #f1f5f9;
+  }
+
+  .mind-card {
+    background: #1e293b;
+  }
+
+  .mind-sidebar {
+    background: #1e293b;
+    border-right: 1px solid rgba(167, 139, 250, 0.15);
+  }
+
+  .mind-header {
+    background: #1e293b;
+    border-bottom: 1px solid rgba(167, 139, 250, 0.15);
+  }
+
+  .mind-border-top {
+    border-top: 1px solid rgba(167, 139, 250, 0.15);
+  }
+
+  .mind-border-bottom {
+    border-bottom: 1px solid rgba(167, 139, 250, 0.15);
+  }
+
+  .mind-accent {
+    color: #a78bfa;
+  }
+
+  .mind-muted {
+    color: #94a3b8;
+  }
+
+  .mind-nav-link {
+    color: #94a3b8;
+    border-radius: 0.75rem;
+  }
+
+  .mind-nav-link:hover {
+    color: #a78bfa;
+    background: rgba(124, 58, 237, 0.15);
+  }
+
+  .mind-btn {
+    background: #7c3aed;
+    color: #fff;
+  }
+
+  .mind-btn:hover:not(:disabled) {
+    background: #6d28d9;
+  }
+
+  .mind-input {
+    background: #0f172a;
+    border: 1px solid rgba(167, 139, 250, 0.3);
+    color: #f1f5f9;
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    width: 100%;
+    outline: none;
+  }
+
+  .mind-label {
+    color: #cbd5e1;
+  }
+
+  .mind-level-badge {
+    background: rgba(124, 58, 237, 0.3);
+    color: #a78bfa;
+  }
+
+  .mind-logout {
+    color: #64748b;
+  }
+
+  .mind-logout:hover {
+    color: #94a3b8;
+  }
+}
+
 /* ── Mobile improvements ──────────────────────────────────────────────── */
 
 /* Applies to screens narrower than Tailwind's md breakpoint (768px) */

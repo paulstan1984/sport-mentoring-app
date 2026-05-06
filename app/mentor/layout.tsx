@@ -62,19 +62,19 @@ export default async function MentorLayout({
 
   if (isMindMentor) {
     return (
-      <div className="min-h-screen flex flex-col" style={{ background: "#0f172a", color: "#f1f5f9" }}>
+      <div className="min-h-screen flex flex-col mind-bg">
         <div className="sticky top-0 z-20">
           <ImpersonationBanner />
           <OfflineStatus />
           {/* Top header (mobile) — MindMentor */}
-          <header className="px-4 py-3 flex items-center justify-between md:hidden" style={{ background: "#1e293b", borderBottom: "1px solid rgba(167,139,250,0.15)" }}>
-            <Link href="/mentor/dashboard" className="font-bold text-sm hover:opacity-80" style={{ color: "#a78bfa" }}>
+          <header className="mind-header px-4 py-3 flex items-center justify-between md:hidden">
+            <Link href="/mentor/dashboard" className="font-bold text-sm hover:opacity-80 mind-accent">
               🧠 MindMentor
             </Link>
-            <Link href="/mentor/profile" className="text-sm flex items-center gap-2 hover:opacity-80" style={{ color: "#94a3b8" }}>
+            <Link href="/mentor/profile" className="text-sm flex items-center gap-2 hover:opacity-80 mind-muted">
               {mentor?.name ?? "Mentor"}
               {levelLabel && (
-                <span className="text-xs px-1.5 py-0.5 rounded font-medium" style={{ background: "rgba(124,58,237,0.3)", color: "#a78bfa" }}>
+                <span className="text-xs px-1.5 py-0.5 rounded font-medium mind-level-badge">
                   {levelLabel}
                 </span>
               )}
@@ -90,17 +90,16 @@ export default async function MentorLayout({
 
         {/* Side nav (desktop) — MindMentor */}
         <aside
-          className={`hidden md:flex fixed left-0 ${session.impersonating ? 'top-10' : 'top-0'} bottom-0 w-56 flex-col shadow-xl`}
-          style={{ background: "#1e293b", borderRight: "1px solid rgba(167,139,250,0.15)" }}
+          className={`hidden md:flex fixed left-0 ${session.impersonating ? 'top-10' : 'top-0'} bottom-0 w-56 flex-col shadow-xl mind-sidebar`}
         >
-          <div className="px-6 py-5" style={{ borderBottom: "1px solid rgba(167,139,250,0.15)" }}>
-            <Link href="/mentor/dashboard" className="text-lg font-bold hover:opacity-80" style={{ color: "#a78bfa" }}>
+          <div className="px-6 py-5 mind-border-bottom">
+            <Link href="/mentor/dashboard" className="text-lg font-bold hover:opacity-80 mind-accent">
               🧠 MindMentor
             </Link>
-            <Link href="/mentor/profile" className="flex items-center gap-2 mt-0.5 hover:opacity-80" style={{ color: "#94a3b8" }}>
+            <Link href="/mentor/profile" className="flex items-center gap-2 mt-0.5 hover:opacity-80 mind-muted">
               <span className="text-xs truncate">{mentor?.name ?? "Mentor"}</span>
               {levelLabel && (
-                <span className="text-xs px-1.5 py-0.5 rounded font-medium shrink-0" style={{ background: "rgba(124,58,237,0.3)", color: "#a78bfa" }}>
+                <span className="text-xs px-1.5 py-0.5 rounded font-medium shrink-0 mind-level-badge">
                   {levelLabel}
                 </span>
               )}
@@ -111,22 +110,18 @@ export default async function MentorLayout({
               <Link
                 key={l.href}
                 href={l.href}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors"
-                style={{ color: "#94a3b8" }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#a78bfa"; (e.currentTarget as HTMLElement).style.background = "rgba(124,58,237,0.15)"; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "#94a3b8"; (e.currentTarget as HTMLElement).style.background = ""; }}
+                className="mind-nav-link flex items-center gap-3 px-3 py-2.5 text-sm transition-colors"
               >
                 <l.icon size={20} />
                 {l.label}
               </Link>
             ))}
           </nav>
-          <div className="px-3 py-4" style={{ borderTop: "1px solid rgba(167,139,250,0.15)" }}>
+          <div className="px-3 py-4 mind-border-top">
             <form action={logout}>
               <button
                 type="submit"
-                className="w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors"
-                style={{ color: "#64748b" }}
+                className="w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors mind-logout"
               >
                 <LogOut size={20} />
                 Deconectare

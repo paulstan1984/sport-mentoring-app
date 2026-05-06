@@ -20,20 +20,20 @@ export function LoginForm({ isMindMentor }: LoginFormProps) {
 
   if (isMindMentor) {
     return (
-      <main className="min-h-screen flex items-center justify-center px-4" style={{ background: "#0f172a" }}>
+      <main className="min-h-screen flex items-center justify-center px-4 mind-bg">
         <div className="w-full max-w-sm">
           {/* Logo / Brand — MindMentor */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold" style={{ color: "#a78bfa" }}>
+            <h1 className="text-3xl font-bold mind-accent">
               🧠 MindMentor
             </h1>
-            <p className="mt-2 text-sm" style={{ color: "#94a3b8" }}>
+            <p className="mt-2 text-sm mind-muted">
               Platforma digitală pentru psihologi și terapeuți
             </p>
           </div>
 
-          <div className="shadow-lg rounded-2xl p-8" style={{ background: "#1e293b" }}>
-            <h2 className="text-xl font-semibold mb-6 text-center" style={{ color: "#f1f5f9" }}>
+          <div className="shadow-lg rounded-2xl p-8 mind-card">
+            <h2 className="text-xl font-semibold mb-6 text-center">
               Autentificare
             </h2>
 
@@ -41,8 +41,7 @@ export function LoginForm({ isMindMentor }: LoginFormProps) {
               <div>
                 <label
                   htmlFor="username"
-                  className="block text-sm font-medium mb-1"
-                  style={{ color: "#cbd5e1" }}
+                  className="block text-sm font-medium mb-1 mind-label"
                 >
                   Utilizator
                 </label>
@@ -52,20 +51,14 @@ export function LoginForm({ isMindMentor }: LoginFormProps) {
                   type="text"
                   autoComplete="username"
                   required
-                  className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2"
-                  style={{
-                    background: "#0f172a",
-                    border: "1px solid rgba(167,139,250,0.3)",
-                    color: "#f1f5f9",
-                  }}
+                  className="mind-input"
                 />
               </div>
 
               <div>
                 <label
                   htmlFor="password"
-                  className="block text-sm font-medium mb-1"
-                  style={{ color: "#cbd5e1" }}
+                  className="block text-sm font-medium mb-1 mind-label"
                 >
                   Parolă
                 </label>
@@ -75,12 +68,7 @@ export function LoginForm({ isMindMentor }: LoginFormProps) {
                   type="password"
                   autoComplete="current-password"
                   required
-                  className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2"
-                  style={{
-                    background: "#0f172a",
-                    border: "1px solid rgba(167,139,250,0.3)",
-                    color: "#f1f5f9",
-                  }}
+                  className="mind-input"
                 />
               </div>
 
@@ -93,29 +81,26 @@ export function LoginForm({ isMindMentor }: LoginFormProps) {
               <button
                 type="submit"
                 disabled={isPending}
-                className="w-full font-semibold rounded-lg py-2 text-sm transition-colors disabled:opacity-60"
-                style={{ background: "#7c3aed", color: "#fff" }}
+                className="w-full font-semibold rounded-lg py-2 text-sm transition-colors disabled:opacity-60 mind-btn"
               >
                 {isPending ? "Se procesează..." : "Intră în cont"}
               </button>
             </form>
           </div>
 
-          <p className="mt-6 text-center text-sm" style={{ color: "#94a3b8" }}>
+          <p className="mt-6 text-center text-sm mind-muted">
             <Link
               href="/how-it-works?theme=mind"
-              className="hover:underline"
-              style={{ color: "#a78bfa" }}
+              className="mind-accent hover:underline"
             >
               Cum funcționează?
             </Link>
             {" · "}
             <Link
               href="/signup?theme=mind"
-              className="hover:underline"
-              style={{ color: "#a78bfa" }}
+              className="mind-accent hover:underline"
             >
-              Înregistrare antrenor
+              Înregistrare psiholog
             </Link>
           </p>
         </div>
