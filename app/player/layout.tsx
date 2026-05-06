@@ -52,6 +52,8 @@ export default async function PlayerLayout({
     { href: "/player/profile", label: "Profil", icon: User },
   ];
 
+  const sidebarTop = session.impersonating ? "top-10" : "top-0";
+
   if (isMindMentor) {
     return (
       <div className="min-h-screen flex flex-col mind-bg">
@@ -111,7 +113,7 @@ export default async function PlayerLayout({
 
         {/* Side nav (desktop) — MindMentor */}
         <aside
-          className={`hidden md:flex fixed left-0 ${session.impersonating ? 'top-10' : 'top-0'} bottom-0 w-52 flex-col shadow-xl mind-sidebar`}
+          className={`hidden md:flex fixed left-0 ${sidebarTop} bottom-0 w-52 flex-col shadow-xl mind-sidebar`}
         >
           <nav className="flex-1 px-3 py-4 space-y-1">
             {navLinks.map((l) => (
@@ -201,7 +203,7 @@ export default async function PlayerLayout({
       </nav>
 
       {/* Side nav (desktop) */}
-      <aside className={`hidden md:flex fixed left-0 ${session.impersonating ? 'top-10' : 'top-0'} bottom-0 w-52 bg-white border-r border-gray-200 flex-col shadow-sm`}>
+      <aside className={`hidden md:flex fixed left-0 ${sidebarTop} bottom-0 w-52 bg-white border-r border-gray-200 flex-col shadow-sm`}>
         <nav className="flex-1 px-3 py-4 space-y-1">
           {navLinks.map((l) => (
             <Link

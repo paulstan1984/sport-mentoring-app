@@ -109,10 +109,8 @@ export async function updateMentor(
   const id = Number(formData.get("id"));
   const name = (formData.get("name") as string)?.trim();
   const description = (formData.get("description") as string)?.trim() || null;
-  const themeRaw = (formData.get("theme") as string) || "";
-  const theme: MentorTheme | undefined = (themeRaw === "MIND_MENTOR" || themeRaw === "SPORT_MENTOR")
-    ? parseMentorTheme(themeRaw)
-    : undefined;
+  const themeRaw = formData.get("theme") as string | null;
+  const theme: MentorTheme | undefined = themeRaw ? parseMentorTheme(themeRaw) : undefined;
 
   if (!id || !name) return { error: "Date invalide." };
 

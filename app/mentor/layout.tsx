@@ -60,6 +60,8 @@ export default async function MentorLayout({
     { href: "/mentor/profile", label: "Profil", icon: Settings },
   ];
 
+  const sidebarTop = session.impersonating ? "top-10" : "top-0";
+
   if (isMindMentor) {
     return (
       <div className="min-h-screen flex flex-col mind-bg">
@@ -90,7 +92,7 @@ export default async function MentorLayout({
 
         {/* Side nav (desktop) — MindMentor */}
         <aside
-          className={`hidden md:flex fixed left-0 ${session.impersonating ? 'top-10' : 'top-0'} bottom-0 w-56 flex-col shadow-xl mind-sidebar`}
+          className={`hidden md:flex fixed left-0 ${sidebarTop} bottom-0 w-56 flex-col shadow-xl mind-sidebar`}
         >
           <div className="px-6 py-5 mind-border-bottom">
             <Link href="/mentor/dashboard" className="text-lg font-bold hover:opacity-80 mind-accent">
@@ -164,7 +166,7 @@ export default async function MentorLayout({
       <MentorMobileNav playersLabel={playersLabel} />
 
       {/* Side nav (desktop) */}
-      <aside className={`hidden md:flex fixed left-0 ${session.impersonating ? 'top-10' : 'top-0'} bottom-0 w-56 bg-white border-r border-gray-200 flex-col shadow-sm`}>
+      <aside className={`hidden md:flex fixed left-0 ${sidebarTop} bottom-0 w-56 bg-white border-r border-gray-200 flex-col shadow-sm`}>
         <div className="px-6 py-5 border-b border-gray-100">
           <Link href="/mentor/dashboard" className="text-lg font-bold text-blue-600 hover:text-blue-700">
             ⚽ Sport Mentor
