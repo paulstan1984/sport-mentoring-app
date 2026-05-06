@@ -40,7 +40,7 @@ export default async function PlayerLayout({
       })
     : null;
 
-  const isMindMentor = mentor?.theme === "MIND_MENTOR";
+  const isMindMentor = mentor?.theme === "MIND_MENTOR" ?? false;
 
   const navLinks = [
     { href: "/player/dashboard", label: "Acasă", icon: Home },

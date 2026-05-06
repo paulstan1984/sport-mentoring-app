@@ -5,6 +5,7 @@ import { useActionState } from "react";
 import { updateMentor, deleteMentor, changeMentorPassword, toggleMentorActive, changeMentorLevel } from "@/actions/admin";
 import { impersonateMentor } from "@/actions/auth";
 import type { Mentor, User, MentorLevel } from "@/app/generated/prisma/client";
+import { MentorThemeBadge } from "@/components/MentorThemeBadge";
 
 type MentorWithUser = Mentor & { user: Pick<User, "username"> };
 
@@ -163,12 +164,12 @@ export function MentorRow({ mentor }: { mentor: MentorWithUser }) {
       </td>
       <td className="px-4 py-3 font-medium">{mentor.name}</td>
       <td className="px-4 py-3">
-        <span className={`inline-block text-xs font-medium px-2 py-0.5 rounded-full ${LEVEL_COLORS[mentor.level]}`}>
-          {LEVEL_LABELS[mentor.level]}
-        </span>
-        <span className={`ml-1 inline-block text-xs font-medium px-2 py-0.5 rounded-full ${mentor.theme === "MIND_MENTOR" ? "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-400" : "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400"}`}>
-          {mentor.theme === "MIND_MENTOR" ? "🧠 Mind" : "⚽ Sport"}
-        </span>
+        <div className="flex items-center gap-1 flex-wrap">
+          <span className={`inline-block text-xs font-medium px-2 py-0.5 rounded-full ${LEVEL_COLORS[mentor.level]}`}>
+            {LEVEL_LABELS[mentor.level]}
+          </span>
+          <MentorThemeBadge theme={mentor.theme} />
+        </div>
       </td>
       <td className="px-4 py-3 text-gray-400 text-xs truncate max-w-48">
         {mentor.description ?? "—"}

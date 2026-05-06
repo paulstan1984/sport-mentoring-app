@@ -18,6 +18,10 @@ const SALT_ROUNDS = 12;
 
 type ActionResult = { error?: string; success?: boolean };
 
+function parseMentorTheme(raw: string | null | undefined): MentorTheme {
+  return raw === "MIND_MENTOR" ? "MIND_MENTOR" : "SPORT_MENTOR";
+}
+
 // ── Mentors ───────────────────────────────────────────────────────────────────
 
 export async function createMentor(
@@ -31,7 +35,7 @@ export async function createMentor(
   const name = (formData.get("name") as string)?.trim();
   const description = (formData.get("description") as string)?.trim() || null;
   const themeRaw = (formData.get("theme") as string) || "SPORT_MENTOR";
-  const theme: MentorTheme = themeRaw === "MIND_MENTOR" ? "MIND_MENTOR" : "SPORT_MENTOR";
+  const theme = parseMentorTheme(themeRaw);
 
   if (!username || !password || !name) {
     return { error: "Câmpurile marcate sunt obligatorii." };
@@ -106,7 +110,9 @@ export async function updateMentor(
   const name = (formData.get("name") as string)?.trim();
   const description = (formData.get("description") as string)?.trim() || null;
   const themeRaw = (formData.get("theme") as string) || "";
-  const theme: MentorTheme | undefined = themeRaw === "MIND_MENTOR" ? "MIND_MENTOR" : themeRaw === "SPORT_MENTOR" ? "SPORT_MENTOR" : undefined;
+  const theme: MentorTheme | undefined = (themeRaw === "MIND_MENTOR" || themeRaw === "SPORT_MENTOR")
+    ? parseMentorTheme(themeRaw)
+    : undefined;
 
   if (!id || !name) return { error: "Date invalide." };
 

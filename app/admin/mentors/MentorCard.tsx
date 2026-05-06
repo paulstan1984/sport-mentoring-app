@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import { deleteMentor, updateMentor, changeMentorPassword, toggleMentorActive, changeMentorLevel } from "@/actions/admin";
 import { impersonateMentor } from "@/actions/auth";
 import type { Mentor, User, MentorLevel } from "@/app/generated/prisma/client";
+import { MentorThemeBadge } from "@/components/MentorThemeBadge";
 
 type MentorWithUser = Mentor & { user: Pick<User, "username"> };
 
@@ -170,9 +171,7 @@ export function MentorCard({ mentor }: { mentor: MentorWithUser }) {
         <span className={`inline-block text-xs font-medium px-2 py-0.5 rounded-full ${LEVEL_COLORS[mentor.level]}`}>
           {LEVEL_LABELS[mentor.level]}
         </span>
-        <span className={`inline-block text-xs font-medium px-2 py-0.5 rounded-full ${mentor.theme === "MIND_MENTOR" ? "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-400" : "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400"}`}>
-          {mentor.theme === "MIND_MENTOR" ? "🧠 MindMentor" : "⚽ SportMentor"}
-        </span>
+        <MentorThemeBadge theme={mentor.theme} />
       </div>
       <div className="flex gap-2 mt-3 flex-wrap">
         <form action={impersonateMentor}>
