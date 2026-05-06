@@ -3,7 +3,7 @@
 import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
-import { SignupRequestStatus, RequestType, MentorLevel } from "@/app/generated/prisma/client";
+import { SignupRequestStatus, RequestType, MentorLevel, MentorTheme } from "@/app/generated/prisma/client";
 import { requireSuperAdmin, getSession } from "@/lib/auth";
 import {
   ALLOWED_IMAGE_TYPES,
@@ -30,6 +30,8 @@ export async function createMentor(
   const password = formData.get("password") as string;
   const name = (formData.get("name") as string)?.trim();
   const description = (formData.get("description") as string)?.trim() || null;
+  const themeRaw = (formData.get("theme") as string) || "SPORT_MENTOR";
+  const theme: MentorTheme = themeRaw === "MIND_MENTOR" ? "MIND_MENTOR" : "SPORT_MENTOR";
 
   if (!username || !password || !name) {
     return { error: "Câmpurile marcate sunt obligatorii." };
@@ -54,6 +56,7 @@ export async function createMentor(
         create: {
           name,
           description,
+          theme,
           photo: null,
           labels: {
             create: [
@@ -102,6 +105,8 @@ export async function updateMentor(
   const id = Number(formData.get("id"));
   const name = (formData.get("name") as string)?.trim();
   const description = (formData.get("description") as string)?.trim() || null;
+  const themeRaw = (formData.get("theme") as string) || "";
+  const theme: MentorTheme | undefined = themeRaw === "MIND_MENTOR" ? "MIND_MENTOR" : themeRaw === "SPORT_MENTOR" ? "SPORT_MENTOR" : undefined;
 
   if (!id || !name) return { error: "Date invalide." };
 
@@ -134,6 +139,7 @@ export async function updateMentor(
     data: {
       name,
       description,
+      ...(theme !== undefined ? { theme } : {}),
       ...(photo !== undefined ? { photo } : {}),
     },
   });

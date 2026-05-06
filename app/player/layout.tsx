@@ -36,9 +36,11 @@ export default async function PlayerLayout({
   const mentor = player
     ? await db.mentor.findUnique({
         where: { id: player.mentorId },
-        select: { name: true, photo: true },
+        select: { name: true, photo: true, theme: true },
       })
     : null;
+
+  const isMindMentor = mentor?.theme === "MIND_MENTOR";
 
   const navLinks = [
     { href: "/player/dashboard", label: "Acasă", icon: Home },
@@ -49,6 +51,106 @@ export default async function PlayerLayout({
     { href: "/player/library", label: "Bibliotecă", icon: BookOpen },
     { href: "/player/profile", label: "Profil", icon: User },
   ];
+
+  if (isMindMentor) {
+    return (
+      <div className="min-h-screen flex flex-col" style={{ background: "#0f172a", color: "#f1f5f9" }}>
+        <div className="sticky top-0 z-20">
+          <ImpersonationBanner />
+          <OfflineStatus />
+          {/* Top header — MindMentor */}
+          <header className="px-4 py-3 flex items-center justify-between" style={{ background: "#1e293b", borderBottom: "1px solid rgba(167,139,250,0.15)" }}>
+            <Link href="/player/dashboard" className="flex items-center gap-2 hover:opacity-80">
+              {mentor?.photo ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={mentor.photo}
+                  alt={mentor.name ?? "Psiholog"}
+                  width={28}
+                  height={28}
+                  className="w-7 h-7 rounded-full object-cover border border-white/30 shrink-0"
+                />
+              ) : (
+                <span className="text-base">🧠</span>
+              )}
+              <span className="font-bold text-sm" style={{ color: "#a78bfa" }}>{mentor?.name ?? "Psiholog"}</span>
+            </Link>
+            <Link href="/player/profile" className="text-sm hover:opacity-80" style={{ color: "#94a3b8" }}>
+              {player?.name ?? "Client"}
+            </Link>
+          </header>
+        </div>
+
+        {/* Main content */}
+        <main className="flex-1 overflow-auto p-2 pb-20 md:p-4 md:pb-4 md:px-8 md:pt-8">
+          {children}
+        </main>
+
+        {/* Bottom navigation (mobile-first) — MindMentor */}
+        <nav
+          className="fixed bottom-0 left-0 right-0 flex md:hidden z-10"
+          style={{ background: "#1e293b", borderTop: "1px solid rgba(167,139,250,0.15)" }}
+        >
+          {navLinks.slice(0, 3).map((l) => (
+            <Link
+              key={l.href}
+              href={l.href}
+              className="flex-1 flex flex-col items-center py-2 text-xs transition-colors"
+              style={{ color: "#94a3b8" }}
+            >
+              <l.icon size={22} className="mb-0.5" />
+              <span className="mt-0.5 truncate">{l.label}</span>
+            </Link>
+          ))}
+          <form action={logout} className="flex-1">
+            <button
+              type="submit"
+              className="w-full h-full flex flex-col items-center py-2 text-xs transition-colors"
+              style={{ color: "#94a3b8" }}
+            >
+              <LogOut size={22} className="mb-0.5" />
+              <span className="mt-0.5 truncate">Ieșire</span>
+            </button>
+          </form>
+        </nav>
+
+        {/* Side nav (desktop) — MindMentor */}
+        <aside
+          className={`hidden md:flex fixed left-0 ${session.impersonating ? 'top-10' : 'top-0'} bottom-0 w-52 flex-col shadow-xl`}
+          style={{ background: "#1e293b", borderRight: "1px solid rgba(167,139,250,0.15)" }}
+        >
+          <nav className="flex-1 px-3 py-4 space-y-1">
+            {navLinks.map((l) => (
+              <Link
+                key={l.href}
+                href={l.href}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors"
+                style={{ color: "#94a3b8" }}
+              >
+                <l.icon size={20} />
+                {l.label}
+              </Link>
+            ))}
+          </nav>
+          <div className="px-3 py-4" style={{ borderTop: "1px solid rgba(167,139,250,0.15)" }}>
+            <form action={logout}>
+              <button
+                type="submit"
+                className="w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors"
+                style={{ color: "#64748b" }}
+              >
+                <LogOut size={20} />
+                Deconectare
+              </button>
+            </form>
+          </div>
+        </aside>
+
+        {/* Offset for desktop sidebar */}
+        <style>{`@media (min-width: 768px) { main { margin-left: 13rem; } }`}</style>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">

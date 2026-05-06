@@ -23,9 +23,13 @@ const mobileMoreLinks = [
   { href: "/mentor/message", label: "Mesajul Zilei", icon: MessageSquare },
 ];
 
-
-
-export function MentorMobileNav({ playersLabel }: { playersLabel: string }) {
+export function MentorMobileNav({
+  playersLabel,
+  isMindMentor = false,
+}: {
+  playersLabel: string;
+  isMindMentor?: boolean;
+}) {
   const [moreOpen, setMoreOpen] = useState(false);
 
   const mainLinks = [
@@ -41,6 +45,79 @@ export function MentorMobileNav({ playersLabel }: { playersLabel: string }) {
     if (e.key === "Escape" || e.key === "Enter" || e.key === " ") {
       closeMore();
     }
+  }
+
+  if (isMindMentor) {
+    return (
+      <>
+        {moreOpen && (
+          <div
+            role="button"
+            aria-label="Închide meniul"
+            tabIndex={0}
+            className="fixed inset-0 z-20"
+            onClick={closeMore}
+            onKeyDown={handleOverlayKeyDown}
+          >
+            <div
+              id="mentor-more-menu"
+              className="fixed bottom-16 left-0 right-0 px-4 py-3 space-y-1 z-30 shadow-lg"
+              style={{ background: "#1e293b", borderTop: "1px solid rgba(167,139,250,0.15)" }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {mobileMoreLinks.map((l) => (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  className="flex items-center gap-3 px-3 py-2 text-sm rounded-lg"
+                  style={{ color: "#94a3b8" }}
+                  onClick={closeMore}
+                >
+                  <l.icon size={20} />
+                  <span>{l.label}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+        <nav
+          className="fixed bottom-0 left-0 right-0 flex md:hidden z-10"
+          style={{ background: "#1e293b", borderTop: "1px solid rgba(167,139,250,0.15)" }}
+        >
+          {mainLinks.map((l) => (
+            <Link
+              key={l.href}
+              href={l.href}
+              className="flex-1 flex flex-col items-center py-2 text-xs transition-colors"
+              style={{ color: "#94a3b8" }}
+            >
+              <l.icon size={22} className="mb-0.5" />
+              <span className="mt-0.5 truncate">{l.label}</span>
+            </Link>
+          ))}
+          <button
+            onClick={() => setMoreOpen(!moreOpen)}
+            aria-expanded={moreOpen}
+            aria-controls="mentor-more-menu"
+            className="flex-1 flex flex-col items-center py-2 text-xs transition-colors"
+            style={{ color: "#94a3b8" }}
+          >
+            <MoreHorizontal size={22} className="mb-0.5" />
+            <span className="mt-0.5 truncate">Mai mult</span>
+          </button>
+          <form action={logout} className="flex-1">
+            <button
+              type="submit"
+              className="w-full h-full flex flex-col items-center py-2 text-xs transition-colors"
+              style={{ color: "#94a3b8" }}
+            >
+              <LogOut size={22} className="mb-0.5" />
+              <span className="mt-0.5 truncate">Ieșire</span>
+            </button>
+          </form>
+        </nav>
+      </>
+    );
   }
 
   return (

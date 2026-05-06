@@ -94,6 +94,13 @@ export function MentorCard({ mentor }: { mentor: MentorWithUser }) {
               rows={2}
             />
           </div>
+          <div>
+            <label className="label">Temă</label>
+            <select name="theme" defaultValue={mentor.theme} className="input">
+              <option value="SPORT_MENTOR">⚽ SportMentor</option>
+              <option value="MIND_MENTOR">🧠 MindMentor</option>
+            </select>
+          </div>
           {updateState?.error && <p className="text-sm text-red-600">{updateState.error}</p>}
           {updateState?.success && <p className="text-sm text-green-600">Datele au fost salvate.</p>}
           <div className="flex gap-2">
@@ -159,9 +166,12 @@ export function MentorCard({ mentor }: { mentor: MentorWithUser }) {
       </div>
       <p className="font-mono text-xs text-gray-500 mt-1">{mentor.user.username}</p>
       <p className="text-xs text-gray-500 mt-2 line-clamp-2">{mentor.description ?? "Fără descriere"}</p>
-      <div className="mt-2">
+      <div className="mt-2 flex items-center gap-1 flex-wrap">
         <span className={`inline-block text-xs font-medium px-2 py-0.5 rounded-full ${LEVEL_COLORS[mentor.level]}`}>
           {LEVEL_LABELS[mentor.level]}
+        </span>
+        <span className={`inline-block text-xs font-medium px-2 py-0.5 rounded-full ${mentor.theme === "MIND_MENTOR" ? "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-400" : "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400"}`}>
+          {mentor.theme === "MIND_MENTOR" ? "🧠 MindMentor" : "⚽ SportMentor"}
         </span>
       </div>
       <div className="flex gap-2 mt-3 flex-wrap">

@@ -27,7 +27,7 @@ export default async function MentorLayout({
   const session = await requireMentor();
   const mentor = await db.mentor.findUnique({
     where: { id: session.mentorId },
-    select: { name: true, level: true, labels: { select: { key: true, value: true } } },
+    select: { name: true, level: true, theme: true, labels: { select: { key: true, value: true } } },
   });
 
   const LEVEL_LABEL: Record<string, string> = {
@@ -38,6 +38,7 @@ export default async function MentorLayout({
     ENTERPRISE: "Enterprise",
   };
   const levelLabel = mentor?.level ? (LEVEL_LABEL[mentor.level] ?? mentor.level) : null;
+  const isMindMentor = mentor?.theme === "MIND_MENTOR";
 
   const playersLabel =
     mentor?.labels.find((l) => l.key === "players")?.value ?? "Clienți";
@@ -58,6 +59,87 @@ export default async function MentorLayout({
     { href: "/mentor/message", label: "Mesajul Zilei", icon: MessageSquare },
     { href: "/mentor/profile", label: "Profil", icon: Settings },
   ];
+
+  if (isMindMentor) {
+    return (
+      <div className="min-h-screen flex flex-col" style={{ background: "#0f172a", color: "#f1f5f9" }}>
+        <div className="sticky top-0 z-20">
+          <ImpersonationBanner />
+          <OfflineStatus />
+          {/* Top header (mobile) — MindMentor */}
+          <header className="px-4 py-3 flex items-center justify-between md:hidden" style={{ background: "#1e293b", borderBottom: "1px solid rgba(167,139,250,0.15)" }}>
+            <Link href="/mentor/dashboard" className="font-bold text-sm hover:opacity-80" style={{ color: "#a78bfa" }}>
+              🧠 MindMentor
+            </Link>
+            <Link href="/mentor/profile" className="text-sm flex items-center gap-2 hover:opacity-80" style={{ color: "#94a3b8" }}>
+              {mentor?.name ?? "Mentor"}
+              {levelLabel && (
+                <span className="text-xs px-1.5 py-0.5 rounded font-medium" style={{ background: "rgba(124,58,237,0.3)", color: "#a78bfa" }}>
+                  {levelLabel}
+                </span>
+              )}
+            </Link>
+          </header>
+        </div>
+
+        {/* Main content */}
+        <main className="flex-1 overflow-auto p-2 pb-20 md:p-4 md:pb-8 md:px-8 md:pt-8">{children}</main>
+
+        {/* Bottom navigation (mobile-first) */}
+        <MentorMobileNav playersLabel={playersLabel} isMindMentor={true} />
+
+        {/* Side nav (desktop) — MindMentor */}
+        <aside
+          className={`hidden md:flex fixed left-0 ${session.impersonating ? 'top-10' : 'top-0'} bottom-0 w-56 flex-col shadow-xl`}
+          style={{ background: "#1e293b", borderRight: "1px solid rgba(167,139,250,0.15)" }}
+        >
+          <div className="px-6 py-5" style={{ borderBottom: "1px solid rgba(167,139,250,0.15)" }}>
+            <Link href="/mentor/dashboard" className="text-lg font-bold hover:opacity-80" style={{ color: "#a78bfa" }}>
+              🧠 MindMentor
+            </Link>
+            <Link href="/mentor/profile" className="flex items-center gap-2 mt-0.5 hover:opacity-80" style={{ color: "#94a3b8" }}>
+              <span className="text-xs truncate">{mentor?.name ?? "Mentor"}</span>
+              {levelLabel && (
+                <span className="text-xs px-1.5 py-0.5 rounded font-medium shrink-0" style={{ background: "rgba(124,58,237,0.3)", color: "#a78bfa" }}>
+                  {levelLabel}
+                </span>
+              )}
+            </Link>
+          </div>
+          <nav className="flex-1 px-3 py-4 space-y-1">
+            {navLinks.map((l) => (
+              <Link
+                key={l.href}
+                href={l.href}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors"
+                style={{ color: "#94a3b8" }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#a78bfa"; (e.currentTarget as HTMLElement).style.background = "rgba(124,58,237,0.15)"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "#94a3b8"; (e.currentTarget as HTMLElement).style.background = ""; }}
+              >
+                <l.icon size={20} />
+                {l.label}
+              </Link>
+            ))}
+          </nav>
+          <div className="px-3 py-4" style={{ borderTop: "1px solid rgba(167,139,250,0.15)" }}>
+            <form action={logout}>
+              <button
+                type="submit"
+                className="w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors"
+                style={{ color: "#64748b" }}
+              >
+                <LogOut size={20} />
+                Deconectare
+              </button>
+            </form>
+          </div>
+        </aside>
+
+        {/* Offset for desktop sidebar */}
+        <style>{`@media (min-width: 768px) { main { margin-left: 14rem; } }`}</style>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">

@@ -90,6 +90,13 @@ export function MentorRow({ mentor }: { mentor: MentorWithUser }) {
               <label className="label">Descriere</label>
               <textarea name="description" defaultValue={mentor.description ?? ""} className="input resize-none" rows={2} />
             </div>
+            <div className="col-span-2">
+              <label className="label">Temă</label>
+              <select name="theme" defaultValue={mentor.theme} className="input">
+                <option value="SPORT_MENTOR">⚽ SportMentor</option>
+                <option value="MIND_MENTOR">🧠 MindMentor</option>
+              </select>
+            </div>
             {updateState?.error && (
               <p className="col-span-2 text-sm text-red-600">{updateState.error}</p>
             )}
@@ -158,6 +165,9 @@ export function MentorRow({ mentor }: { mentor: MentorWithUser }) {
       <td className="px-4 py-3">
         <span className={`inline-block text-xs font-medium px-2 py-0.5 rounded-full ${LEVEL_COLORS[mentor.level]}`}>
           {LEVEL_LABELS[mentor.level]}
+        </span>
+        <span className={`ml-1 inline-block text-xs font-medium px-2 py-0.5 rounded-full ${mentor.theme === "MIND_MENTOR" ? "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-400" : "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400"}`}>
+          {mentor.theme === "MIND_MENTOR" ? "🧠 Mind" : "⚽ Sport"}
         </span>
       </td>
       <td className="px-4 py-3 text-gray-400 text-xs truncate max-w-48">

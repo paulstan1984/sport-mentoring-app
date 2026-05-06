@@ -41,6 +41,13 @@ export function MentorForm() {
         <label className="label">Descriere scurtă</label>
         <textarea name="description" className="input resize-none" rows={2} placeholder="Câteva cuvinte despre mentor" />
       </div>
+      <div className="sm:col-span-2">
+        <label className="label">Temă *</label>
+        <select name="theme" className="input" defaultValue="SPORT_MENTOR">
+          <option value="SPORT_MENTOR">⚽ SportMentor</option>
+          <option value="MIND_MENTOR">🧠 MindMentor</option>
+        </select>
+      </div>
 
       {state?.error && (
         <div className="sm:col-span-2">
