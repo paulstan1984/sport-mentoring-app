@@ -33,6 +33,11 @@ enum MentorLevel {
   ENTERPRISE
 }
 
+enum MentorTheme {
+  SPORT_MENTOR
+  MIND_MENTOR
+}
+
 enum RequestType {
   SIGNUP
   LEVEL_UPGRADE
@@ -57,6 +62,7 @@ model Mentor {
   description      String?
   isActive         Boolean          @default(true)
   level            MentorLevel      @default(FREE)
+  theme            MentorTheme      @default(SPORT_MENTOR)
   lastActiveAt     DateTime?
   players          Player[]
   checkinForm      CheckinForm?

@@ -27,7 +27,7 @@ export default async function MentorLayout({
   const session = await requireMentor();
   const mentor = await db.mentor.findUnique({
     where: { id: session.mentorId },
-    select: { name: true, level: true, labels: { select: { key: true, value: true } } },
+    select: { name: true, level: true, theme: true, labels: { select: { key: true, value: true } } },
   });
 
   const LEVEL_LABEL: Record<string, string> = {
@@ -38,6 +38,7 @@ export default async function MentorLayout({
     ENTERPRISE: "Enterprise",
   };
   const levelLabel = mentor?.level ? (LEVEL_LABEL[mentor.level] ?? mentor.level) : null;
+  const isMindMentor = mentor?.theme === "MIND_MENTOR";
 
   const playersLabel =
     mentor?.labels.find((l) => l.key === "players")?.value ?? "Clienți";
@@ -58,6 +59,84 @@ export default async function MentorLayout({
     { href: "/mentor/message", label: "Mesajul Zilei", icon: MessageSquare },
     { href: "/mentor/profile", label: "Profil", icon: Settings },
   ];
+
+  const sidebarTop = session.impersonating ? "top-10" : "top-0";
+
+  if (isMindMentor) {
+    return (
+      <div className="min-h-screen flex flex-col mind-bg">
+        <div className="sticky top-0 z-20">
+          <ImpersonationBanner />
+          <OfflineStatus />
+          {/* Top header (mobile) — MindMentor */}
+          <header className="mind-header px-4 py-3 flex items-center justify-between md:hidden">
+            <Link href="/mentor/dashboard" className="font-bold text-sm hover:opacity-80 mind-accent">
+              🧠 MindMentor
+            </Link>
+            <Link href="/mentor/profile" className="text-sm flex items-center gap-2 hover:opacity-80 mind-muted">
+              {mentor?.name ?? "Mentor"}
+              {levelLabel && (
+                <span className="text-xs px-1.5 py-0.5 rounded font-medium mind-level-badge">
+                  {levelLabel}
+                </span>
+              )}
+            </Link>
+          </header>
+        </div>
+
+        {/* Main content */}
+        <main className="flex-1 overflow-auto p-2 pb-20 md:p-4 md:pb-8 md:px-8 md:pt-8">{children}</main>
+
+        {/* Bottom navigation (mobile-first) */}
+        <MentorMobileNav playersLabel={playersLabel} isMindMentor={true} />
+
+        {/* Side nav (desktop) — MindMentor */}
+        <aside
+          className={`hidden md:flex fixed left-0 ${sidebarTop} bottom-0 w-56 flex-col shadow-xl mind-sidebar`}
+        >
+          <div className="px-6 py-5 mind-border-bottom">
+            <Link href="/mentor/dashboard" className="text-lg font-bold hover:opacity-80 mind-accent">
+              🧠 MindMentor
+            </Link>
+            <Link href="/mentor/profile" className="flex items-center gap-2 mt-0.5 hover:opacity-80 mind-muted">
+              <span className="text-xs truncate">{mentor?.name ?? "Mentor"}</span>
+              {levelLabel && (
+                <span className="text-xs px-1.5 py-0.5 rounded font-medium shrink-0 mind-level-badge">
+                  {levelLabel}
+                </span>
+              )}
+            </Link>
+          </div>
+          <nav className="flex-1 px-3 py-4 space-y-1">
+            {navLinks.map((l) => (
+              <Link
+                key={l.href}
+                href={l.href}
+                className="mind-nav-link flex items-center gap-3 px-3 py-2.5 text-sm transition-colors"
+              >
+                <l.icon size={20} />
+                {l.label}
+              </Link>
+            ))}
+          </nav>
+          <div className="px-3 py-4 mind-border-top">
+            <form action={logout}>
+              <button
+                type="submit"
+                className="w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors mind-logout"
+              >
+                <LogOut size={20} />
+                Deconectare
+              </button>
+            </form>
+          </div>
+        </aside>
+
+        {/* Offset for desktop sidebar */}
+        <style>{`@media (min-width: 768px) { main { margin-left: 14rem; } }`}</style>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -87,7 +166,7 @@ export default async function MentorLayout({
       <MentorMobileNav playersLabel={playersLabel} />
 
       {/* Side nav (desktop) */}
-      <aside className={`hidden md:flex fixed left-0 ${session.impersonating ? 'top-10' : 'top-0'} bottom-0 w-56 bg-white border-r border-gray-200 flex-col shadow-sm`}>
+      <aside className={`hidden md:flex fixed left-0 ${sidebarTop} bottom-0 w-56 bg-white border-r border-gray-200 flex-col shadow-sm`}>
         <div className="px-6 py-5 border-b border-gray-100">
           <Link href="/mentor/dashboard" className="text-lg font-bold text-blue-600 hover:text-blue-700">
             ⚽ Sport Mentor

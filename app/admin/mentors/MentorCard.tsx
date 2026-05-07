@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import { deleteMentor, updateMentor, changeMentorPassword, toggleMentorActive, changeMentorLevel } from "@/actions/admin";
 import { impersonateMentor } from "@/actions/auth";
 import type { Mentor, User, MentorLevel } from "@/app/generated/prisma/client";
+import { MentorThemeBadge } from "@/components/MentorThemeBadge";
 
 type MentorWithUser = Mentor & { user: Pick<User, "username"> };
 
@@ -94,6 +95,13 @@ export function MentorCard({ mentor }: { mentor: MentorWithUser }) {
               rows={2}
             />
           </div>
+          <div>
+            <label className="label">Temă</label>
+            <select name="theme" defaultValue={mentor.theme} className="input">
+              <option value="SPORT_MENTOR">⚽ SportMentor</option>
+              <option value="MIND_MENTOR">🧠 MindMentor</option>
+            </select>
+          </div>
           {updateState?.error && <p className="text-sm text-red-600">{updateState.error}</p>}
           {updateState?.success && <p className="text-sm text-green-600">Datele au fost salvate.</p>}
           <div className="flex gap-2">
@@ -159,10 +167,11 @@ export function MentorCard({ mentor }: { mentor: MentorWithUser }) {
       </div>
       <p className="font-mono text-xs text-gray-500 mt-1">{mentor.user.username}</p>
       <p className="text-xs text-gray-500 mt-2 line-clamp-2">{mentor.description ?? "Fără descriere"}</p>
-      <div className="mt-2">
+      <div className="mt-2 flex items-center gap-1 flex-wrap">
         <span className={`inline-block text-xs font-medium px-2 py-0.5 rounded-full ${LEVEL_COLORS[mentor.level]}`}>
           {LEVEL_LABELS[mentor.level]}
         </span>
+        <MentorThemeBadge theme={mentor.theme} />
       </div>
       <div className="flex gap-2 mt-3 flex-wrap">
         <form action={impersonateMentor}>
