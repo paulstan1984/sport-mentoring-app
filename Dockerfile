@@ -27,12 +27,11 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
+COPY entrypoint.sh ./entrypoint.sh
 COPY package.json package-lock.json ./
-# RUN npx prisma generate
-# RUN npx prisma migrate deploy
 
-RUN npm ci
+RUN npm ci && chmod +x entrypoint.sh
 
 EXPOSE 3000
 
-CMD ["node", "server.js"]
+CMD ["/bin/sh", "entrypoint.sh"]

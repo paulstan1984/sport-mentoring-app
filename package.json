@@ -10,6 +10,10 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "db:migrate:deploy": "prisma migrate deploy",
+    "db:migrate:status": "prisma migrate status",
+    "db:migrate:reset": "prisma migrate reset",
     "db:seed": "tsx prisma/seed.ts",
     "db:seed-march-2026": "tsx prisma/seed-march-2026.ts",
     "db:generate": "prisma generate",
@@ -31,6 +35,7 @@
     "bcryptjs": "^3.0.3",
     "better-sqlite3": "^11.0.0",
     "dotenv": "^17.4.2",
+    "tsx": "^4.21.0",
     "iron-session": "^8.0.4",
     "isomorphic-dompurify": "^3.5.1",
     "lucide-react": "^1.7.0",
@@ -50,7 +55,6 @@
     "eslint-config-next": "16.2.0",
     "tailwindcss": "^4",
     "ts-node": "^10.9.2",
-    "tsx": "^4.21.0",
     "typescript": "^5",
     "vitest": "^4.1.5"
   }

@@ -50,18 +50,42 @@ Aceasta pornește PostgreSQL pe portul `5432` cu credențialele din `docker-comp
 
 ### 4. Migrare schemă și seeding date inițiale
 
+#### Flux recomandat (Prisma Migrate)
+
+Folosiți `prisma migrate` pentru a gestiona schema bazei de date prin fișiere de migrare versionabile.
+
 ```bash
-# Aplică schema Prisma în baza de date
+# Creează o nouă migrare și o aplică (mod dezvoltare)
+npm run db:migrate
+
+# Verifică starea migrărilor (ce e aplicat, ce e în așteptare)
+npm run db:migrate:status
+
+# Aplică migrările în așteptare (mod producție — fără creare de migrări noi)
+npm run db:migrate:deploy
+
+# Resetează baza de date și re-aplică toate migrările (mod dezvoltare, distruge date!)
+npm run db:migrate:reset
+```
+
+> **fly.io**: migrările rulează automat înainte de fiecare deploy prin `release_command` configurat în `fly.toml` (deja prezent în proiect).
+> **Docker**: `entrypoint.sh` rulează `prisma migrate deploy` la pornirea containerului.
+
+#### Alternativă rapidă pentru dezvoltare (fără fișiere de migrare)
+
+```bash
+# Sincronizează schema direct cu baza de date (fără fișiere de migrare)
 npx prisma db push
 
+# Resetează toate tabelele, apoi rulează seed
+npx prisma db push --force-reset && npm run db:seed
+```
+
+#### Seeding date inițiale
+
+```bash
 # Creează utilizatorul admin și datele demo
 npm run db:seed
-
-# Resetează toate tabelele, apoi rulează seed
-npx prisma db push --force-reset; npm run db:seed
-
-# Resetează, regenerează Prisma Client, apoi rulează seed
-npx prisma db push --force-reset; npm run db:generate; npm run db:seed
 ```
 
 **Conturi create de seed:**
@@ -86,13 +110,20 @@ Aplicația va fi disponibilă la [http://localhost:3000](http://localhost:3000).
 
 ## Scripturi disponibile
 
-| Script           | Descriere                                        |
-|------------------|--------------------------------------------------|
-| `npm run dev`    | Server de dezvoltare (cu hot reload)             |
-| `npm run build`  | Build de producție                               |
-| `npm run start`  | Pornire build de producție                       |
-| `npm run lint`   | Rulează ESLint                                   |
-| `npm run db:seed`| Populează baza de date cu date inițiale          |
+| Script                    | Descriere                                                    |
+|---------------------------|--------------------------------------------------------------|
+| `npm run dev`             | Server de dezvoltare (cu hot reload)                         |
+| `npm run build`           | Build de producție                                           |
+| `npm run start`           | Pornire build de producție                                   |
+| `npm run lint`            | Rulează ESLint                                               |
+| `npm run db:migrate`      | Creează și aplică o nouă migrare (mod dezvoltare)            |
+| `npm run db:migrate:deploy` | Aplică migrările în așteptare (mod producție)              |
+| `npm run db:migrate:status` | Afișează starea migrărilor                                 |
+| `npm run db:migrate:reset`  | Resetează DB și re-aplică migrările (mod dezvoltare)       |
+| `npm run db:push`         | Sincronizează schema fără fișiere de migrare (dev rapid)     |
+| `npm run db:seed`         | Populează baza de date cu date inițiale                      |
+| `npm run db:generate`     | Regenerează Prisma Client după modificări de schemă          |
+| `npm run db:studio`       | Deschide Prisma Studio (interfață vizuală pentru date)       |
 
 ---
 
