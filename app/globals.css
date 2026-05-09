@@ -56,48 +56,49 @@ body {
 
 @layer utilities {
   .mind-bg {
-    background: #0f172a;
-    color: #f1f5f9;
+    background: #f5f3ff;
+    color: #1e1b4b;
   }
 
   .mind-card {
-    background: #1e293b;
+    background: #ffffff;
+    box-shadow: 0 1px 4px rgba(124, 58, 237, 0.10);
   }
 
   .mind-sidebar {
-    background: #1e293b;
-    border-right: 1px solid rgba(167, 139, 250, 0.15);
+    background: #ffffff;
+    border-right: 1px solid rgba(124, 58, 237, 0.15);
   }
 
   .mind-header {
-    background: #1e293b;
-    border-bottom: 1px solid rgba(167, 139, 250, 0.15);
+    background: #ffffff;
+    border-bottom: 1px solid rgba(124, 58, 237, 0.15);
   }
 
   .mind-border-top {
-    border-top: 1px solid rgba(167, 139, 250, 0.15);
+    border-top: 1px solid rgba(124, 58, 237, 0.15);
   }
 
   .mind-border-bottom {
-    border-bottom: 1px solid rgba(167, 139, 250, 0.15);
+    border-bottom: 1px solid rgba(124, 58, 237, 0.15);
   }
 
   .mind-accent {
-    color: #a78bfa;
+    color: #7c3aed;
   }
 
   .mind-muted {
-    color: #94a3b8;
+    color: #6b7280;
   }
 
   .mind-nav-link {
-    color: #94a3b8;
+    color: #4b5563;
     border-radius: 0.75rem;
   }
 
   .mind-nav-link:hover {
-    color: #a78bfa;
-    background: rgba(124, 58, 237, 0.15);
+    color: #7c3aed;
+    background: rgba(124, 58, 237, 0.08);
   }
 
   .mind-btn {
@@ -110,9 +111,9 @@ body {
   }
 
   .mind-input {
-    background: #0f172a;
-    border: 1px solid rgba(167, 139, 250, 0.3);
-    color: #f1f5f9;
+    background: #ffffff;
+    border: 1px solid rgba(124, 58, 237, 0.35);
+    color: #1e1b4b;
     border-radius: 0.5rem;
     padding: 0.5rem 0.75rem;
     font-size: 0.875rem;
@@ -121,21 +122,30 @@ body {
   }
 
   .mind-label {
-    color: #cbd5e1;
+    color: #374151;
   }
 
   .mind-level-badge {
-    background: rgba(124, 58, 237, 0.3);
-    color: #a78bfa;
+    background: rgba(124, 58, 237, 0.12);
+    color: #7c3aed;
   }
 
   .mind-logout {
-    color: #64748b;
+    color: #6b7280;
   }
 
   .mind-logout:hover {
-    color: #94a3b8;
+    color: #4b5563;
   }
+}
+
+/* ── Card sections inside mind theme (auto-theming) ──────────────────── */
+.mind-bg .bg-blue-50 {
+  background-color: rgba(124, 58, 237, 0.08);
+}
+
+.mind-bg .border-blue-200 {
+  border-color: rgba(124, 58, 237, 0.25);
 }
 
 /* ── Mobile improvements ──────────────────────────────────────────────── */

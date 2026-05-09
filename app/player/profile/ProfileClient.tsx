@@ -108,7 +108,7 @@ export function ProfileClient({ player }: { player: PlayerWithRelations }) {
           </div>
           <div>
             <p className="text-xs text-gray-400">Data nașterii</p>
-            <p className="mt-0.5">
+            <p className="mt-0.5" suppressHydrationWarning>
               {player.dateOfBirth
                 ? new Date(player.dateOfBirth).toLocaleDateString("ro-RO")
                 : "—"}
