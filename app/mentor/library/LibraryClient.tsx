@@ -124,7 +124,7 @@ export function LibraryClient({
                   >
                     {item.name}
                   </a>
-                  <p className="text-xs text-gray-400 mt-0.5">
+                  <p className="text-xs text-gray-400 mt-0.5" suppressHydrationWarning>
                     {item.fileType} ·{" "}
                     {new Date(item.createdAt).toLocaleDateString("ro-RO")}
                   </p>
