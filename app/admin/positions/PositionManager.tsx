@@ -73,19 +73,19 @@ export function PositionManager({
       {/* Add position form */}
       <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-6">
         <h2 className="text-lg font-semibold mb-3">Adaugă Focus</h2>
-        <form action={createAction} className="flex flex-col sm:flex-row gap-2">
+        <form action={createAction} className="flex flex-col gap-2">
           <input
             name="name"
             required
-            className="input flex-1"
+            className="input"
             placeholder="ex: Motivație, Concentrare..."
           />
-          <select name="theme" className="input sm:w-44 shrink-0">
+          <select name="theme" className="input">
             <option value="">— Temă —</option>
             <option value="SPORT_MENTOR">Sport Mentor</option>
             <option value="MIND_MENTOR">Mind Mentor</option>
           </select>
-          <button type="submit" disabled={isCreating} className="btn-primary shrink-0">
+          <button type="submit" disabled={isCreating} className="btn-primary">
             Adaugă
           </button>
         </form>
@@ -120,11 +120,11 @@ export function PositionManager({
         )}
         {filteredPositions.map((p) =>
           editingId === p.id ? (
-            <div key={p.id} className="px-4 py-3 flex flex-col sm:flex-row gap-2">
-              <form action={updateAction} className="flex flex-col sm:flex-row gap-2 flex-1">
+            <div key={p.id} className="px-4 py-3 flex flex-col gap-2">
+              <form action={updateAction} className="flex flex-col gap-2">
                 <input type="hidden" name="id" value={p.id} />
-                <input name="name" defaultValue={p.name} required className="input flex-1 text-sm" />
-                <select name="theme" defaultValue={p.theme ?? ""} className="input sm:w-44 text-sm">
+                <input name="name" defaultValue={p.name} required className="input text-sm" />
+                <select name="theme" defaultValue={p.theme ?? ""} className="input text-sm">
                   <option value="">— Temă —</option>
                   <option value="SPORT_MENTOR">Sport Mentor</option>
                   <option value="MIND_MENTOR">Mind Mentor</option>

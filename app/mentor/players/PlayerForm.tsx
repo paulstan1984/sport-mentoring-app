@@ -7,9 +7,13 @@ import type { PlayfieldPosition } from "@/app/generated/prisma/client";
 export function PlayerForm({
   positions,
   playerLabel,
+  teamLabel = "Echipă",
+  playfieldPositionLabel = "Poziție pe teren",
 }: {
   positions: PlayfieldPosition[];
   playerLabel: string;
+  teamLabel?: string;
+  playfieldPositionLabel?: string;
 }) {
   const wrappedAction = async (
     prev: Awaited<ReturnType<typeof createPlayer>> | null,
@@ -49,7 +53,7 @@ export function PlayerForm({
             <input name="name" required className="input" placeholder="ex: Andrei Ionescu" />
           </div>
           <div>
-            <label className="label">Echipă</label>
+            <label className="label">{teamLabel}</label>
             <input name="team" className="input" placeholder="ex: U17 Dinamo" />
           </div>
           <div>
@@ -57,7 +61,7 @@ export function PlayerForm({
             <input name="dateOfBirth" type="date" className="input" />
           </div>
           <div>
-            <label className="label">Poziție pe teren</label>
+            <label className="label">{playfieldPositionLabel}</label>
             <select name="playfieldPositionId" className="input">
               <option value="">— Selectează —</option>
               {positions.map((pos) => (

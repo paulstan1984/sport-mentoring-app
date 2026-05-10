@@ -24,6 +24,8 @@ export function PlayerProfileForm({
   submitLabel = "Salvează modificările",
   pendingLabel = "Se salvează...",
   secondaryAction,
+  teamLabel = "Echipă",
+  playfieldPositionLabel = "Poziție pe teren",
 }: {
   player: EditablePlayerProfile;
   positions: PlayfieldPosition[];
@@ -37,6 +39,8 @@ export function PlayerProfileForm({
   submitLabel?: string;
   pendingLabel?: string;
   secondaryAction?: ReactNode;
+  teamLabel?: string;
+  playfieldPositionLabel?: string;
 }) {
   const router = useRouter();
   const wrappedAction = async (
@@ -68,7 +72,7 @@ export function PlayerProfileForm({
       </div>
 
       <div>
-        <label className="label">Echipă</label>
+        <label className="label">{teamLabel}</label>
         <input name="team" defaultValue={player.team ?? ""} className={inputClassName} />
       </div>
 
@@ -87,7 +91,7 @@ export function PlayerProfileForm({
       </div>
 
       <div>
-        <label className="label">Poziție pe teren</label>
+        <label className="label">{playfieldPositionLabel}</label>
         <select
           name="playfieldPositionId"
           defaultValue={player.playfieldPositionId ?? ""}

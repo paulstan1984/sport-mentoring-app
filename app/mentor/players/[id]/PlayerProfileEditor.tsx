@@ -7,9 +7,13 @@ import { PlayerProfileForm } from "../PlayerProfileForm";
 export function PlayerProfileEditor({
   player,
   positions,
+  teamLabel = "Echipă",
+  playfieldPositionLabel = "Poziție pe teren",
 }: {
   player: Pick<Player, "id" | "name" | "team" | "dateOfBirth" | "playfieldPositionId">;
   positions: PlayfieldPosition[];
+  teamLabel?: string;
+  playfieldPositionLabel?: string;
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -30,6 +34,8 @@ export function PlayerProfileEditor({
             player={player}
             positions={positions}
             onSuccess={() => setIsOpen(false)}
+            teamLabel={teamLabel}
+            playfieldPositionLabel={playfieldPositionLabel}
           />
         </div>
       )}
