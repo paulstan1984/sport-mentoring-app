@@ -6,12 +6,12 @@ export default async function PositionsPage() {
   await requireSuperAdmin();
 
   const positions = await db.playfieldPosition.findMany({
-    orderBy: { name: "asc" },
+    orderBy: { order: "asc" },
   });
 
   return (
     <div className="max-w-lg">
-      <h1 className="text-2xl font-bold mb-6">Poziții pe teren</h1>
+      <h1 className="text-2xl font-bold mb-6">Focus-uri</h1>
       <PositionManager positions={positions} />
     </div>
   );

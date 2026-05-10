@@ -11,7 +11,7 @@ export default async function PlayersPage() {
   const session = await getSession();
   const mentorId = session.mentorId!;
 
-  const [players, positions, labels, mentor] = await Promise.all([
+  const [players, allPositions, labels, mentor] = await Promise.all([
     db.player.findMany({
       where: { mentorId },
       include: {
@@ -20,14 +20,20 @@ export default async function PlayersPage() {
       },
       orderBy: { name: "asc" },
     }),
-    db.playfieldPosition.findMany({ orderBy: { name: "asc" } }),
+    db.playfieldPosition.findMany({ orderBy: { order: "asc" } }),
     db.mentorLabel.findMany({ where: { mentorId }, select: { key: true, value: true } }),
-    db.mentor.findUnique({ where: { id: mentorId }, select: { level: true } }),
+    db.mentor.findUnique({ where: { id: mentorId }, select: { level: true, theme: true } }),
   ]);
 
   const labelsMap = Object.fromEntries(labels.map((l) => [l.key, l.value]));
   const playerLabel = labelsMap["player"] ?? "Client";
   const playersLabel = labelsMap["players"] ?? "Clienți";
+  const teamLabel = labelsMap["team"] ?? "Echipă";
+  const playfieldPositionLabel = labelsMap["playfieldPosition"] ?? "Poziție pe teren";
+
+  // Filter positions by mentor's theme
+  const mentorTheme = mentor?.theme ?? "SPORT_MENTOR";
+  const positions = allPositions.filter((p) => p.theme === mentorTheme);
 
   const playerLimit = mentor ? PLAYER_LIMITS[mentor.level] : null;
   const atLimit = playerLimit !== null && players.length >= playerLimit;
@@ -73,7 +79,12 @@ export default async function PlayersPage() {
           </p>
         ) : (
           <>
-            <PlayerForm positions={positions} playerLabel={playerLabel} />
+            <PlayerForm
+              positions={positions}
+              playerLabel={playerLabel}
+              teamLabel={teamLabel}
+              playfieldPositionLabel={playfieldPositionLabel}
+            />
             <PlayerCsvImportToggle />
           </>
         )}
@@ -86,8 +97,8 @@ export default async function PlayersPage() {
             <tr>
               <th className="hidden sm:table-cell text-left px-4 py-3">Utilizator</th>
               <th className="text-left px-4 py-3">Nume</th>
-              <th className="text-left px-4 py-3">Echipă</th>
-              <th className="text-left px-4 py-3">Poziție</th>
+              <th className="text-left px-4 py-3">{teamLabel}</th>
+              <th className="text-left px-4 py-3">{playfieldPositionLabel}</th>
               <th className="px-4 py-3" />
             </tr>
           </thead>
@@ -100,7 +111,14 @@ export default async function PlayersPage() {
               </tr>
             )}
             {players.map((p) => (
-              <PlayerRow key={p.id} player={p} positions={positions} canImpersonate={session.impersonating === true} />
+              <PlayerRow
+                key={p.id}
+                player={p}
+                positions={positions}
+                canImpersonate={session.impersonating === true}
+                teamLabel={teamLabel}
+                playfieldPositionLabel={playfieldPositionLabel}
+              />
             ))}
           </tbody>
         </table>

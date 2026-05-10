@@ -85,8 +85,10 @@ model MentorLabel {
 }
 
 model PlayfieldPosition {
-  id      Int      @id @default(autoincrement())
-  name    String   @unique
+  id      Int         @id @default(autoincrement())
+  name    String      @unique
+  theme   MentorTheme?
+  order   Int         @default(0)
   players Player[]
 }
 

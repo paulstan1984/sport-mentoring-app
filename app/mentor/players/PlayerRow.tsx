@@ -21,10 +21,14 @@ export function PlayerRow({
   player,
   positions,
   canImpersonate = false,
+  teamLabel = "Echipă",
+  playfieldPositionLabel = "Poziție pe teren",
 }: {
   player: PlayerWithRelations;
   positions: PlayfieldPosition[];
   canImpersonate?: boolean;
+  teamLabel?: string;
+  playfieldPositionLabel?: string;
 }) {
   const [editing, setEditing] = useState(false);
   const [resettingPwd, setResettingPwd] = useState(false);
@@ -62,6 +66,8 @@ export function PlayerRow({
             submitLabel="Salvează"
             errorClassName="col-span-2 text-sm text-red-600"
             successClassName="col-span-2 text-sm text-green-600"
+            teamLabel={teamLabel}
+            playfieldPositionLabel={playfieldPositionLabel}
             secondaryAction={
               <button
                 type="button"

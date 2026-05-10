@@ -57,7 +57,7 @@ export default async function PlayerDetailPage({
   }, []);
 
   // Library items for this mentor + read status
-  const [libraryItems, positions, improvementWays] = await Promise.all([
+  const [libraryItems, allPositions, improvementWays, labels, mentor] = await Promise.all([
     db.libraryItem.findMany({
       where: { mentorId },
       include: {
@@ -65,7 +65,7 @@ export default async function PlayerDetailPage({
       },
       orderBy: { createdAt: "desc" },
     }),
-    db.playfieldPosition.findMany({ orderBy: { name: "asc" } }),
+    db.playfieldPosition.findMany({ orderBy: { order: "asc" } }),
     db.improvementWay.findMany({
       where: { mentorId, deletedAt: null },
       include: {
@@ -77,7 +77,16 @@ export default async function PlayerDetailPage({
       },
       orderBy: { order: "asc" },
     }),
+    db.mentorLabel.findMany({ where: { mentorId }, select: { key: true, value: true } }),
+    db.mentor.findUnique({ where: { id: mentorId }, select: { theme: true } }),
   ]);
+
+  const mentorTheme = mentor?.theme ?? "SPORT_MENTOR";
+  const positions = allPositions.filter((p) => p.theme === mentorTheme);
+
+  const labelsMap = Object.fromEntries(labels.map((l) => [l.key, l.value]));
+  const teamLabel = labelsMap["team"] ?? "Echipă";
+  const playfieldPositionLabel = labelsMap["playfieldPosition"] ?? "Poziție pe teren";
 
   return (
     <div className="max-w-3xl space-y-8">
@@ -126,6 +135,8 @@ export default async function PlayerDetailPage({
           playfieldPositionId: player.playfieldPositionId,
         }}
         positions={positions}
+        teamLabel={teamLabel}
+        playfieldPositionLabel={playfieldPositionLabel}
       />
 
       {/* Mentor notes for this player */}
