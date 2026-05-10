@@ -7,7 +7,6 @@ import { SignupRequestStatus } from "@/app/generated/prisma/client";
 import {
   Users,
   LayoutGrid,
-  Database,
   LogOut,
   UserCircle,
   Wrench,
@@ -31,7 +30,7 @@ export default async function AdminLayout({
       icon: ClipboardList,
       badge: pendingCount > 0 ? pendingCount : undefined,
     },
-    { href: "/admin/positions", label: "Poziții", icon: LayoutGrid },
+    { href: "/admin/positions", label: "Focus", icon: LayoutGrid },
     { href: "/admin/tools", label: "Unelte", icon: Wrench },
     { href: "/admin/profile", label: "Profil", icon: UserCircle },
   ];
@@ -68,14 +67,6 @@ export default async function AdminLayout({
             <span className="mt-0.5 truncate">{l.label}</span>
           </Link>
         ))}
-        <a
-          href="/api/admin/download-db"
-          download="app.db"
-          className="flex-1 flex flex-col items-center py-2 text-xs text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-        >
-          <Database size={22} className="mb-0.5" />
-          <span className="mt-0.5 truncate">DB</span>
-        </a>
         <form action={logout} className="flex-1">
           <button
             type="submit"
@@ -113,14 +104,6 @@ export default async function AdminLayout({
           ))}
         </nav>
         <div className="px-3 py-4 border-t border-gray-100 space-y-1">
-          <a
-            href="/api/admin/download-db"
-            download="app.db"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors"
-          >
-            <Database size={20} />
-            Descarcă baza de date
-          </a>
           <form action={logout}>
             <button
               type="submit"

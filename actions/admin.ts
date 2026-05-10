@@ -222,12 +222,17 @@ export async function createPosition(
   await requireSuperAdmin();
 
   const name = (formData.get("name") as string)?.trim();
+  const themeRaw = (formData.get("theme") as string) || null;
+  const theme = themeRaw === "MIND_MENTOR" ? "MIND_MENTOR" : themeRaw === "SPORT_MENTOR" ? "SPORT_MENTOR" : null;
   if (!name) return { error: "Introduceți un nume." };
 
   const existing = await db.playfieldPosition.findUnique({ where: { name } });
-  if (existing) return { error: "Această poziție există deja." };
+  if (existing) return { error: "Acest focus există deja." };
 
-  await db.playfieldPosition.create({ data: { name } });
+  const maxOrder = await db.playfieldPosition.aggregate({ _max: { order: true } });
+  const nextOrder = (maxOrder._max.order ?? 0) + 1;
+
+  await db.playfieldPosition.create({ data: { name, theme, order: nextOrder } });
   revalidatePath("/admin/positions");
   return { success: true };
 }
@@ -240,9 +245,11 @@ export async function updatePosition(
 
   const id = Number(formData.get("id"));
   const name = (formData.get("name") as string)?.trim();
+  const themeRaw = (formData.get("theme") as string) || null;
+  const theme = themeRaw === "MIND_MENTOR" ? "MIND_MENTOR" : themeRaw === "SPORT_MENTOR" ? "SPORT_MENTOR" : null;
   if (!id || !name) return { error: "Date invalide." };
 
-  await db.playfieldPosition.update({ where: { id }, data: { name } });
+  await db.playfieldPosition.update({ where: { id }, data: { name, theme } });
   revalidatePath("/admin/positions");
   return { success: true };
 }
@@ -250,6 +257,30 @@ export async function updatePosition(
 export async function deletePosition(id: number): Promise<ActionResult> {
   await requireSuperAdmin();
   await db.playfieldPosition.delete({ where: { id } });
+  revalidatePath("/admin/positions");
+  return { success: true };
+}
+
+export async function reorderPosition(id: number, direction: "up" | "down"): Promise<ActionResult> {
+  await requireSuperAdmin();
+
+  const current = await db.playfieldPosition.findUnique({ where: { id } });
+  if (!current) return { error: "Poziția nu a fost găsită." };
+
+  const neighbor = await db.playfieldPosition.findFirst({
+    where: direction === "up"
+      ? { order: { lt: current.order } }
+      : { order: { gt: current.order } },
+    orderBy: { order: direction === "up" ? "desc" : "asc" },
+  });
+
+  if (!neighbor) return { success: true };
+
+  await db.$transaction([
+    db.playfieldPosition.update({ where: { id: current.id }, data: { order: neighbor.order } }),
+    db.playfieldPosition.update({ where: { id: neighbor.id }, data: { order: current.order } }),
+  ]);
+
   revalidatePath("/admin/positions");
   return { success: true };
 }

@@ -19,6 +19,16 @@ const LABEL_META: Record<string, { displayName: string; description: string; def
     description: "Termenul folosit când se face referire la un singur jucător/client.",
     defaultValue: "Client",
   },
+  playfieldPosition: {
+    displayName: "Poziție pe teren (label)",
+    description: "Eticheta pentru câmpul poziției pe teren a jucătorului.",
+    defaultValue: "Poziție pe teren",
+  },
+  team: {
+    displayName: "Echipă (label)",
+    description: "Eticheta pentru câmpul echipei jucătorului.",
+    defaultValue: "Echipă",
+  },
 };
 
 export function MentorLabelsForm({ labels }: { labels: Label[] }) {
