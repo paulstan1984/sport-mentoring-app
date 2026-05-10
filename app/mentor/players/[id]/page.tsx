@@ -57,7 +57,7 @@ export default async function PlayerDetailPage({
   }, []);
 
   // Library items for this mentor + read status
-  const [libraryItems, allPositions, improvementWays, labels] = await Promise.all([
+  const [libraryItems, allPositions, improvementWays, labels, mentor] = await Promise.all([
     db.libraryItem.findMany({
       where: { mentorId },
       include: {
@@ -78,9 +78,9 @@ export default async function PlayerDetailPage({
       orderBy: { order: "asc" },
     }),
     db.mentorLabel.findMany({ where: { mentorId }, select: { key: true, value: true } }),
+    db.mentor.findUnique({ where: { id: mentorId }, select: { theme: true } }),
   ]);
 
-  const mentor = await db.mentor.findUnique({ where: { id: mentorId }, select: { theme: true } });
   const mentorTheme = mentor?.theme ?? "SPORT_MENTOR";
   const positions = allPositions.filter((p) => p.theme === mentorTheme);
 
