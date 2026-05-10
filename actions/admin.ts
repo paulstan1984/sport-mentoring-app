@@ -265,7 +265,7 @@ export async function reorderPosition(id: number, direction: "up" | "down"): Pro
   await requireSuperAdmin();
 
   const current = await db.playfieldPosition.findUnique({ where: { id } });
-  if (!current) return { error: "Poziția nu a fost găsită." };
+  if (!current) return { error: "Focusul nu a fost găsit." };
 
   const neighbor = await db.playfieldPosition.findFirst({
     where: direction === "up"

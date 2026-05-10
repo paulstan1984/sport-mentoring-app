@@ -11,7 +11,7 @@ export default async function PositionsPage() {
 
   return (
     <div className="max-w-lg">
-      <h1 className="text-2xl font-bold mb-6">Focuses</h1>
+      <h1 className="text-2xl font-bold mb-6">Focus-uri</h1>
       <PositionManager positions={positions} />
     </div>
   );
