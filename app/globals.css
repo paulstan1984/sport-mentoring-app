@@ -52,39 +52,48 @@ body {
   }
 }
 
+/* ── SportMentor theme utilities ──────────────────────────────────────── */
+
+@layer utilities {
+  .sport-bg {
+    background: #e0f2fe;
+    color: #0f172a;
+  }
+}
+
 /* ── MindMentor theme utilities ───────────────────────────────────────── */
 
 @layer utilities {
   .mind-bg {
-    background: #f5f3ff;
-    color: #1e1b4b;
+    background: #ecfdf5;
+    color: #064e3b;
   }
 
   .mind-card {
     background: #ffffff;
-    box-shadow: 0 1px 4px rgba(124, 58, 237, 0.10);
+    box-shadow: 0 1px 4px rgba(5, 150, 105, 0.10);
   }
 
   .mind-sidebar {
     background: #ffffff;
-    border-right: 1px solid rgba(124, 58, 237, 0.15);
+    border-right: 1px solid rgba(5, 150, 105, 0.15);
   }
 
   .mind-header {
     background: #ffffff;
-    border-bottom: 1px solid rgba(124, 58, 237, 0.15);
+    border-bottom: 1px solid rgba(5, 150, 105, 0.15);
   }
 
   .mind-border-top {
-    border-top: 1px solid rgba(124, 58, 237, 0.15);
+    border-top: 1px solid rgba(5, 150, 105, 0.15);
   }
 
   .mind-border-bottom {
-    border-bottom: 1px solid rgba(124, 58, 237, 0.15);
+    border-bottom: 1px solid rgba(5, 150, 105, 0.15);
   }
 
   .mind-accent {
-    color: #7c3aed;
+    color: #059669;
   }
 
   .mind-muted {
@@ -97,23 +106,23 @@ body {
   }
 
   .mind-nav-link:hover {
-    color: #7c3aed;
-    background: rgba(124, 58, 237, 0.08);
+    color: #059669;
+    background: rgba(5, 150, 105, 0.08);
   }
 
   .mind-btn {
-    background: #7c3aed;
+    background: #059669;
     color: #fff;
   }
 
   .mind-btn:hover:not(:disabled) {
-    background: #6d28d9;
+    background: #047857;
   }
 
   .mind-input {
     background: #ffffff;
-    border: 1px solid rgba(124, 58, 237, 0.35);
-    color: #1e1b4b;
+    border: 1px solid rgba(5, 150, 105, 0.35);
+    color: #064e3b;
     border-radius: 0.5rem;
     padding: 0.5rem 0.75rem;
     font-size: 0.875rem;
@@ -126,8 +135,8 @@ body {
   }
 
   .mind-level-badge {
-    background: rgba(124, 58, 237, 0.12);
-    color: #7c3aed;
+    background: rgba(5, 150, 105, 0.12);
+    color: #059669;
   }
 
   .mind-logout {
@@ -135,17 +144,17 @@ body {
   }
 
   .mind-logout:hover {
-    color: #4b5563;
+    color: #374151;
   }
 }
 
 /* ── Card sections inside mind theme (auto-theming) ──────────────────── */
 .mind-bg .bg-blue-50 {
-  background-color: rgba(124, 58, 237, 0.08);
+  background-color: rgba(5, 150, 105, 0.08);
 }
 
 .mind-bg .border-blue-200 {
-  border-color: rgba(124, 58, 237, 0.25);
+  border-color: rgba(5, 150, 105, 0.25);
 }
 
 /* ── Mobile improvements ──────────────────────────────────────────────── */
