@@ -56,40 +56,112 @@ body {
 
 @layer utilities {
   .sport-bg {
-    background: #e0f2fe;
+    background: linear-gradient(145deg, #bfdbfe 0%, #dbeafe 50%, #e0f2fe 100%);
     color: #0f172a;
   }
+
+  .sport-card {
+    background: linear-gradient(135deg, #eff6ff 0%, #f0f9ff 100%);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.14);
+  }
+
+  .sport-sidebar {
+    background: linear-gradient(180deg, #dbeafe 0%, #eff6ff 100%);
+    border-right: 1px solid rgba(96, 165, 250, 0.35);
+  }
+
+  .sport-bottom-nav {
+    background: linear-gradient(90deg, #dbeafe 0%, #eff6ff 100%);
+    border-top: 1px solid rgba(96, 165, 250, 0.35);
+  }
+
+  .sport-nav-link {
+    color: #1e40af;
+    border-radius: 0.75rem;
+  }
+
+  .sport-nav-link:hover {
+    color: #1d4ed8;
+    background: rgba(96, 165, 250, 0.18);
+  }
+
+  .sport-input {
+    background: rgba(219, 234, 254, 0.65);
+    border: 1px solid #93c5fd;
+    color: #0f172a;
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    width: 100%;
+    outline: none;
+  }
+
+  .sport-input::placeholder {
+    color: #64748b;
+  }
+
+  .sport-input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+  }
+}
+
+/* ── SportMentor auto-theming (outside @layer — overrides Tailwind utilities) ── */
+/* NOTE: These rules intentionally override .bg-white and .input inside .sport-bg
+   to apply the sport theme. If you need a truly white element inside a sport-bg
+   wrapper, use an explicit background style or a more specific selector. */
+
+/* Cards */
+.sport-bg .bg-white {
+  background: linear-gradient(135deg, #eff6ff 0%, #f0f9ff 100%);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.12);
+}
+
+/* Inputs / selects / textareas using the .input utility class */
+.sport-bg .input {
+  background: rgba(219, 234, 254, 0.65);
+  border-color: #93c5fd;
+  color: #0f172a;
+}
+
+.sport-bg .input::placeholder {
+  color: #64748b;
+}
+
+.sport-bg .input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
 }
 
 /* ── MindMentor theme utilities ───────────────────────────────────────── */
 
 @layer utilities {
   .mind-bg {
-    background: #ecfdf5;
+    background: linear-gradient(145deg, #a7f3d0 0%, #d1fae5 50%, #ecfdf5 100%);
     color: #064e3b;
   }
 
   .mind-card {
-    background: #ffffff;
-    box-shadow: 0 1px 4px rgba(5, 150, 105, 0.10);
+    background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+    box-shadow: 0 2px 8px rgba(5, 150, 105, 0.13);
   }
 
   .mind-sidebar {
-    background: #ffffff;
-    border-right: 1px solid rgba(5, 150, 105, 0.15);
+    background: linear-gradient(180deg, #d1fae5 0%, #f0fdf4 100%);
+    border-right: 1px solid rgba(5, 150, 105, 0.25);
   }
 
   .mind-header {
-    background: #ffffff;
-    border-bottom: 1px solid rgba(5, 150, 105, 0.15);
+    background: linear-gradient(90deg, #d1fae5 0%, #f0fdf4 100%);
+    border-bottom: 1px solid rgba(5, 150, 105, 0.20);
   }
 
   .mind-border-top {
-    border-top: 1px solid rgba(5, 150, 105, 0.15);
+    border-top: 1px solid rgba(5, 150, 105, 0.20);
   }
 
   .mind-border-bottom {
-    border-bottom: 1px solid rgba(5, 150, 105, 0.15);
+    border-bottom: 1px solid rgba(5, 150, 105, 0.20);
   }
 
   .mind-accent {
@@ -101,13 +173,13 @@ body {
   }
 
   .mind-nav-link {
-    color: #4b5563;
+    color: #065f46;
     border-radius: 0.75rem;
   }
 
   .mind-nav-link:hover {
     color: #059669;
-    background: rgba(5, 150, 105, 0.08);
+    background: rgba(5, 150, 105, 0.10);
   }
 
   .mind-btn {
@@ -120,8 +192,8 @@ body {
   }
 
   .mind-input {
-    background: #ffffff;
-    border: 1px solid rgba(5, 150, 105, 0.35);
+    background: rgba(209, 250, 229, 0.6);
+    border: 1px solid #6ee7b7;
     color: #064e3b;
     border-radius: 0.5rem;
     padding: 0.5rem 0.75rem;
@@ -130,12 +202,21 @@ body {
     outline: none;
   }
 
+  .mind-input::placeholder {
+    color: #6b7280;
+  }
+
+  .mind-input:focus {
+    border-color: #059669;
+    box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.22);
+  }
+
   .mind-label {
     color: #374151;
   }
 
   .mind-level-badge {
-    background: rgba(5, 150, 105, 0.12);
+    background: rgba(5, 150, 105, 0.14);
     color: #059669;
   }
 
@@ -146,6 +227,33 @@ body {
   .mind-logout:hover {
     color: #374151;
   }
+}
+
+/* ── MindMentor auto-theming (outside @layer — overrides Tailwind utilities) ── */
+/* NOTE: These rules intentionally override .bg-white and .input inside .mind-bg
+   to apply the mind theme. If you need a truly white element inside a mind-bg
+   wrapper, use an explicit background style or a more specific selector. */
+
+/* Cards */
+.mind-bg .bg-white {
+  background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.12);
+}
+
+/* Inputs / selects / textareas using the .input utility class */
+.mind-bg .input {
+  background: rgba(209, 250, 229, 0.6);
+  border-color: #6ee7b7;
+  color: #064e3b;
+}
+
+.mind-bg .input::placeholder {
+  color: #6b7280;
+}
+
+.mind-bg .input:focus {
+  border-color: #059669;
+  box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.22);
 }
 
 /* ── Card sections inside mind theme (auto-theming) ──────────────────── */

@@ -110,20 +110,20 @@ export function LoginForm({ isMindMentor }: LoginFormProps) {
 
   // SportMentor (default)
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 px-4">
+    <main className="min-h-screen flex items-center justify-center px-4 sport-bg">
       <div className="w-full max-w-sm">
         {/* Logo / Brand */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+          <h1 className="text-3xl font-bold text-blue-700">
             ⚽ Sport Mentor
           </h1>
-          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+          <p className="mt-2 text-sm text-blue-600/80">
             Platformă de mentorat sportiv
           </p>
         </div>
 
-        <div className="bg-white dark:bg-gray-900 shadow-md rounded-2xl p-8">
-          <h2 className="text-xl font-semibold mb-6 text-center">
+        <div className="sport-card rounded-2xl p-8">
+          <h2 className="text-xl font-semibold mb-6 text-center text-blue-900">
             Autentificare
           </h2>
 
@@ -131,7 +131,7 @@ export function LoginForm({ isMindMentor }: LoginFormProps) {
             <div>
               <label
                 htmlFor="username"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                className="block text-sm font-medium text-blue-800 mb-1"
               >
                 Utilizator
               </label>
@@ -141,14 +141,14 @@ export function LoginForm({ isMindMentor }: LoginFormProps) {
                 type="text"
                 autoComplete="username"
                 required
-                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="sport-input"
               />
             </div>
 
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                className="block text-sm font-medium text-blue-800 mb-1"
               >
                 Parolă
               </label>
@@ -158,12 +158,12 @@ export function LoginForm({ isMindMentor }: LoginFormProps) {
                 type="password"
                 autoComplete="current-password"
                 required
-                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="sport-input"
               />
             </div>
 
             {state?.error && (
-              <p className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950 px-3 py-2 rounded-lg">
+              <p className="text-sm text-red-700 bg-red-100/80 px-3 py-2 rounded-lg">
                 {state.error}
               </p>
             )}
@@ -178,17 +178,17 @@ export function LoginForm({ isMindMentor }: LoginFormProps) {
           </form>
         </div>
 
-        <p className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
+        <p className="mt-6 text-center text-sm text-blue-700/80">
           <Link
             href="/how-it-works"
-            className="text-blue-600 dark:text-blue-400 hover:underline"
+            className="text-blue-700 hover:underline"
           >
             Cum funcționează?
           </Link>
           {" · "}
           <Link
             href="/signup"
-            className="text-blue-600 dark:text-blue-400 hover:underline"
+            className="text-blue-700 hover:underline"
           >
             Înregistrare antrenor
           </Link>

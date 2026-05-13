@@ -180,12 +180,12 @@ export default async function PlayerLayout({
       </main>
 
       {/* Bottom navigation (mobile-first) */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 flex md:hidden z-10">
+      <nav className="sport-bottom-nav fixed bottom-0 left-0 right-0 flex md:hidden z-10">
         {navLinks.slice(0, 3).map((l) => (
           <Link
             key={l.href}
             href={l.href}
-            className="flex-1 flex flex-col items-center py-2 text-xs text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            className="flex-1 flex flex-col items-center py-2 text-xs text-blue-700 hover:text-blue-900 transition-colors"
           >
             <l.icon size={22} className="mb-0.5" />
             <span className="mt-0.5 truncate">{l.label}</span>
@@ -194,7 +194,7 @@ export default async function PlayerLayout({
         <form action={logout} className="flex-1">
           <button
             type="submit"
-            className="w-full h-full flex flex-col items-center py-2 text-xs text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+            className="w-full h-full flex flex-col items-center py-2 text-xs text-blue-700 hover:text-red-600 transition-colors"
           >
             <LogOut size={22} className="mb-0.5" />
             <span className="mt-0.5 truncate">Ieșire</span>
@@ -203,24 +203,24 @@ export default async function PlayerLayout({
       </nav>
 
       {/* Side nav (desktop) */}
-      <aside className={`hidden md:flex fixed left-0 ${sidebarTop} bottom-0 w-52 bg-white border-r border-gray-200 flex-col shadow-sm`}>
+      <aside className={`hidden md:flex fixed left-0 ${sidebarTop} bottom-0 w-52 flex-col shadow-md sport-sidebar`}>
         <nav className="flex-1 px-3 py-4 space-y-1">
           {navLinks.map((l) => (
             <Link
               key={l.href}
               href={l.href}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+              className="sport-nav-link flex items-center gap-3 px-3 py-2.5 text-sm transition-colors"
             >
               <l.icon size={20} />
               {l.label}
             </Link>
           ))}
         </nav>
-        <div className="px-3 py-4 border-t border-gray-100">
+        <div className="px-3 py-4 border-t border-blue-200/40">
           <form action={logout}>
             <button
               type="submit"
-              className="w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-500 hover:bg-red-50 hover:text-red-600 transition-colors"
+              className="w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-blue-700/70 hover:bg-red-50 hover:text-red-600 transition-colors"
             >
               <LogOut size={20} />
               Deconectare
