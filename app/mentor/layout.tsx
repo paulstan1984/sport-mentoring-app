@@ -139,7 +139,7 @@ export default async function MentorLayout({
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col sport-bg">
       <div className="sticky top-0 z-20">
         <ImpersonationBanner />
         <OfflineStatus />
@@ -166,15 +166,15 @@ export default async function MentorLayout({
       <MentorMobileNav playersLabel={playersLabel} />
 
       {/* Side nav (desktop) */}
-      <aside className={`hidden md:flex fixed left-0 ${sidebarTop} bottom-0 w-56 bg-white border-r border-gray-200 flex-col shadow-sm`}>
-        <div className="px-6 py-5 border-b border-gray-100">
-          <Link href="/mentor/dashboard" className="text-lg font-bold text-blue-600 hover:text-blue-700">
+      <aside className={`hidden md:flex fixed left-0 ${sidebarTop} bottom-0 w-56 flex-col shadow-md sport-sidebar`}>
+        <div className="px-6 py-5 border-b border-blue-200/40">
+          <Link href="/mentor/dashboard" className="text-lg font-bold text-blue-700 hover:text-blue-800">
             ⚽ Sport Mentor
           </Link>
-          <Link href="/mentor/profile" className="flex items-center gap-2 mt-0.5 hover:text-gray-600">
-            <span className="text-xs text-gray-400 truncate">{mentor?.name ?? "Mentor"}</span>
+          <Link href="/mentor/profile" className="flex items-center gap-2 mt-0.5 hover:text-blue-700">
+            <span className="text-xs text-blue-600/70 truncate">{mentor?.name ?? "Mentor"}</span>
             {levelLabel && (
-              <span className="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-medium shrink-0">
+              <span className="text-xs bg-blue-200/60 text-blue-800 px-1.5 py-0.5 rounded font-medium shrink-0">
                 {levelLabel}
               </span>
             )}
@@ -185,18 +185,18 @@ export default async function MentorLayout({
             <Link
               key={l.href}
               href={l.href}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+              className="sport-nav-link flex items-center gap-3 px-3 py-2.5 text-sm transition-colors"
             >
               <l.icon size={20} />
               {l.label}
             </Link>
           ))}
         </nav>
-        <div className="px-3 py-4 border-t border-gray-100">
+        <div className="px-3 py-4 border-t border-blue-200/40">
           <form action={logout}>
             <button
               type="submit"
-              className="w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-500 hover:bg-red-50 hover:text-red-600 transition-colors"
+              className="w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-blue-700/70 hover:bg-red-50 hover:text-red-600 transition-colors"
             >
               <LogOut size={20} />
               Deconectare

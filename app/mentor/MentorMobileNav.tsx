@@ -125,14 +125,14 @@ export function MentorMobileNav({
         >
           <div
             id="mentor-more-menu"
-            className="fixed bottom-16 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 px-4 py-3 space-y-1 z-30 shadow-lg"
+            className="fixed bottom-16 left-0 right-0 sport-bottom-nav px-4 py-3 space-y-1 z-30 shadow-lg"
             onClick={(e) => e.stopPropagation()}
           >
             {mobileMoreLinks.map((l) => (
               <Link
                 key={l.href}
                 href={l.href}
-                className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
+                className="sport-nav-link flex items-center gap-3 px-3 py-2 text-sm"
                 onClick={closeMore}
               >
                 <l.icon size={20} />
@@ -142,12 +142,12 @@ export function MentorMobileNav({
           </div>
         </div>
       )}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 flex md:hidden z-10">
+      <nav className="sport-bottom-nav fixed bottom-0 left-0 right-0 flex md:hidden z-10">
         {mainLinks.map((l) => (
           <Link
             key={l.href}
             href={l.href}
-            className="flex-1 flex flex-col items-center py-2 text-xs text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            className="flex-1 flex flex-col items-center py-2 text-xs text-blue-700 hover:text-blue-900 transition-colors"
           >
             <l.icon size={22} className="mb-0.5" />
             <span className="mt-0.5 truncate">{l.label}</span>
@@ -157,7 +157,7 @@ export function MentorMobileNav({
           onClick={() => setMoreOpen(!moreOpen)}
           aria-expanded={moreOpen}
           aria-controls="mentor-more-menu"
-          className="flex-1 flex flex-col items-center py-2 text-xs text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+          className="flex-1 flex flex-col items-center py-2 text-xs text-blue-700 hover:text-blue-900 transition-colors"
         >
           <MoreHorizontal size={22} className="mb-0.5" />
           <span className="mt-0.5 truncate">Mai mult</span>
@@ -165,7 +165,7 @@ export function MentorMobileNav({
         <form action={logout} className="flex-1">
           <button
             type="submit"
-            className="w-full h-full flex flex-col items-center py-2 text-xs text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+            className="w-full h-full flex flex-col items-center py-2 text-xs text-blue-700 hover:text-red-600 transition-colors"
           >
             <LogOut size={22} className="mb-0.5" />
             <span className="mt-0.5 truncate">Ieșire</span>
