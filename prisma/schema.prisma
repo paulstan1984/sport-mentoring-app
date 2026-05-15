@@ -63,6 +63,7 @@ model Mentor {
   isActive         Boolean          @default(true)
   level            MentorLevel      @default(FREE)
   theme            MentorTheme      @default(SPORT_MENTOR)
+  wideImage        Boolean          @default(false)
   lastActiveAt     DateTime?
   players          Player[]
   checkinForm      CheckinForm?

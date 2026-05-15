@@ -60,24 +60,35 @@ export default async function PlayerDashboard() {
   return (
     <div className="max-w-xl space-y-4 md:space-y-6">
       {/* Mentor avatar */}
-      <div className="flex items-center gap-4">
-        {player.mentor.photo ? (
+      {player.mentor.wideImage ? (
+        player.mentor.photo ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={player.mentor.photo}
             alt={player.mentor.name}
-            className="w-16 h-16 rounded-full object-cover border-2 border-blue-200 dark:border-blue-700 shrink-0"
+            className="w-full object-cover rounded-2xl"
           />
-        ) : (
-          <div className="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center text-white text-2xl font-bold shrink-0">
-            {player.mentor.name.charAt(0).toUpperCase()}
+        ) : null
+      ) : (
+        <div className="flex items-center gap-4">
+          {player.mentor.photo ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={player.mentor.photo}
+              alt={player.mentor.name}
+              className="w-16 h-16 rounded-full object-cover border-2 border-blue-200 dark:border-blue-700 shrink-0"
+            />
+          ) : (
+            <div className="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center text-white text-2xl font-bold shrink-0">
+              {player.mentor.name.charAt(0).toUpperCase()}
+            </div>
+          )}
+          <div>
+            <p className="font-semibold text-base">{player.mentor.name}</p>
+            <p className="text-xs text-gray-400">Mentorul tău</p>
           </div>
-        )}
-        <div>
-          <p className="font-semibold text-base">{player.mentor.name}</p>
-          <p className="text-xs text-gray-400">Mentorul tău</p>
         </div>
-      </div>
+      )}
 
       {/* Mentor message */}
       <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-2xl p-5">

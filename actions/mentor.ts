@@ -615,12 +615,13 @@ export async function updateMentorProfile(
 
   const name = (formData.get("name") as string)?.trim();
   const description = (formData.get("description") as string)?.trim() || null;
+  const wideImage = formData.get("wideImage") === "on";
 
   if (!name) return { error: "Numele este obligatoriu." };
 
   await db.mentor.update({
     where: { id: mentorId },
-    data: { name, description },
+    data: { name, description, wideImage },
   });
 
   revalidatePath("/mentor/profile");
