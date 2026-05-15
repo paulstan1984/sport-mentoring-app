@@ -75,7 +75,7 @@ export default async function PlayerDashboard() {
         )}
         <div>
           <p className="font-semibold text-base">{player.mentor.name}</p>
-          <p className="text-xs text-gray-400">Antrenorul tău</p>
+          <p className="text-xs text-gray-400">Mentorul tău</p>
         </div>
       </div>
 
