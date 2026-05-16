@@ -27,7 +27,7 @@ export default async function MentorLayout({
   const session = await requireMentor();
   const mentor = await db.mentor.findUnique({
     where: { id: session.mentorId },
-    select: { name: true, level: true, theme: true, labels: { select: { key: true, value: true } } },
+    select: { name: true, level: true, theme: true, photo: true, wideImage: true, labels: { select: { key: true, value: true } } },
   });
 
   const LEVEL_LABEL: Record<string, string> = {
@@ -74,11 +74,25 @@ export default async function MentorLayout({
               🧠 MindMentor
             </Link>
             <Link href="/mentor/profile" className="text-sm flex items-center gap-2 hover:opacity-80 mind-muted">
-              {mentor?.name ?? "Mentor"}
-              {levelLabel && (
-                <span className="text-xs px-1.5 py-0.5 rounded font-medium mind-level-badge">
-                  {levelLabel}
-                </span>
+              {mentor?.photo ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={mentor.photo}
+                  alt={mentor.name ?? "Mentor"}
+                  width={28}
+                  height={28}
+                  className={`object-cover border border-white/30 shrink-0 ${mentor.wideImage ? "h-7 w-auto" : "w-7 h-7 rounded-full"}`}
+                />
+              ) : null}
+              {!mentor?.wideImage && (
+                <>
+                  {mentor?.name ?? "Mentor"}
+                  {levelLabel && (
+                    <span className="text-xs px-1.5 py-0.5 rounded font-medium mind-level-badge">
+                      {levelLabel}
+                    </span>
+                  )}
+                </>
               )}
             </Link>
           </header>
@@ -99,11 +113,25 @@ export default async function MentorLayout({
               🧠 MindMentor
             </Link>
             <Link href="/mentor/profile" className="flex items-center gap-2 mt-0.5 hover:opacity-80 mind-muted">
-              <span className="text-xs truncate">{mentor?.name ?? "Mentor"}</span>
-              {levelLabel && (
-                <span className="text-xs px-1.5 py-0.5 rounded font-medium shrink-0 mind-level-badge">
-                  {levelLabel}
-                </span>
+              {mentor?.photo ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={mentor.photo}
+                  alt={mentor.name ?? "Mentor"}
+                  width={28}
+                  height={28}
+                  className={`object-cover border border-white/30 shrink-0 ${mentor.wideImage ? "h-7 w-auto" : "w-7 h-7 rounded-full"}`}
+                />
+              ) : null}
+              {!mentor?.wideImage && (
+                <>
+                  <span className="text-xs truncate">{mentor?.name ?? "Mentor"}</span>
+                  {levelLabel && (
+                    <span className="text-xs px-1.5 py-0.5 rounded font-medium shrink-0 mind-level-badge">
+                      {levelLabel}
+                    </span>
+                  )}
+                </>
               )}
             </Link>
           </div>
@@ -149,11 +177,25 @@ export default async function MentorLayout({
           ⚽ Sport Mentor
         </Link>
         <Link href="/mentor/profile" className="text-sm text-blue-200 hover:text-white flex items-center gap-2">
-          {mentor?.name ?? "Mentor"}
-          {levelLabel && (
-            <span className="text-xs bg-blue-500 text-white px-1.5 py-0.5 rounded font-medium">
-              {levelLabel}
-            </span>
+          {mentor?.photo ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={mentor.photo}
+              alt={mentor.name ?? "Mentor"}
+              width={28}
+              height={28}
+              className={`object-cover border border-white/30 shrink-0 ${mentor.wideImage ? "h-7 w-auto" : "w-7 h-7 rounded-full"}`}
+            />
+          ) : null}
+          {!mentor?.wideImage && (
+            <>
+              {mentor?.name ?? "Mentor"}
+              {levelLabel && (
+                <span className="text-xs bg-blue-500 text-white px-1.5 py-0.5 rounded font-medium">
+                  {levelLabel}
+                </span>
+              )}
+            </>
           )}
         </Link>
         </header>
@@ -172,11 +214,25 @@ export default async function MentorLayout({
             ⚽ Sport Mentor
           </Link>
           <Link href="/mentor/profile" className="flex items-center gap-2 mt-0.5 hover:text-blue-700">
-            <span className="text-xs text-blue-600/70 truncate">{mentor?.name ?? "Mentor"}</span>
-            {levelLabel && (
-              <span className="text-xs bg-blue-200/60 text-blue-800 px-1.5 py-0.5 rounded font-medium shrink-0">
-                {levelLabel}
-              </span>
+            {mentor?.photo ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={mentor.photo}
+                alt={mentor.name ?? "Mentor"}
+                width={28}
+                height={28}
+                className={`object-cover border border-blue-200/40 shrink-0 ${mentor.wideImage ? "h-7 w-auto" : "w-7 h-7 rounded-full"}`}
+              />
+            ) : null}
+            {!mentor?.wideImage && (
+              <>
+                <span className="text-xs text-blue-600/70 truncate">{mentor?.name ?? "Mentor"}</span>
+                {levelLabel && (
+                  <span className="text-xs bg-blue-200/60 text-blue-800 px-1.5 py-0.5 rounded font-medium shrink-0">
+                    {levelLabel}
+                  </span>
+                )}
+              </>
             )}
           </Link>
         </div>
