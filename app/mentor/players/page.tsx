@@ -116,6 +116,7 @@ export default async function PlayersPage() {
                 player={p}
                 positions={positions}
                 canImpersonate={session.impersonating === true}
+                playerLabel={playerLabel}
                 teamLabel={teamLabel}
                 playfieldPositionLabel={playfieldPositionLabel}
               />

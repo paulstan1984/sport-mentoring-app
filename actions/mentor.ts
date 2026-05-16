@@ -96,14 +96,20 @@ export async function createPlayer(
   const existing = await db.user.findUnique({ where: { username } });
   if (existing) return { error: "Utilizatorul există deja." };
 
-  const mentor = await db.mentor.findUnique({ where: { id: mentorId }, select: { level: true } });
+  const [mentor, mentorLabels] = await Promise.all([
+    db.mentor.findUnique({ where: { id: mentorId }, select: { level: true } }),
+    db.mentorLabel.findMany({ where: { mentorId }, select: { key: true, value: true } }),
+  ]);
   if (!mentor) return { error: "Antrenorul nu a fost găsit." };
+  const labelsMap = Object.fromEntries(mentorLabels.map((l) => [l.key, l.value]));
+  const singularLabel = labelsMap["player"] ?? "jucător";
+  const pluralLabel = labelsMap["players"] ?? "jucători";
   const playerLimit = PLAYER_LIMITS[mentor.level];
   if (playerLimit !== null) {
     const currentCount = await db.player.count({ where: { mentorId } });
     if (currentCount >= playerLimit) {
       return {
-        error: `Ai atins limita de ${playerLimit} ${playerLimit === 1 ? "jucător" : "jucători"} pentru nivelul tău (${MENTOR_LEVEL_LABELS[mentor.level]}). Solicită un upgrade pentru a adăuga mai mulți jucători.`,
+        error: `Ai atins limita de ${playerLimit} ${playerLimit === 1 ? singularLabel : pluralLabel} pentru nivelul tău (${MENTOR_LEVEL_LABELS[mentor.level]}). Solicită un upgrade pentru a adăuga mai mulți ${pluralLabel}.`,
       };
     }
   }
@@ -289,22 +295,28 @@ export async function importPlayersFromCsv(
     rowsToCreate.push(row);
   }
 
-  const mentor = await db.mentor.findUnique({ where: { id: mentorId }, select: { level: true } });
+  const [mentor, mentorLabels] = await Promise.all([
+    db.mentor.findUnique({ where: { id: mentorId }, select: { level: true } }),
+    db.mentorLabel.findMany({ where: { mentorId }, select: { key: true, value: true } }),
+  ]);
   if (!mentor) return { error: "Antrenorul nu a fost găsit." };
+  const labelsMap = Object.fromEntries(mentorLabels.map((l) => [l.key, l.value]));
+  const singularLabel = labelsMap["player"] ?? "jucător";
+  const pluralLabel = labelsMap["players"] ?? "jucători";
   const playerLimit = PLAYER_LIMITS[mentor.level];
   if (playerLimit !== null) {
     const currentCount = await db.player.count({ where: { mentorId } });
     const availableSlots = playerLimit - currentCount;
     if (availableSlots <= 0) {
       return {
-        error: `Ai atins limita de ${playerLimit} ${playerLimit === 1 ? "jucător" : "jucători"} pentru nivelul tău (${MENTOR_LEVEL_LABELS[mentor.level]}). Solicită un upgrade pentru a adăuga mai mulți jucători.`,
+        error: `Ai atins limita de ${playerLimit} ${playerLimit === 1 ? singularLabel : pluralLabel} pentru nivelul tău (${MENTOR_LEVEL_LABELS[mentor.level]}). Solicită un upgrade pentru a adăuga mai mulți ${pluralLabel}.`,
       };
     }
     if (rowsToCreate.length > availableSlots) {
       const excess = rowsToCreate.splice(availableSlots);
       for (const row of excess) {
         issues.push(
-          `Linia ${row.lineNumber}: limita de ${playerLimit} ${playerLimit === 1 ? "jucător" : "jucători"} a fost atinsă. Solicită un upgrade.`
+          `Linia ${row.lineNumber}: limita de ${playerLimit} ${playerLimit === 1 ? singularLabel : pluralLabel} a fost atinsă. Solicită un upgrade.`
         );
       }
     }

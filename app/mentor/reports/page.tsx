@@ -42,7 +42,7 @@ export default async function ReportsPage({
   const mentorId = session.mentorId!;
   const params = await searchParams;
 
-  const [players, improvementWays] = await Promise.all([
+  const [players, improvementWays, labels] = await Promise.all([
     db.player.findMany({
       where: { mentorId },
       select: { id: true, name: true },
@@ -52,7 +52,11 @@ export default async function ReportsPage({
       where: { mentorId, deletedAt: null },
       orderBy: { order: "asc" },
     }),
+    db.mentorLabel.findMany({ where: { mentorId }, select: { key: true, value: true } }),
   ]);
+
+  const labelsMap = Object.fromEntries(labels.map((l) => [l.key, l.value]));
+  const playerLabel = labelsMap["player"] ?? "Jucător";
 
   // Determine whether a report has been requested
   const isReportRequested = !!params.playerId;
@@ -202,6 +206,7 @@ export default async function ReportsPage({
         playerName: player.name,
         startDate: startDateStr,
         endDate: endDateStr,
+        playerLabel,
         selectedImprovementWays,
         includeConfidence,
         includeJournalScore,
@@ -224,14 +229,14 @@ export default async function ReportsPage({
         <form method="GET" action="/mentor/reports" className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label className="label">Jucător *</label>
+              <label className="label">{playerLabel} *</label>
               <select
                 name="playerId"
                 className="input"
                 defaultValue={playerId ? String(playerId) : ""}
                 required
               >
-                <option value="">Selectează jucătorul</option>
+                <option value="">Selectează {playerLabel.toLowerCase()}ul</option>
                 {players.map((p) => (
                   <option key={p.id} value={String(p.id)}>
                     {p.name}

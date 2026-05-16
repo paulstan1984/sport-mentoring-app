@@ -21,12 +21,14 @@ export function PlayerRow({
   player,
   positions,
   canImpersonate = false,
+  playerLabel = "Jucător",
   teamLabel = "Echipă",
   playfieldPositionLabel = "Poziție pe teren",
 }: {
   player: PlayerWithRelations;
   positions: PlayfieldPosition[];
   canImpersonate?: boolean;
+  playerLabel?: string;
   teamLabel?: string;
   playfieldPositionLabel?: string;
 }) {
@@ -42,13 +44,13 @@ export function PlayerRow({
   const [pwdState, pwdAction, isPwdPending] = useActionState(wrappedPwd, null);
 
   async function handleDelete() {
-    if (!confirm(`Ștergi jucătorul "${player.name}"?`)) return;
+    if (!confirm(`Ștergi ${playerLabel.toLowerCase()}ul "${player.name}"?`)) return;
     await deletePlayer(player.id);
   }
 
   async function handleToggleActive() {
     const action = player.isActive ? "dezactivezi" : "activezi";
-    if (!confirm(`Ești sigur că vrei să ${action} jucătorul "${player.name}"?`)) return;
+    if (!confirm(`Ești sigur că vrei să ${action} ${playerLabel.toLowerCase()}ul "${player.name}"?`)) return;
     await togglePlayerActive(player.id);
   }
 

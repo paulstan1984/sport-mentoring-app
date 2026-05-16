@@ -36,6 +36,7 @@ export interface ReportData {
   playerName: string;
   startDate: string;
   endDate: string;
+  playerLabel: string;
   selectedImprovementWays: SelectedImprovementWay[];
   includeConfidence: boolean;
   includeJournalScore: boolean;
@@ -115,7 +116,7 @@ export function ReportClient({ data }: { data: ReportData }) {
       {/* Print header — shown inside the cloned window */}
       <div className="mb-2">
         <p className="text-gray-500 text-sm">
-          Jucător: <span className="font-medium text-gray-800 dark:text-gray-100">{data.playerName}</span>
+          {data.playerLabel}: <span className="font-medium text-gray-800 dark:text-gray-100">{data.playerName}</span>
           &nbsp;·&nbsp;Perioadă: {data.startDate} – {data.endDate}
         </p>
       </div>
