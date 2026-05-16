@@ -89,6 +89,16 @@ export function ProfileForm({ mentor }: { mentor: MentorWithUser }) {
 
       {/* Profile details form */}
       <form action={formAction} className="space-y-4">
+        <div className="flex items-center gap-3">
+          <input
+            type="checkbox"
+            id="wideImage"
+            name="wideImage"
+            defaultChecked={mentor.wideImage}
+            className="w-4 h-4 accent-blue-600"
+          />
+          <label htmlFor="wideImage" className="label mb-0 cursor-pointer">Imagine lungă</label>
+        </div>
         <div>
           <label className="label">Utilizator</label>
           <input value={mentor.user.username} disabled className="input opacity-60" />
@@ -100,16 +110,6 @@ export function ProfileForm({ mentor }: { mentor: MentorWithUser }) {
         <div>
           <label className="label">Descriere</label>
           <textarea name="description" defaultValue={mentor.description ?? ""} rows={3} className="input resize-none" />
-        </div>
-        <div className="flex items-center gap-3">
-          <input
-            type="checkbox"
-            id="wideImage"
-            name="wideImage"
-            defaultChecked={mentor.wideImage}
-            className="w-4 h-4 accent-blue-600"
-          />
-          <label htmlFor="wideImage" className="label mb-0 cursor-pointer">Imagine lungă</label>
         </div>
 
         {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
