@@ -337,7 +337,7 @@ export default async function ReportsPage({
                 defaultChecked={includePlayerNotes}
                 className="rounded"
               />
-              Notițe antrenor
+              Notițe mentor
             </label>
           </div>
 

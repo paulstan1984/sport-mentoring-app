@@ -211,7 +211,7 @@ export function ReportClient({ data }: { data: ReportData }) {
       {/* Player notes table */}
       {data.includePlayerNotes && (
         <div className="mt-8">
-          <h3 className="text-base font-semibold mb-3">Notițe antrenor</h3>
+          <h3 className="text-base font-semibold mb-3">Notițe mentor</h3>
           {data.playerNotes.length === 0 ? (
             <p className="text-sm text-gray-400">Nu există notițe pentru perioada selectată.</p>
           ) : (

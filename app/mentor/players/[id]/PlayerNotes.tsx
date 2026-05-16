@@ -225,7 +225,7 @@ export function PlayerNotes({ playerId, notes }: PlayerNotesProps) {
     <>
       <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-5">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold">Notițe antrenor</h2>
+          <h2 className="font-semibold">Notițe mentor</h2>
           <div className="flex items-center gap-3">
             {notes.length > NOTES_RECENT && (
               <button
@@ -270,7 +270,7 @@ export function PlayerNotes({ playerId, notes }: PlayerNotesProps) {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 shrink-0">
-              <h3 className="font-semibold text-base">Notițe antrenor — Istoric complet</h3>
+              <h3 className="font-semibold text-base">Notițe mentor — Istoric complet</h3>
               <button
                 type="button"
                 onClick={closeModal}
