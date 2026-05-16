@@ -27,7 +27,7 @@ export function MessageEditor({
           <RichTextEditor
             name="message"
             initialValue={currentMessage}
-            placeholder="Scrie mesajul zilei pentru jucătorii tăi..."
+            placeholder="Scrie mesajul zilei..."
             minHeight="min-h-40"
           />
 
