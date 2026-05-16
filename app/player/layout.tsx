@@ -36,7 +36,7 @@ export default async function PlayerLayout({
   const mentor = player
     ? await db.mentor.findUnique({
         where: { id: player.mentorId },
-        select: { name: true, photo: true, theme: true },
+        select: { name: true, photo: true, theme: true, wideImage: true },
       })
     : null;
 
@@ -70,12 +70,14 @@ export default async function PlayerLayout({
                   alt={mentor.name ?? "Psiholog"}
                   width={28}
                   height={28}
-                  className="w-7 h-7 rounded-full object-cover border border-white/30 shrink-0"
+                  className={`object-cover shrink-0 ${mentor.wideImage ? "h-7 w-auto" : "w-7 h-7 rounded-full"}`}
                 />
               ) : (
                 <span className="text-base">🧠</span>
               )}
-              <span className="font-bold text-sm mind-accent">{mentor?.name ?? "Psiholog"}</span>
+              {!mentor?.wideImage && (
+                <span className="font-bold text-sm mind-accent">{mentor?.name ?? "Psiholog"}</span>
+              )}
             </Link>
             <Link href="/player/profile" className="text-sm hover:opacity-80 mind-muted">
               {player?.name ?? "Client"}
@@ -161,12 +163,14 @@ export default async function PlayerLayout({
               alt={mentor.name ?? "Antrenor"}
               width={28}
               height={28}
-              className="w-7 h-7 rounded-full object-cover border border-white/30 shrink-0"
+              className={`object-cover shrink-0 ${mentor.wideImage ? "h-7 w-auto" : "w-7 h-7 rounded-full"}`}
             />
           ) : (
             <span className="text-base">⚽</span>
           )}
-          <span className="font-bold text-sm text-white">{mentor?.name ?? "Antrenor"}</span>
+          {!mentor?.wideImage && (
+            <span className="font-bold text-sm text-white">{mentor?.name ?? "Antrenor"}</span>
+          )}
         </Link>
         <Link href="/player/profile" className="text-sm text-blue-200 hover:text-white">
           {player?.name ?? "Jucător"}
