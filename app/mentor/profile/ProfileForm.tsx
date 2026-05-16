@@ -16,6 +16,7 @@ export function ProfileForm({ mentor }: { mentor: MentorWithUser }) {
   };
   const [state, formAction, isPending] = useActionState(wrappedUpdate, null);
   const [photoUrl, setPhotoUrl] = useState<string | null>(mentor.photo);
+  const [isWideImage, setIsWideImage] = useState(mentor.wideImage);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -56,13 +57,15 @@ export function ProfileForm({ mentor }: { mentor: MentorWithUser }) {
       {/* Photo upload */}
       <div>
         <label className="label">Fotografie profil</label>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col items-start gap-3">
           {photoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={photoUrl}
               alt="Foto profil"
-              className="w-16 h-16 rounded-full object-cover border-2 border-blue-200 dark:border-blue-700 shrink-0"
+              className={`object-cover border-2 border-blue-200 dark:border-blue-700 shrink-0${
+                isWideImage ? " h-16 w-auto" : " w-16 h-16 rounded-full"
+              }`}
             />
           ) : (
             <div className="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center text-white text-2xl font-bold shrink-0">
@@ -95,6 +98,7 @@ export function ProfileForm({ mentor }: { mentor: MentorWithUser }) {
             id="wideImage"
             name="wideImage"
             defaultChecked={mentor.wideImage}
+            onChange={(e) => setIsWideImage(e.target.checked)}
             className="w-4 h-4 accent-blue-600"
           />
           <label htmlFor="wideImage" className="label mb-0 cursor-pointer">Imagine lungă</label>
