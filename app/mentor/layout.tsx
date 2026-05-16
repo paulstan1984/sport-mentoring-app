@@ -81,7 +81,7 @@ export default async function MentorLayout({
                   alt={mentor.name ?? "Mentor"}
                   width={28}
                   height={28}
-                  className={`object-cover border border-white/30 shrink-0 ${mentor.wideImage ? "h-7 w-auto" : "w-7 h-7 rounded-full"}`}
+                  className={`object-cover shrink-0 ${mentor.wideImage ? "h-7 w-auto" : "w-7 h-7 rounded-full"}`}
                 />
               ) : null}
               {!mentor?.wideImage && (
@@ -120,7 +120,7 @@ export default async function MentorLayout({
                   alt={mentor.name ?? "Mentor"}
                   width={28}
                   height={28}
-                  className={`object-cover border border-white/30 shrink-0 ${mentor.wideImage ? "h-7 w-auto" : "w-7 h-7 rounded-full"}`}
+                  className={`object-cover shrink-0 ${mentor.wideImage ? "h-7 w-auto" : "w-7 h-7 rounded-full"}`}
                 />
               ) : null}
               {!mentor?.wideImage && (
@@ -184,7 +184,7 @@ export default async function MentorLayout({
               alt={mentor.name ?? "Mentor"}
               width={28}
               height={28}
-              className={`object-cover border border-white/30 shrink-0 ${mentor.wideImage ? "h-7 w-auto" : "w-7 h-7 rounded-full"}`}
+              className={`object-cover shrink-0 ${mentor.wideImage ? "h-7 w-auto" : "w-7 h-7 rounded-full"}`}
             />
           ) : null}
           {!mentor?.wideImage && (

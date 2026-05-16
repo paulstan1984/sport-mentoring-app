@@ -70,7 +70,7 @@ export default async function PlayerLayout({
                   alt={mentor.name ?? "Psiholog"}
                   width={28}
                   height={28}
-                  className={`object-cover border border-white/30 shrink-0 ${mentor.wideImage ? "h-7 w-auto" : "w-7 h-7 rounded-full"}`}
+                  className={`object-cover shrink-0 ${mentor.wideImage ? "h-7 w-auto" : "w-7 h-7 rounded-full"}`}
                 />
               ) : (
                 <span className="text-base">🧠</span>
@@ -163,7 +163,7 @@ export default async function PlayerLayout({
               alt={mentor.name ?? "Antrenor"}
               width={28}
               height={28}
-              className={`object-cover border border-white/30 shrink-0 ${mentor.wideImage ? "h-7 w-auto" : "w-7 h-7 rounded-full"}`}
+              className={`object-cover shrink-0 ${mentor.wideImage ? "h-7 w-auto" : "w-7 h-7 rounded-full"}`}
             />
           ) : (
             <span className="text-base">⚽</span>
