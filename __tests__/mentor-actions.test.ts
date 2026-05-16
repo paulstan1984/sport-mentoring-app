@@ -25,6 +25,9 @@ vi.mock("@/lib/db", () => ({
     mentor: {
       findUnique: vi.fn(),
     },
+    mentorLabel: {
+      findMany: vi.fn(),
+    },
     libraryItem: {
       findFirst: vi.fn(),
     },
@@ -63,6 +66,7 @@ const mockDb = db as {
   user: { findUnique: ReturnType<typeof vi.fn>; create: ReturnType<typeof vi.fn> };
   player: { findUnique: ReturnType<typeof vi.fn>; update: ReturnType<typeof vi.fn>; count: ReturnType<typeof vi.fn> };
   mentor: { findUnique: ReturnType<typeof vi.fn> };
+  mentorLabel: { findMany: ReturnType<typeof vi.fn> };
   $transaction: ReturnType<typeof vi.fn>;
 };
 
@@ -95,6 +99,7 @@ describe("createPlayer", () => {
     mockDb.user.findUnique.mockResolvedValue(null);
     mockDb.user.create.mockResolvedValue({ id: 99 });
     mockDb.mentor.findUnique.mockResolvedValue({ level: "PRO" });
+    mockDb.mentorLabel.findMany.mockResolvedValue([]);
     mockDb.player.count.mockResolvedValue(0);
   });
 
