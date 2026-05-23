@@ -5,7 +5,7 @@ import Script from "next/script";
 import { submitMentorSignup } from "@/actions/public";
 import Link from "next/link";
 
-const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+const RECAPTCHA_SITE_KEY = process.env.RECAPTCHA_SITE_KEY;
 
 const THEME_OPTIONS = [
   { value: "SPORT_MENTOR", label: "⚽ SportMentor" },
