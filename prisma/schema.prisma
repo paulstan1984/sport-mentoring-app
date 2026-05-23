@@ -265,6 +265,7 @@ model AdminRequest {
   mentorId       Int?
   mentor         Mentor?             @relation(fields: [mentorId], references: [id], onDelete: SetNull)
   requestedLevel MentorLevel?
+  theme          MentorTheme         @default(SPORT_MENTOR)
   createdAt      DateTime            @default(now())
   processedAt    DateTime?
 }

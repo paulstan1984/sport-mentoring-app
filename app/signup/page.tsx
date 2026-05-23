@@ -1,8 +1,16 @@
 "use client";
 
 import { useActionState } from "react";
+import Script from "next/script";
 import { submitMentorSignup } from "@/actions/public";
 import Link from "next/link";
+
+const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+
+const THEME_OPTIONS = [
+  { value: "SPORT_MENTOR", label: "⚽ SportMentor" },
+  { value: "MIND_MENTOR", label: "🧠 MindMentor" },
+];
 
 export default function SignupPage() {
   const wrappedAction = async (
@@ -38,6 +46,12 @@ export default function SignupPage() {
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 px-4 py-12">
+      {RECAPTCHA_SITE_KEY && (
+        <Script
+          src="https://www.google.com/recaptcha/api.js"
+          strategy="afterInteractive"
+        />
+      )}
       <div className="w-full max-w-md">
         {/* Brand */}
         <div className="text-center mb-8">
@@ -100,6 +114,25 @@ export default function SignupPage() {
             </div>
 
             <div>
+              <label htmlFor="theme" className="label">
+                Temă platformă *
+              </label>
+              <select
+                id="theme"
+                name="theme"
+                required
+                className="input"
+                defaultValue="SPORT_MENTOR"
+              >
+                {THEME_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
               <label htmlFor="description" className="label">
                 Scurtă descriere (opțional)
               </label>
@@ -111,6 +144,15 @@ export default function SignupPage() {
                 placeholder="Câteva cuvinte despre tine, sportul și experiența ta ca antrenor..."
               />
             </div>
+
+            {RECAPTCHA_SITE_KEY && (
+              <div>
+                <div
+                  className="g-recaptcha"
+                  data-sitekey={RECAPTCHA_SITE_KEY}
+                />
+              </div>
+            )}
 
             {state?.error && (
               <p className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950 px-3 py-2 rounded-lg">
@@ -143,3 +185,4 @@ export default function SignupPage() {
     </main>
   );
 }
+

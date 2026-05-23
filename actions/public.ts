@@ -1,9 +1,13 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { SignupRequestStatus, RequestType } from "@/app/generated/prisma/client";
+import { SignupRequestStatus, RequestType, MentorTheme } from "@/app/generated/prisma/client";
 
 type ActionResult = { error?: string; success?: boolean };
+
+function parseMentorTheme(raw: string | null | undefined): MentorTheme {
+  return raw === "MIND_MENTOR" ? "MIND_MENTOR" : "SPORT_MENTOR";
+}
 
 export async function submitMentorSignup(
   _prev: ActionResult | null,
@@ -13,6 +17,8 @@ export async function submitMentorSignup(
   const email = (formData.get("email") as string)?.trim().toLowerCase();
   const phone = (formData.get("phone") as string)?.trim() || null;
   const description = (formData.get("description") as string)?.trim() || null;
+  const theme = parseMentorTheme(formData.get("theme") as string);
+  const recaptchaToken = (formData.get("g-recaptcha-response") as string) || "";
 
   if (!name || !email) {
     return { error: "Câmpurile marcate sunt obligatorii." };
@@ -21,6 +27,22 @@ export async function submitMentorSignup(
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
     return { error: "Adresa de email nu este validă." };
+  }
+
+  // Verify reCAPTCHA token when the secret key is configured
+  if (process.env.RECAPTCHA_SECRET_KEY) {
+    if (!recaptchaToken) {
+      return { error: "Te rugăm să completezi verificarea reCAPTCHA." };
+    }
+    const verifyRes = await fetch("https://www.google.com/recaptcha/api/siteverify", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `secret=${encodeURIComponent(process.env.RECAPTCHA_SECRET_KEY)}&response=${encodeURIComponent(recaptchaToken)}`,
+    });
+    const verifyData = (await verifyRes.json()) as { success: boolean };
+    if (!verifyData.success) {
+      return { error: "Verificarea reCAPTCHA a eșuat. Încearcă din nou." };
+    }
   }
 
   // Prevent duplicate pending requests for the same email
@@ -32,8 +54,9 @@ export async function submitMentorSignup(
   }
 
   await db.adminRequest.create({
-    data: { name, email, phone, description, status: SignupRequestStatus.PENDING, requestType: RequestType.SIGNUP },
+    data: { name, email, phone, description, theme, status: SignupRequestStatus.PENDING, requestType: RequestType.SIGNUP },
   });
 
   return { success: true };
 }
+

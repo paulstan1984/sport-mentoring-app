@@ -33,6 +33,8 @@ cp .env.example .env
 | `DATABASE_URL`  | URL PostgreSQL (`postgresql://user:pass@host:port/db`)                   |
 | `SESSION_SECRET`| Cheie secretă pentru cookie-ul de sesiune (min. 32 caractere aleatorii)  |
 | `UPLOAD_DIR`    | Directorul local pentru fișierele uploadate (implicit: `./uploads`)      |
+| `RECAPTCHA_SECRET_KEY` | Cheia secretă Google reCAPTCHA v2 (opțional; dacă nu este setată, verificarea reCAPTCHA este omisă) |
+| `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` | Cheia publică Google reCAPTCHA v2 (opțional; dacă nu este setată, widgetul reCAPTCHA nu este afișat) |
 
 Generare `SESSION_SECRET`:
 
