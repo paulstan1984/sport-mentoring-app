@@ -1,6 +1,6 @@
 import { requireSuperAdmin } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { SignupRequestStatus, RequestType } from "@/app/generated/prisma/client";
+import { SignupRequestStatus, RequestType, MentorTheme } from "@/app/generated/prisma/client";
 import { ApproveForm } from "./ApproveForm";
 import { RejectButton } from "./RejectButton";
 import { ApproveLevelUpgradeButton } from "./ApproveLevelUpgradeButton";
@@ -11,6 +11,11 @@ const LEVEL_LABELS: Record<string, string> = {
   MEDIUM: "Medium",
   PRO: "Pro",
   ENTERPRISE: "Enterprise",
+};
+
+const THEME_LABELS: Record<MentorTheme, string> = {
+  SPORT_MENTOR: "⚽ SportMentor",
+  MIND_MENTOR: "🧠 MindMentor",
 };
 
 export default async function SignupsPage() {
@@ -89,6 +94,12 @@ export default async function SignupsPage() {
                   {r.phone && (
                     <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">📞 {r.phone}</p>
                   )}
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                    🎨 Temă:{" "}
+                    <span className="font-medium text-gray-700 dark:text-gray-300">
+                      {THEME_LABELS[r.theme]}
+                    </span>
+                  </p>
                   {r.description && (
                     <p className="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-line mt-2">
                       {r.description}

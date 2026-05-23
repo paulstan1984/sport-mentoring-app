@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "AdminRequest" ADD COLUMN "theme" TEXT NOT NULL DEFAULT 'SPORT_MENTOR';

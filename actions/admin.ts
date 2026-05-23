@@ -370,6 +370,7 @@ export async function approveMentorSignup(
         create: {
           name: request.name ?? username,
           description: request.description,
+          theme: request.theme,
           photo: null,
           labels: {
             create: [
