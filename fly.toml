@@ -8,6 +8,8 @@ primary_region = "ams"
   release_command = "npx prisma migrate deploy && npx prisma generate"
 
 [build]
+  [build.args]
+    NEXT_PUBLIC_RECAPTCHA_SITE_KEY = "6Le-mL4UAAAAAHHA8czRqZaISYxxpwkUTBlv2o6N"
 
 [env]
   PORT         = "3000"
