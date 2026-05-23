@@ -1,9 +1,22 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useRef, useEffect, useCallback } from "react";
 import Script from "next/script";
 import { submitMentorSignup } from "@/actions/public";
 import Link from "next/link";
+
+declare global {
+  interface Window {
+    grecaptcha: {
+      render: (
+        container: HTMLElement | string,
+        parameters: { sitekey: string; theme?: string }
+      ) => number;
+      reset: (widgetId?: number) => void;
+      getResponse: (widgetId?: number) => string;
+    };
+  }
+}
 
 const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
@@ -21,6 +34,29 @@ export default function SignupPage() {
     catch { return { error: "Eroare de rețea. Verifică conexiunea și încearcă din nou." }; }
   };
   const [state, formAction, isPending] = useActionState(wrappedAction, null);
+  const recaptchaContainerRef = useRef<HTMLDivElement>(null);
+  const widgetIdRef = useRef<number | null>(null);
+
+  const renderRecaptcha = useCallback(() => {
+    if (
+      RECAPTCHA_SITE_KEY &&
+      recaptchaContainerRef.current &&
+      widgetIdRef.current === null &&
+      typeof window !== "undefined" &&
+      window.grecaptcha
+    ) {
+      widgetIdRef.current = window.grecaptcha.render(recaptchaContainerRef.current, {
+        sitekey: RECAPTCHA_SITE_KEY,
+      });
+    }
+  }, []);
+
+  // Reset the reCAPTCHA widget after a failed submission so the user can retry
+  useEffect(() => {
+    if (state?.error && widgetIdRef.current !== null && typeof window !== "undefined") {
+      window.grecaptcha?.reset(widgetIdRef.current);
+    }
+  }, [state?.error]);
 
   if (state?.success) {
     return (
@@ -48,8 +84,9 @@ export default function SignupPage() {
     <main className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 px-4 py-12">
       {RECAPTCHA_SITE_KEY && (
         <Script
-          src="https://www.google.com/recaptcha/api.js"
+          src="https://www.google.com/recaptcha/api.js?render=explicit"
           strategy="afterInteractive"
+          onLoad={renderRecaptcha}
         />
       )}
       <div className="w-full max-w-md">
@@ -147,10 +184,7 @@ export default function SignupPage() {
 
             {RECAPTCHA_SITE_KEY && (
               <div>
-                <div
-                  className="g-recaptcha"
-                  data-sitekey={RECAPTCHA_SITE_KEY}
-                />
+                <div ref={recaptchaContainerRef} />
               </div>
             )}
 
