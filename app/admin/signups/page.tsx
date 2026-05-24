@@ -4,6 +4,7 @@ import { SignupRequestStatus, RequestType, MentorTheme } from "@/app/generated/p
 import { ApproveForm } from "./ApproveForm";
 import { RejectButton } from "./RejectButton";
 import { ApproveLevelUpgradeButton } from "./ApproveLevelUpgradeButton";
+import { DeleteSignupButton } from "./DeleteSignupButton";
 
 const LEVEL_LABELS: Record<string, string> = {
   FREE: "Gratuit",
@@ -195,6 +196,7 @@ export default async function SignupsPage() {
                     <th className="text-left px-4 py-3">Tip</th>
                     <th className="text-left px-4 py-3">Status</th>
                     <th className="text-left px-4 py-3">Procesat la</th>
+                    <th className="px-4 py-3"></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
@@ -220,6 +222,9 @@ export default async function SignupsPage() {
                               year: "numeric",
                             })
                           : "-"}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <DeleteSignupButton requestId={r.id} />
                       </td>
                     </tr>
                   ))}

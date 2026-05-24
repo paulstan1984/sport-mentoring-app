@@ -2,6 +2,7 @@
 
 import { db } from "@/lib/db";
 import { SignupRequestStatus, RequestType, MentorTheme } from "@/app/generated/prisma/client";
+import { sendSignupNotification } from "@/lib/email";
 
 type ActionResult = { error?: string; success?: boolean };
 
@@ -56,6 +57,13 @@ export async function submitMentorSignup(
   await db.adminRequest.create({
     data: { name, email, phone, description, theme, status: SignupRequestStatus.PENDING, requestType: RequestType.SIGNUP },
   });
+
+  // Send notification email (best-effort, do not fail the request if email fails)
+  try {
+    await sendSignupNotification({ name, email, phone, description, theme });
+  } catch {
+    // intentionally swallow email errors
+  }
 
   return { success: true };
 }
