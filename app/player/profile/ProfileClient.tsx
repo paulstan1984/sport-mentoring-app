@@ -3,6 +3,7 @@
 import { useActionState, useRef, useState } from "react";
 import { changePlayerPassword } from "@/actions/player";
 import type { Player, User, PlayfieldPosition } from "@/app/generated/prisma/client";
+import { PushSubscriptionButton } from "@/components/PushSubscriptionButton";
 
 type PlayerWithRelations = Player & {
   user: Pick<User, "username">;
@@ -115,6 +116,15 @@ export function ProfileClient({ player }: { player: PlayerWithRelations }) {
             </p>
           </div>
         </div>
+      </div>
+
+      {/* Push notifications */}
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-5">
+        <h2 className="font-semibold mb-3">Notificări push</h2>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+          Primește notificări pe telefon când antrenorul tău trimite un mesaj sau un reminder de checkin.
+        </p>
+        <PushSubscriptionButton />
       </div>
 
       {/* Change password */}
