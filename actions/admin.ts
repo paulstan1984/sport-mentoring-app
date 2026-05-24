@@ -436,6 +436,22 @@ export async function rejectMentorSignup(requestId: number): Promise<ActionResul
   return { success: true };
 }
 
+export async function deleteAdminRequest(requestId: number): Promise<ActionResult> {
+  await requireSuperAdmin();
+
+  const request = await db.adminRequest.findUnique({ where: { id: requestId } });
+  if (!request) {
+    return { error: "Cererea nu a fost găsită." };
+  }
+  if (request.status === SignupRequestStatus.PENDING) {
+    return { error: "Nu poți șterge o cerere care nu a fost procesată." };
+  }
+
+  await db.adminRequest.delete({ where: { id: requestId } });
+  revalidatePath("/admin/signups");
+  return { success: true };
+}
+
 export async function changeMentorLevel(
   _prev: ActionResult | null,
   formData: FormData

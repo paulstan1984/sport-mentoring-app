@@ -35,6 +35,9 @@ cp .env.example .env
 | `UPLOAD_DIR`    | Directorul local pentru fișierele uploadate (implicit: `./uploads`)      |
 | `RECAPTCHA_SECRET_KEY` | Cheia secretă Google reCAPTCHA v2 (opțional; dacă nu este setată, verificarea reCAPTCHA este omisă) |
 | `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` | Cheia publică Google reCAPTCHA v2 (opțional; dacă nu este setată, widgetul reCAPTCHA nu este afișat) |
+| `GMAIL_USER` | Adresa Gmail folosită pentru trimiterea notificărilor (opțional) |
+| `GMAIL_APP_PASSWORD` | Parola de aplicație Gmail (Google App Password) pentru autentificare SMTP (opțional) |
+| `SIGNUP_NOTIFICATION_EMAIL` | Adresa de email care primește notificări când se trimite o cerere nouă de înregistrare (opțional) |
 
 Generare `SESSION_SECRET`:
 
@@ -168,5 +171,7 @@ fly deploy
 Asigurați-vă că variabilele de mediu sunt configurate în fly.io:
 
 ```bash
-fly secrets set DATABASE_URL="..." SESSION_SECRET="..." UPLOAD_DIR="/data/uploads"
+fly secrets set DATABASE_URL="..." SESSION_SECRET="..." UPLOAD_DIR="/data/uploads" \
+  GMAIL_USER="notificari@gmail.com" GMAIL_APP_PASSWORD="..." \
+  SIGNUP_NOTIFICATION_EMAIL="admin@example.com"
 ```
