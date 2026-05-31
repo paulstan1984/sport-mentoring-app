@@ -34,6 +34,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Titlul și mesajul sunt obligatorii." }, { status: 400 });
   }
 
+  // Fetch mentor theme to pick the right notification icon
+  const mentor = await db.mentor.findUnique({
+    where: { id: session.mentorId },
+    select: { theme: true },
+  });
+  const icon =
+    mentor?.theme === "MIND_MENTOR"
+      ? `${process.env.NEXT_PUBLIC_BASE_URL ?? ""}/icon-mind.svg`
+      : `${process.env.NEXT_PUBLIC_BASE_URL ?? ""}/icon-sport.svg`;
+
   // Collect user IDs of the mentor's active players
   const playerFilter = playerId
     ? { id: playerId, mentorId: session.mentorId, isActive: true }
@@ -59,7 +69,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ sent: 0 });
   }
 
-  const payload = { title, body: msgBody, url: url ?? "/player/checkin" };
+  const payload = { title, body: msgBody, url: url ?? "/player/checkin", icon };
   const expiredEndpoints: string[] = [];
   let sent = 0;
 

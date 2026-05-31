@@ -136,7 +136,7 @@ self.addEventListener("push", (event) => {
   const title = data.title ?? "Sport Mentor";
   const options = {
     body: data.body ?? "",
-    icon: "/favicon.ico",
+    icon: data.icon ?? "/icon-sport.svg",
     badge: "/favicon.ico",
     data: { url: data.url ?? "/" },
     vibrate: [100, 50, 100],

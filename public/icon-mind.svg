@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <circle cx="96" cy="96" r="88" fill="#7c3aed"/>
+  <!-- Brain shape -->
+  <path d="M96,48
+    C96,48 110,44 118,52 C126,60 124,68 118,72
+    C130,70 140,76 140,88 C140,96 134,102 126,102
+    C134,106 138,116 134,124 C130,132 120,134 112,130
+    C112,138 106,144 96,144
+    C86,144 80,138 80,130
+    C72,134 62,132 58,124 C54,116 58,106 66,102
+    C58,102 52,96 52,88 C52,76 62,70 74,72
+    C68,68 66,60 74,52 C82,44 96,48 96,48Z"
+    fill="white" opacity="0.95"/>
+  <!-- Brain folds left -->
+  <path d="M80,72 Q74,82 78,92 Q82,102 76,112" stroke="#7c3aed" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M88,66 Q84,76 88,86 Q92,96 88,108 Q86,118 88,128" stroke="#7c3aed" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <!-- Brain folds right -->
+  <path d="M112,72 Q118,82 114,92 Q110,102 116,112" stroke="#7c3aed" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <!-- Center divider -->
+  <path d="M96,50 L96,144" stroke="#7c3aed" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.4"/>
+</svg>
