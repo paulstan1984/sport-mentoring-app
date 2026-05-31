@@ -38,12 +38,24 @@ cp .env.example .env
 | `GMAIL_USER` | Adresa Gmail folosită pentru trimiterea notificărilor (opțional) |
 | `GMAIL_APP_PASSWORD` | Parola de aplicație Gmail (Google App Password) pentru autentificare SMTP (opțional) |
 | `SIGNUP_NOTIFICATION_EMAIL` | Adresa de email care primește notificări când se trimite o cerere nouă de înregistrare (opțional) |
+| `VAPID_EMAIL` | Adresa email de contact pentru protocolul Web Push (ex: `admin@example.com`) |
+| `VAPID_PUBLIC_KEY` | Cheia publică VAPID pentru notificări push |
+| `VAPID_PRIVATE_KEY` | Cheia privată VAPID pentru notificări push |
+| `NEXT_PUBLIC_VAPID_PUBLIC_KEY` | Trebuie să fie identică cu `VAPID_PUBLIC_KEY` (expusă browserului) |
 
 Generare `SESSION_SECRET`:
 
 ```bash
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
+
+Generare chei VAPID (o singură dată, la configurarea inițială):
+
+```bash
+node -e "const wp=require('web-push'); const k=wp.generateVAPIDKeys(); console.log(k);"
+```
+
+Copiați valorile `publicKey` și `privateKey` generate în `.env` ca `VAPID_PUBLIC_KEY` și respectiv `VAPID_PRIVATE_KEY` (și setați `NEXT_PUBLIC_VAPID_PUBLIC_KEY` identic cu `VAPID_PUBLIC_KEY`).
 
 ### 3. Pornire bază de date
 

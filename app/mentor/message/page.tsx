@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { startOfDayUTC } from "@/lib/streak";
 import { MessageEditor } from "./MessageEditor";
 import { RichTextViewer } from "@/components/RichTextViewer";
+import { MentorSendPushButton } from "@/components/MentorSendPushButton";
 
 export default async function MessagePage() {
   await requireMentor();
@@ -48,6 +49,15 @@ export default async function MessagePage() {
           {today.toLocaleDateString("ro-RO", { weekday: "long", day: "numeric", month: "long" })}
         </h2>
         <MessageEditor currentMessage={todayMsg?.message ?? ""} />
+      </div>
+
+      {/* Push notification */}
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-6">
+        <h2 className="font-semibold mb-1">Trimite notificare push</h2>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+          Trimite o notificare instantanee pe dispozitivele jucătorilor care au activat notificările.
+        </p>
+        <MentorSendPushButton />
       </div>
 
       {/* Past messages */}

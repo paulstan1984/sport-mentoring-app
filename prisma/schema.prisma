@@ -44,13 +44,14 @@ enum RequestType {
 }
 
 model User {
-  id           Int      @id @default(autoincrement())
-  username     String   @unique
-  passwordHash String
-  role         Role
-  createdAt    DateTime @default(now())
-  mentor       Mentor?
-  player       Player?
+  id                Int                @id @default(autoincrement())
+  username          String             @unique
+  passwordHash      String
+  role              Role
+  createdAt         DateTime           @default(now())
+  mentor            Mentor?
+  player            Player?
+  pushSubscriptions PushSubscription[]
 }
 
 model Mentor {
@@ -268,5 +269,15 @@ model AdminRequest {
   theme          MentorTheme         @default(SPORT_MENTOR)
   createdAt      DateTime            @default(now())
   processedAt    DateTime?
+}
+
+model PushSubscription {
+  id        Int      @id @default(autoincrement())
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
 }
 
