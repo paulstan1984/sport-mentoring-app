@@ -39,10 +39,11 @@ export async function POST(request: NextRequest) {
     where: { id: session.mentorId },
     select: { theme: true },
   });
+  const base = process.env.NEXT_PUBLIC_BASE_URL ?? "";
   const icon =
     mentor?.theme === "MIND_MENTOR"
-      ? `${process.env.NEXT_PUBLIC_BASE_URL ?? ""}/icon-mind.svg`
-      : `${process.env.NEXT_PUBLIC_BASE_URL ?? ""}/icon-sport.svg`;
+      ? `${base}/icon-mind.png`
+      : `${base}/icon-sport.png`;
 
   // Collect user IDs of the mentor's active players
   const playerFilter = playerId
