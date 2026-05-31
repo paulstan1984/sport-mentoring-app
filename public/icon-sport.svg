@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <circle cx="96" cy="96" r="88" fill="#ffffff" stroke="#111827" stroke-width="8"/>
+  <defs>
+    <clipPath id="ball">
+      <circle cx="96" cy="96" r="88"/>
+    </clipPath>
+  </defs>
+  <!-- Central pentagon -->
+  <polygon points="96,55 116,70 108,93 84,93 76,70" fill="#111827" clip-path="url(#ball)"/>
+  <!-- Top-right pentagon -->
+  <polygon points="155,68 163,93 144,108 124,97 130,72" fill="#111827" clip-path="url(#ball)"/>
+  <!-- Bottom-right pentagon -->
+  <polygon points="148,140 128,156 110,144 116,120 140,116" fill="#111827" clip-path="url(#ball)"/>
+  <!-- Bottom-left pentagon -->
+  <polygon points="44,140 52,116 76,120 82,144 64,156" fill="#111827" clip-path="url(#ball)"/>
+  <!-- Top-left pentagon -->
+  <polygon points="37,68 62,72 68,97 48,108 29,93" fill="#111827" clip-path="url(#ball)"/>
+</svg>
