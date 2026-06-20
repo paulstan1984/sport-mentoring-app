@@ -10,6 +10,8 @@ primary_region = "ams"
 [build]
   [build.args]
     NEXT_PUBLIC_RECAPTCHA_SITE_KEY = "6Le-mL4UAAAAAHHA8czRqZaISYxxpwkUTBlv2o6N"
+    NEXT_PUBLIC_VAPID_PUBLIC_KEY   = "BMdH6GytJTDvuofy2G5y8tZ-ROg2A4QyOtbsIyyL46wYqJIe4R1cimrx5cobIfewXTq0YuXy4RXOsnThO0L2vm8"
+    NEXT_PUBLIC_BASE_URL           = "https://sport-mentoring-app.fly.dev"
 
 [env]
   PORT         = "3000"
