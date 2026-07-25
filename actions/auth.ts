@@ -4,6 +4,11 @@ import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
+import {
+  getLoginAccountState,
+  getLoginDestination,
+  LOGIN_ERROR_MESSAGES,
+} from "@/lib/login";
 
 export async function login(
   _prev: { error?: string } | null,
@@ -18,37 +23,28 @@ export async function login(
 
   const user = await db.user.findUnique({ where: { username } });
   if (!user) {
-    return { error: "Utilizator sau parolă incorectă." };
+    return { error: LOGIN_ERROR_MESSAGES.invalidCredentials };
   }
 
   const valid = await bcrypt.compare(password, user.passwordHash);
   if (!valid) {
-    return { error: "Utilizator sau parolă incorectă." };
+    return { error: LOGIN_ERROR_MESSAGES.invalidCredentials };
+  }
+
+  const accountState = await getLoginAccountState(user);
+  if (!accountState.active) {
+    return { error: accountState.error };
   }
 
   const session = await getSession();
   session.userId = user.id;
   session.role = user.role;
-
-  if (user.role === "MENTOR") {
-    const mentor = await db.mentor.findUnique({ where: { userId: user.id } });
-    if (!mentor || !mentor.isActive) {
-      return { error: "Contul tău a fost dezactivat. Contactează administratorul." };
-    }
-    session.mentorId = mentor.id;
-  } else if (user.role === "PLAYER") {
-    const player = await db.player.findUnique({ where: { userId: user.id } });
-    if (!player || !player.isActive) {
-      return { error: "Contul tău a fost dezactivat. Contactează antrenorul." };
-    }
-    session.playerId = player.id;
-  }
+  session.mentorId = accountState.mentorId;
+  session.playerId = accountState.playerId;
 
   await session.save();
 
-  if (user.role === "SUPER_ADMIN") redirect("/admin/mentors");
-  if (user.role === "MENTOR") redirect("/mentor/dashboard");
-  redirect("/player/dashboard");
+  redirect(getLoginDestination(user.role));
 }
 
 export async function logout() {
