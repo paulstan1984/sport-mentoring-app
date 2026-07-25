@@ -18,8 +18,10 @@ export default async function PlayerProfilePage() {
   if (!player) return null;
 
   return (
-    <div className="max-w-lg space-y-4 md:space-y-8">
-      <h1 className="text-2xl font-bold">Profilul meu</h1>
+    <div className="max-w-lg space-y-5">
+      <h1 className="text-3xl font-display font-bold leading-tight" style={{ color: "var(--kit-text)" }}>
+        Profilul meu
+      </h1>
       <ProfileClient player={player} />
     </div>
   );

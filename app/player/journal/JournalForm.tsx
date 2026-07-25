@@ -34,12 +34,10 @@ export function JournalForm({ existing }: { existing: DailyJournal | null }) {
   }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    if (navigator.onLine) return; // let the form action proceed normally
-
+    if (navigator.onLine) return;
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const today = new Date().toISOString().split("T")[0];
-
     const { enqueue } = await import("@/lib/offline-db");
     await enqueue({
       type: "journal",
@@ -53,93 +51,105 @@ export function JournalForm({ existing }: { existing: DailyJournal | null }) {
       },
       day: today,
     });
-
     setOfflineQueued(true);
     window.dispatchEvent(new CustomEvent("offline-enqueued"));
   };
 
+  const sections = [
+    {
+      name: "whatDidGood",
+      label: "Ce am făcut bine azi",
+      placeholder: "Descrie ce a mers bine...",
+      accentColor: "var(--kit-success)",
+      initial: existing?.whatDidGood ?? "",
+    },
+    {
+      name: "whatDidWrong",
+      label: "Ce am greșit azi",
+      placeholder: "Fii sincer cu tine însuți...",
+      accentColor: "var(--kit-danger)",
+      initial: existing?.whatDidWrong ?? "",
+    },
+    {
+      name: "whatCanDoBetter",
+      label: "Ce pot face mai bine mâine",
+      placeholder: "Un pas concret spre îmbunătățire...",
+      accentColor: "var(--kit-warning)",
+      initial: existing?.whatCanDoBetter ?? "",
+    },
+  ];
+
   return (
-    <form action={formAction} onSubmit={handleSubmit} className="space-y-6">
+    <form action={formAction} onSubmit={handleSubmit} className="space-y-4">
       {!isOnline && (
-        <div className="bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 px-4 py-3 rounded-xl text-sm">
-          ⚠️ Ești offline. Datele vor fi salvate local și sincronizate automat când te reconectezi.
+        <div className="kit-warning-banner">
+          Ești offline. Datele vor fi salvate local și sincronizate automat.
         </div>
       )}
-
       {existing && isOnline && (
-        <div className="bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 px-4 py-3 rounded-xl text-sm">
-          ✅ Ai completat jurnalul de astăzi. Poți actualiza oricând.
+        <div className="kit-success-banner">
+          Ai completat jurnalul de astăzi. Poți actualiza oricând.
         </div>
       )}
 
-      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-5 space-y-5">
-        <div>
-          <label className="label text-green-600 dark:text-green-400">
-            Ce am făcut bine azi 🌟
-          </label>
-          <RichTextEditor
-            name="whatDidGood"
-            initialValue={existing?.whatDidGood ?? ""}
-            placeholder="Descrie ce a mers bine..."
-          />
-        </div>
-
-        <div>
-          <label className="label text-red-500">Ce am greșit azi 🔍</label>
-          <RichTextEditor
-            name="whatDidWrong"
-            initialValue={existing?.whatDidWrong ?? ""}
-            placeholder="Fii sincer cu tine însuți..."
-          />
-        </div>
-
-        <div>
-          <label className="label text-orange-500">
-            Ce pot face mai bine mâine 🚀
-          </label>
-          <RichTextEditor
-            name="whatCanDoBetter"
-            initialValue={existing?.whatCanDoBetter ?? ""}
-            placeholder="Un pas concret spre îmbunătățire..."
-          />
-        </div>
-
-        <div>
-          <label className="label">Punctajul zilei (0–5)</label>
-          <input type="hidden" name="myScore" value={score} />
-          <div className="flex gap-2 mt-1">
-            {[0, 1, 2, 3, 4, 5].map((s) => (
-              <button
-                key={s}
-                type="button"
-                onClick={() => setScore(s)}
-                className={`w-10 h-10 rounded-full text-sm font-bold transition-colors ${
-                  score === s
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-100 dark:bg-gray-800 text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700"
-                }`}
-              >
-                {s}
-              </button>
-            ))}
+      {sections.map((s) => (
+        <div
+          key={s.name}
+          className="rounded-2xl p-5 space-y-3"
+          style={{ background: "var(--kit-surface)", border: "1px solid var(--kit-border)" }}
+        >
+          <div className="flex items-center gap-2">
+            <span
+              className="w-2 h-2 rounded-full shrink-0"
+              style={{ background: s.accentColor }}
+            />
+            <p className="text-xs font-bold uppercase tracking-wider" style={{ color: s.accentColor }}>
+              {s.label}
+            </p>
           </div>
+          <RichTextEditor
+            name={s.name}
+            initialValue={s.initial}
+            placeholder={s.placeholder}
+          />
+        </div>
+      ))}
+
+      {/* Daily score */}
+      <div
+        className="rounded-2xl p-5 space-y-4"
+        style={{ background: "var(--kit-surface)", border: "1px solid var(--kit-border)" }}
+      >
+        <p className="text-xs font-bold uppercase tracking-wider" style={{ color: "var(--kit-text-2)" }}>
+          Scorul zilei
+        </p>
+        <input type="hidden" name="myScore" value={score} />
+        <div className="flex gap-2">
+          {[0, 1, 2, 3, 4, 5].map((s) => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => setScore(s)}
+              className="flex-1 h-11 rounded-xl font-display font-bold text-sm transition-all"
+              style={{
+                background: score === s ? "var(--kit-accent)" : "var(--kit-surface-2)",
+                border: `1px solid ${score === s ? "var(--kit-accent)" : "var(--kit-border)"}`,
+                color: score === s ? "#fff" : "var(--kit-text-3)",
+                boxShadow: score === s ? "0 2px 12px var(--kit-accent-dim)" : "none",
+              }}
+            >
+              {s}
+            </button>
+          ))}
         </div>
       </div>
 
-      {state?.error && (
-        <p className="text-sm text-red-600 bg-red-50 dark:bg-red-950 px-3 py-2 rounded-xl">
-          {state.error}
-        </p>
-      )}
-      {state?.success && (
-        <p className="text-sm text-green-600 bg-green-50 dark:bg-green-950 px-3 py-2 rounded-xl">
-          Jurnalul a fost salvat! ✅
-        </p>
-      )}
+      {state?.error && <div className="kit-error-banner">{state.error}</div>}
+      {state?.success && <div className="kit-success-banner">Jurnalul a fost salvat!</div>}
       {offlineQueued && !isOnline && (
-        <p className="text-sm text-blue-600 bg-blue-50 dark:bg-blue-950 px-3 py-2 rounded-xl">
-          💾 Jurnalul a fost salvat local. Va fi sincronizat automat când te reconectezi.
-        </p>
+        <div className="kit-info-banner">
+          Jurnalul a fost salvat local. Va fi sincronizat automat.
+        </div>
       )}
 
       <button type="submit" disabled={isPending} className="btn-primary w-full">
@@ -148,3 +158,5 @@ export function JournalForm({ existing }: { existing: DailyJournal | null }) {
     </form>
   );
 }
+
+

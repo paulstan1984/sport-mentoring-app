@@ -1,297 +1,351 @@
 @import "tailwindcss";
 
+/* ── Class-based dark mode: .dark on <html> activates dark: variants ──── */
+@variant dark (&:where(.dark, .dark *));
+
+/* ── Kit Design System ─────────────────────────────────────────────────── */
+
+/* Sport theme (motivational / inspirational) — sky-blue gradient, deep navy accent */
 :root {
-  --background: #f9fafb;
-  --foreground: #111827;
+  /* Ground — athletic sky gradient */
+  --kit-bg:           linear-gradient(145deg, #dbeafe 0%, #e8f4fd 55%, #f0f9ff 100%);
+  --kit-surface:      #ffffff;
+  --kit-surface-2:    #e8f1fd;
+
+  /* Borders — blue-tinted, matches the sky */
+  --kit-border:       rgba(96, 165, 250, 0.22);
+  --kit-border-mid:   rgba(96, 165, 250, 0.38);
+  --kit-border-focus: rgba(30, 64, 175, 0.30);
+
+  /* Text */
+  --kit-text:         #111827;
+  --kit-text-2:       #6b7280;
+  --kit-text-3:       #9ca3af;
+
+  /* Sport accent — deep navy blue (7.84:1 on white) */
+  --kit-accent:       #1e40af;
+  --kit-accent-hover: #1e3a8a;
+  --kit-accent-light: #3b82f6;
+  --kit-accent-dim:   rgba(30, 64, 175, 0.12);
+
+  /* States */
+  --kit-success:      #16a34a;
+  --kit-success-dim:  rgba(22, 163, 74, 0.10);
+  --kit-warning:      #d97706;
+  --kit-warning-dim:  rgba(217, 119, 6, 0.10);
+  --kit-danger:       #dc2626;
+  --kit-danger-dim:   rgba(220, 38, 38, 0.10);
+}
+
+/* Mind theme (calm / relaxing) — lavender gradient, sage-green accent */
+[data-theme="mind"],
+.mind-bg {
+  --kit-bg:           linear-gradient(160deg, #ede9fe 0%, #f3f0ff 55%, #faf8ff 100%);
+  --kit-surface:      #ffffff;
+  --kit-surface-2:    #ede8f5;
+
+  --kit-border:       rgba(128, 110, 160, 0.18);
+  --kit-border-mid:   rgba(128, 110, 160, 0.30);
+  --kit-border-focus: rgba(59, 122, 96, 0.28);
+
+  --kit-text:         #1c1c18;
+  --kit-text-2:       #6a6378;
+  --kit-text-3:       #9f9ab0;
+
+  --kit-accent:       #3b7a60;
+  --kit-accent-hover: #2d6150;
+  --kit-accent-light: #3b7a60;
+  --kit-accent-dim:   rgba(59, 122, 96, 0.10);
+
+  --kit-success:      #16a34a;
+  --kit-success-dim:  rgba(22, 163, 74, 0.10);
+  --kit-warning:      #d97706;
+  --kit-warning-dim:  rgba(217, 119, 6, 0.10);
+  --kit-danger:       #dc2626;
+  --kit-danger-dim:   rgba(220, 38, 38, 0.10);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #030712;
-    --foreground: #f9fafb;
-  }
+  --color-background: var(--kit-bg);
+  --color-foreground: var(--kit-text);
+  --font-sans:        var(--font-barlow);
+  --font-display:     var(--font-barlow-condensed);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--kit-bg);
+  color:      var(--kit-text);
+  font-family: var(--font-barlow, system-ui, sans-serif);
 }
 
-/* ── Reusable utility classes ─────────────────────────────────────────── */
+/* ── Core utility classes ─────────────────────────────────────────────── */
 
 @layer utilities {
+
+  /* Input fields */
   .input {
-    @apply w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-gray-100;
+    @apply w-full rounded-xl px-3 py-2.5 text-sm outline-none transition-all;
+    background:  var(--kit-surface-2);
+    border:      1px solid var(--kit-border);
+    color:       var(--kit-text);
+  }
+  .input::placeholder { color: var(--kit-text-3); }
+  .input:focus {
+    border-color: var(--kit-accent);
+    box-shadow:   0 0 0 3px var(--kit-accent-dim);
   }
 
+  /* Field labels */
   .label {
-    @apply block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1;
+    @apply block text-xs font-semibold uppercase tracking-wider mb-1.5;
+    color: var(--kit-text-2);
   }
 
+  /* Primary CTA */
   .btn-primary {
-    @apply bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-semibold rounded-lg px-4 py-2 text-sm transition-colors;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3
+           text-sm font-semibold transition-all disabled:opacity-40 cursor-pointer select-none;
+    background:  var(--kit-accent);
+    color:       #fff;
+    box-shadow:  0 2px 14px var(--kit-accent-dim);
+  }
+  .btn-primary:hover:not(:disabled) {
+    background:  var(--kit-accent-hover);
+    box-shadow:  0 4px 22px var(--kit-accent-dim);
   }
 
+  /* Secondary action */
   .btn-secondary {
-    @apply bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 font-medium rounded-lg px-4 py-2 text-sm transition-colors;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3
+           text-sm font-medium transition-all cursor-pointer select-none;
+    background: var(--kit-surface-2);
+    border:     1px solid var(--kit-border);
+    color:      var(--kit-text);
   }
+  .btn-secondary:hover { border-color: var(--kit-border-focus); }
 
+  /* XS utility button */
   .btn-xs {
-    @apply text-xs px-2 py-1 rounded bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors;
+    @apply text-xs px-2.5 py-1 rounded-lg font-medium transition-all cursor-pointer;
+    background: var(--kit-surface-2);
+    border:     1px solid var(--kit-border);
+    color:      var(--kit-text-2);
+  }
+  .btn-xs:hover { color: var(--kit-text); border-color: var(--kit-border-mid); }
+
+  /* XS danger */
+  .btn-xs-danger {
+    @apply text-xs px-2.5 py-1 rounded-lg font-medium transition-all cursor-pointer;
+    background: var(--kit-danger-dim);
+    color:      var(--kit-danger);
+  }
+  .btn-xs-danger:hover { background: rgba(239, 68, 68, 0.22); }
+
+  /* Logout button in sidebar */
+  .kit-logout-btn {
+    color:         var(--kit-text-2);
+    border-radius: 0.75rem;
+  }
+  .kit-logout-btn:hover {
+    color:      var(--kit-danger);
+    background: var(--kit-danger-dim);
   }
 
-  .btn-xs-danger {
-    @apply text-xs px-2 py-1 rounded bg-red-50 dark:bg-red-950 hover:bg-red-100 dark:hover:bg-red-900 text-red-600 dark:text-red-400 transition-colors;
+  /* Card panel — base surface unit */
+  .kit-card {
+    background:    var(--kit-surface);
+    border:        1px solid var(--kit-border);
+    border-radius: 1rem;
+    box-shadow:    0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+  }
+
+  /* Status banners */
+  .kit-success-banner {
+    background:    var(--kit-success-dim);
+    border:        1px solid rgba(34, 197, 94, 0.22);
+    color:         var(--kit-success);
+    border-radius: 0.75rem;
+    padding:       0.75rem 1rem;
+    font-size:     0.875rem;
+    line-height:   1.5;
+  }
+  .kit-warning-banner {
+    background:    var(--kit-warning-dim);
+    border:        1px solid rgba(245, 158, 11, 0.22);
+    color:         var(--kit-warning);
+    border-radius: 0.75rem;
+    padding:       0.75rem 1rem;
+    font-size:     0.875rem;
+    line-height:   1.5;
+  }
+  .kit-error-banner {
+    background:    var(--kit-danger-dim);
+    border:        1px solid rgba(239, 68, 68, 0.22);
+    color:         var(--kit-danger);
+    border-radius: 0.75rem;
+    padding:       0.75rem 1rem;
+    font-size:     0.875rem;
+    line-height:   1.5;
+  }
+  .kit-info-banner {
+    background:    var(--kit-accent-dim);
+    border:        1px solid var(--kit-border-mid);
+    color:         var(--kit-accent);
+    border-radius: 0.75rem;
+    padding:       0.75rem 1rem;
+    font-size:     0.875rem;
+    line-height:   1.5;
   }
 }
 
-/* ── SportMentor theme utilities ──────────────────────────────────────── */
+/* ── Sport theme (light, amber-gold accent) ─────────────────────────────────────── */
 
 @layer utilities {
   .sport-bg {
-    background: linear-gradient(145deg, #bfdbfe 0%, #dbeafe 50%, #e0f2fe 100%);
-    color: #0f172a;
+    background: var(--kit-bg);
+    color:      var(--kit-text);
   }
-
   .sport-card {
-    background: linear-gradient(135deg, #eff6ff 0%, #f0f9ff 100%);
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.14);
+    background: var(--kit-surface);
+    border:     1px solid var(--kit-border);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
   }
-
   .sport-sidebar {
-    background: linear-gradient(180deg, #dbeafe 0%, #eff6ff 100%);
-    border-right: 1px solid rgba(96, 165, 250, 0.35);
+    background:   var(--kit-surface);
+    border-right: 1px solid var(--kit-border);
   }
-
   .sport-bottom-nav {
-    background: linear-gradient(90deg, #dbeafe 0%, #eff6ff 100%);
-    border-top: 1px solid rgba(96, 165, 250, 0.35);
+    background: var(--kit-surface);
+    border-top: 1px solid var(--kit-border);
   }
-
   .sport-nav-link {
-    color: #1e40af;
+    color:         var(--kit-text-2);
     border-radius: 0.75rem;
   }
-
   .sport-nav-link:hover {
-    color: #1d4ed8;
-    background: rgba(96, 165, 250, 0.18);
+    color:      var(--kit-text);
+    background: var(--kit-surface-2);
   }
-
   .sport-input {
-    background: rgba(219, 234, 254, 0.65);
-    border: 1px solid #93c5fd;
-    color: #0f172a;
+    background:    var(--kit-surface-2);
+    border:        1px solid var(--kit-border);
+    color:         var(--kit-text);
     border-radius: 0.5rem;
-    padding: 0.5rem 0.75rem;
-    font-size: 0.875rem;
-    width: 100%;
-    outline: none;
+    padding:       0.5rem 0.75rem;
+    font-size:     0.875rem;
+    width:         100%;
+    outline:       none;
   }
-
-  .sport-input::placeholder {
-    color: #64748b;
-  }
-
+  .sport-input::placeholder { color: var(--kit-text-3); }
   .sport-input:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+    border-color: var(--kit-accent);
+    box-shadow:   0 0 0 2px var(--kit-accent-dim);
   }
 }
 
-/* ── SportMentor auto-theming (outside @layer — overrides Tailwind utilities) ── */
-/* NOTE: These rules intentionally override .bg-white and .input inside .sport-bg
-   to apply the sport theme. If you need a truly white element inside a sport-bg
-   wrapper, use an explicit background style or a more specific selector. */
-
-/* Cards */
-.sport-bg .bg-white {
-  background: linear-gradient(135deg, #eff6ff 0%, #f0f9ff 100%);
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.12);
-}
-
-/* Inputs / selects / textareas using the .input utility class */
-.sport-bg .input {
-  background: rgba(219, 234, 254, 0.65);
-  border-color: #93c5fd;
-  color: #0f172a;
-}
-
-.sport-bg .input::placeholder {
-  color: #64748b;
-}
-
-.sport-bg .input:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
-}
-
-/* ── MindMentor theme utilities ───────────────────────────────────────── */
+/* ── Mind theme (light, sage-green accent) ───────────────────────────────────────────────── */
 
 @layer utilities {
+  /* Note: mind variables are set by [data-theme="mind"],.mind-bg selector above */
   .mind-bg {
-    background: linear-gradient(145deg, #a7f3d0 0%, #d1fae5 50%, #ecfdf5 100%);
-    color: #064e3b;
+    background: var(--kit-bg);
+    color:      var(--kit-text);
   }
-
   .mind-card {
-    background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
-    box-shadow: 0 2px 8px rgba(5, 150, 105, 0.13);
+    background: var(--kit-surface);
+    border:     1px solid var(--kit-border);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 4px 12px rgba(0,0,0,0.03);
   }
-
   .mind-sidebar {
-    background: linear-gradient(180deg, #d1fae5 0%, #f0fdf4 100%);
-    border-right: 1px solid rgba(5, 150, 105, 0.25);
+    background:   var(--kit-surface);
+    border-right: 1px solid var(--kit-border);
   }
-
   .mind-header {
-    background: linear-gradient(90deg, #d1fae5 0%, #f0fdf4 100%);
-    border-bottom: 1px solid rgba(5, 150, 105, 0.20);
+    background:    var(--kit-surface);
+    border-bottom: 1px solid var(--kit-border);
   }
-
-  .mind-border-top {
-    border-top: 1px solid rgba(5, 150, 105, 0.20);
-  }
-
-  .mind-border-bottom {
-    border-bottom: 1px solid rgba(5, 150, 105, 0.20);
-  }
-
-  .mind-accent {
-    color: #059669;
-  }
-
-  .mind-muted {
-    color: #6b7280;
-  }
-
+  .mind-border-top    { border-top:    1px solid var(--kit-border); }
+  .mind-border-bottom { border-bottom: 1px solid var(--kit-border); }
+  .mind-accent  { color: var(--kit-accent); }
+  .mind-muted   { color: var(--kit-text-2); }
   .mind-nav-link {
-    color: #065f46;
+    color:         var(--kit-text-2);
     border-radius: 0.75rem;
   }
-
   .mind-nav-link:hover {
-    color: #059669;
-    background: rgba(5, 150, 105, 0.10);
+    color:      var(--kit-text);
+    background: var(--kit-surface-2);
   }
-
   .mind-btn {
-    background: #059669;
-    color: #fff;
+    background:  var(--kit-accent);
+    color:       #fff;
+    box-shadow:  0 2px 14px var(--kit-accent-dim);
   }
-
-  .mind-btn:hover:not(:disabled) {
-    background: #047857;
-  }
-
+  .mind-btn:hover:not(:disabled) { background: var(--kit-accent-hover); }
   .mind-input {
-    background: rgba(209, 250, 229, 0.6);
-    border: 1px solid #6ee7b7;
-    color: #064e3b;
+    background:    var(--kit-surface-2);
+    border:        1px solid var(--kit-border);
+    color:         var(--kit-text);
     border-radius: 0.5rem;
-    padding: 0.5rem 0.75rem;
-    font-size: 0.875rem;
-    width: 100%;
-    outline: none;
+    padding:       0.5rem 0.75rem;
+    font-size:     0.875rem;
+    width:         100%;
+    outline:       none;
   }
-
-  .mind-input::placeholder {
-    color: #6b7280;
-  }
-
+  .mind-input::placeholder { color: var(--kit-text-3); }
   .mind-input:focus {
-    border-color: #059669;
-    box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.22);
+    border-color: var(--kit-accent);
+    box-shadow:   0 0 0 2px var(--kit-accent-dim);
   }
-
-  .mind-label {
-    color: #374151;
-  }
-
-  .mind-level-badge {
-    background: rgba(5, 150, 105, 0.14);
-    color: #059669;
-  }
-
+  .mind-label        { color: var(--kit-text-2); }
+  .mind-level-badge  { background: var(--kit-accent-dim); color: var(--kit-accent); }
   .mind-logout {
-    color: #6b7280;
+    color:         var(--kit-text-2);
+    border-radius: 0.75rem;
   }
-
-  .mind-logout:hover {
-    color: #374151;
-  }
+  .mind-logout:hover { color: var(--kit-danger); background: var(--kit-danger-dim); }
 }
 
-/* ── MindMentor auto-theming (outside @layer — overrides Tailwind utilities) ── */
-/* NOTE: These rules intentionally override .bg-white and .input inside .mind-bg
-   to apply the mind theme. If you need a truly white element inside a mind-bg
-   wrapper, use an explicit background style or a more specific selector. */
+/* ── Legacy Tailwind utility remapping for always-dark context ─────────── */
+/* Shared components (mentor/admin) use dark: variants; with .dark on <html>
+   those activate automatically. These rules cover the non-dark: fallbacks. */
 
-/* Cards */
-.mind-bg .bg-white {
-  background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
-  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.12);
+.bg-white                   { background: var(--kit-surface) !important; }
+.bg-gray-50                 { background: var(--kit-bg)      !important; }
+.bg-gray-100                { background: var(--kit-surface)  !important; }
+.bg-gray-900                { background: var(--kit-surface)  !important; }
+.bg-gray-950                { background: var(--kit-bg)       !important; }
+
+.text-gray-900, .text-gray-800 { color: var(--kit-text)   !important; }
+.text-gray-700, .text-gray-600 { color: var(--kit-text-2) !important; }
+.text-gray-500, .text-gray-400 { color: var(--kit-text-2) !important; }
+.text-gray-300                  { color: var(--kit-text-2) !important; }
+
+.divide-y, .divide-gray-100, .divide-gray-800 {
+  border-color: var(--kit-border) !important;
 }
 
-/* Inputs / selects / textareas using the .input utility class */
-.mind-bg .input {
-  background: rgba(209, 250, 229, 0.6);
-  border-color: #6ee7b7;
-  color: #064e3b;
+.border-gray-100, .border-gray-200, .border-gray-300 {
+  border-color: var(--kit-border) !important;
 }
 
-.mind-bg .input::placeholder {
-  color: #6b7280;
+.shadow, .shadow-sm, .shadow-md {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04) !important;
 }
 
-.mind-bg .input:focus {
-  border-color: #059669;
-  box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.22);
-}
+/* Blue accent backward compat */
+.text-blue-600  { color: var(--kit-accent-light) !important; }
+.text-blue-500  { color: var(--kit-accent-light) !important; }
+.bg-blue-600    { background: var(--kit-accent) !important; }
+.hover\:bg-blue-700:hover { background: var(--kit-accent-hover) !important; }
+.focus\:ring-blue-500:focus { box-shadow: 0 0 0 3px var(--kit-accent-dim) !important; }
 
-/* ── Card sections inside mind theme (auto-theming) ──────────────────── */
-.mind-bg .bg-blue-50 {
-  background-color: rgba(5, 150, 105, 0.08);
-}
+/* State color text — ensure semantic colors are readable in light context */
+.text-green-700, .text-green-600 { color: var(--kit-success)  !important; }
+.text-red-600                     { color: var(--kit-danger)   !important; }
 
-.mind-bg .border-blue-200 {
-  border-color: rgba(5, 150, 105, 0.25);
-}
-
-/* ── Mobile improvements ──────────────────────────────────────────────── */
-
-/* Applies to screens narrower than Tailwind's md breakpoint (768px) */
-@media (width < 768px) {
-  /* Larger, more visible buttons on mobile */
-  .btn-primary,
-  .btn-secondary {
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
-    padding-top: 0.75rem;
-    padding-bottom: 0.75rem;
-    font-size: 1rem;
-    line-height: 1.5rem;
-  }
-
-  /* Reduce internal card padding on mobile (p-5 → p-3, p-6 → p-3) */
-  div.p-5,
-  div.p-6,
-  a.p-5,
-  a.p-6 {
-    padding: 0.75rem; /* Tailwind p-3 */
-  }
-}
-
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
+/* Tiptap prose viewer in light context */
+.prose { color: var(--kit-text); }
+.prose strong { color: var(--kit-text); font-weight: 600; }
+.prose a { color: var(--kit-accent); }
+.prose-sm { font-size: 0.875rem; }

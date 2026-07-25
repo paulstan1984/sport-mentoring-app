@@ -26,8 +26,10 @@ export default async function PlayerLibraryPage() {
   }));
 
   return (
-    <div className="max-w-lg">
-      <h1 className="text-2xl font-bold mb-6">Bibliotecă</h1>
+    <div className="max-w-lg space-y-5">
+      <h1 className="text-3xl font-display font-bold leading-tight" style={{ color: "var(--kit-text)" }}>
+        Bibliotecă
+      </h1>
       <LibraryList items={serialized} />
     </div>
   );

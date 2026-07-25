@@ -4,17 +4,43 @@ import { useState, useEffect } from "react";
 import { setConfidenceLevel } from "@/actions/player";
 import type { Confidence } from "@/app/generated/prisma/client";
 
-const OPTIONS: { value: Confidence; label: string; emoji: string; color: string }[] = [
-  { value: "GOOD", label: "Bine", emoji: "😊", color: "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700" },
-  { value: "OK", label: "OK", emoji: "😐", color: "bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300 border-yellow-300 dark:border-yellow-700" },
-  { value: "HARD", label: "Greu", emoji: "😓", color: "bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 border-red-300 dark:border-red-700" },
+type Option = {
+  value: Confidence;
+  label: string;
+  symbol: string;
+  activeBg: string;
+  activeBorder: string;
+  activeText: string;
+};
+
+const OPTIONS: Option[] = [
+  {
+    value: "GOOD",
+    label: "Bine",
+    symbol: "✓",
+    activeBg: "rgba(34,197,94,0.13)",
+    activeBorder: "rgba(34,197,94,0.45)",
+    activeText: "#22c55e",
+  },
+  {
+    value: "OK",
+    label: "OK",
+    symbol: "—",
+    activeBg: "rgba(245,158,11,0.13)",
+    activeBorder: "rgba(245,158,11,0.45)",
+    activeText: "#f59e0b",
+  },
+  {
+    value: "HARD",
+    label: "Greu",
+    symbol: "✕",
+    activeBg: "rgba(239,68,68,0.13)",
+    activeBorder: "rgba(239,68,68,0.40)",
+    activeText: "#ef4444",
+  },
 ];
 
-export function ConfidencePicker({
-  current,
-}: {
-  current: Confidence | null;
-}) {
+export function ConfidencePicker({ current }: { current: Confidence | null }) {
   const [selected, setSelected] = useState<Confidence | null>(current);
   const [isOnline, setIsOnline] = useState(true);
   const [offlineQueued, setOfflineQueued] = useState(false);
@@ -33,7 +59,6 @@ export function ConfidencePicker({
 
   async function pick(level: Confidence) {
     setSelected(level);
-
     if (!isOnline) {
       const today = new Date().toISOString().split("T")[0];
       const { enqueue } = await import("@/lib/offline-db");
@@ -47,33 +72,46 @@ export function ConfidencePicker({
       window.dispatchEvent(new CustomEvent("offline-enqueued"));
       return;
     }
-
     await setConfidenceLevel(level);
   }
 
   return (
     <div className="space-y-3">
       {offlineQueued && !isOnline && (
-        <p className="text-xs text-blue-600 dark:text-blue-400">
-          💾 Nivelul de încredere salvat local. Va fi sincronizat automat.
+        <p className="kit-info-banner text-xs">
+          Nivelul de încredere salvat local. Va fi sincronizat automat.
         </p>
       )}
-      <div className="flex gap-3">
-        {OPTIONS.map((opt) => (
-          <button
-            key={opt.value}
-            onClick={() => pick(opt.value)}
-            className={`flex-1 flex flex-col items-center gap-1 py-3 rounded-xl border-2 transition-all text-sm font-medium ${
-              selected === opt.value
-                ? `${opt.color} border-current`
-                : "bg-gray-50 dark:bg-gray-800 border-transparent text-gray-400"
-            }`}
-          >
-            <span className="text-2xl">{opt.emoji}</span>
-            {opt.label}
-          </button>
-        ))}
+      <div className="flex gap-2.5">
+        {OPTIONS.map((opt) => {
+          const isActive = selected === opt.value;
+          return (
+            <button
+              key={opt.value}
+              onClick={() => pick(opt.value)}
+              className="flex-1 flex flex-col items-center justify-center gap-2 py-4 rounded-xl transition-all"
+              style={{
+                background: isActive ? opt.activeBg : "var(--kit-surface-2)",
+                border: `1px solid ${isActive ? opt.activeBorder : "var(--kit-border)"}`,
+              }}
+            >
+              <span
+                className="text-2xl font-display font-bold leading-none"
+                style={{ color: isActive ? opt.activeText : "var(--kit-text-3)" }}
+              >
+                {opt.symbol}
+              </span>
+              <span
+                className="text-xs font-bold uppercase tracking-wider"
+                style={{ color: isActive ? opt.activeText : "var(--kit-text-3)" }}
+              >
+                {opt.label}
+              </span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
 }
+
