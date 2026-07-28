@@ -4,12 +4,7 @@ import { getISOWeek, getWeekLabel, getStreak, startOfDayUTC } from "@/lib/streak
 import { RichTextViewer } from "@/components/RichTextViewer";
 import { ConfidencePicker } from "./ConfidencePicker";
 import Link from "next/link";
-
-const CONFIDENCE_LABEL: Record<string, string> = {
-  GOOD: "😊 Bine",
-  OK: "😐 OK",
-  HARD: "😓 Greu",
-};
+import { CheckCircle2, Circle, Flame, ArrowRight } from "lucide-react";
 
 export default async function PlayerDashboard() {
   await requirePlayer();
@@ -57,99 +52,171 @@ export default async function PlayerDashboard() {
     !!messageToShow &&
     startOfDayUTC(new Date(messageToShow.day)).getTime() === today.getTime();
 
-  return (
-    <div className="max-w-xl space-y-4 md:space-y-6">
-      {/* Mentor avatar */}
-      {player.mentor.wideImage ? (
-        player.mentor.photo ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={player.mentor.photo}
-            alt={player.mentor.name}
-            className="w-full object-cover rounded-2xl"
-          />
-        ) : null
-      ) : (
-        <div className="flex items-center gap-4">
-          {player.mentor.photo ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={player.mentor.photo}
-              alt={player.mentor.name}
-              className="w-16 h-16 rounded-full object-cover border-2 border-blue-200 dark:border-blue-700 shrink-0"
-            />
-          ) : (
-            <div className="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center text-white text-2xl font-bold shrink-0">
-              {player.mentor.name.charAt(0).toUpperCase()}
-            </div>
-          )}
-          <div>
-            <p className="font-semibold text-base">{player.mentor.name}</p>
-            <p className="text-xs text-gray-400">Mentorul tău</p>
-          </div>
-        </div>
-      )}
+  const todayStr = today.toLocaleDateString("ro-RO", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  });
 
-      {/* Mentor message */}
-      <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-2xl p-5">
-        <p className="text-xs font-medium text-blue-500 uppercase tracking-wide mb-2">
-          Mesajul mentorului tău
-        </p>
+  return (
+    <div className="max-w-xl space-y-4">
+
+      {/* Today's date */}
+      <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--kit-text-3)" }}>
+        {todayStr}
+      </p>
+
+      {/* ── Mentor message ───────────────────────────────────── */}
+      <div
+        className="rounded-2xl p-5 space-y-3"
+        style={{
+          background: "var(--kit-surface)",
+          border: "1px solid var(--kit-border)",
+        }}
+      >
+        <div className="flex items-center gap-2">
+          <div
+            className="w-1.5 h-1.5 rounded-full"
+            style={{ background: "var(--kit-accent)" }}
+          />
+          <p
+            className="text-xs font-bold uppercase tracking-widest"
+            style={{ color: "var(--kit-accent-light)" }}
+          >
+            {isTodayMessage ? "Mesajul de azi" : "Ultimul mesaj"}
+          </p>
+          {!isTodayMessage && messageToShow && (
+            <span className="text-xs ml-auto" style={{ color: "var(--kit-text-3)" }}>
+              {new Date(messageToShow.day).toLocaleDateString("ro-RO", {
+                day: "2-digit",
+                month: "2-digit",
+              })}
+            </span>
+          )}
+        </div>
         {messageToShow ? (
-          <>
-            <p className="text-xs text-blue-500/80 mb-3">
-              {isTodayMessage
-                ? "Astăzi"
-                : `Ultimul mesaj: ${new Date(messageToShow.day).toLocaleDateString("ro-RO", {
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "numeric",
-                  })}`}
-            </p>
-            <RichTextViewer html={messageToShow.message} />
-          </>
+          <RichTextViewer html={messageToShow.message} className="text-sm" />
         ) : (
-          <p className="text-sm text-blue-700 dark:text-blue-200">
+          <p className="text-sm" style={{ color: "var(--kit-text-2)" }}>
             Mentorul tău nu a publicat încă un mesaj.
           </p>
         )}
       </div>
 
-      {/* Stats row */}
+      {/* ── Daily metrics ────────────────────────────────────── */}
       <div className="grid grid-cols-3 gap-3">
-        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-4 text-center">
-          <p className="text-3xl font-bold text-blue-600">{streak}</p>
-          <p className="text-xs text-gray-400 mt-1">zile consecutiv</p>
+        {/* Streak */}
+        <div
+          className="rounded-2xl p-4 flex flex-col items-center justify-center gap-1"
+          style={{
+            background: streak > 0 ? "var(--kit-accent-dim)" : "var(--kit-surface)",
+            border: `1px solid ${streak > 0 ? "var(--kit-accent)" : "var(--kit-border)"}`,
+          }}
+        >
+          <Flame
+            size={20}
+            strokeWidth={2}
+            style={{ color: streak > 0 ? "var(--kit-accent-light)" : "var(--kit-text-3)" }}
+          />
+          <p
+            className="text-2xl font-display font-bold leading-none"
+            style={{ color: streak > 0 ? "var(--kit-accent-light)" : "var(--kit-text)" }}
+          >
+            {streak}
+          </p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-center leading-tight" style={{ color: "var(--kit-text-3)" }}>
+            zile serie
+          </p>
         </div>
-        <div className={`rounded-2xl shadow p-4 text-center ${hasCheckin ? "bg-green-50 dark:bg-green-950" : "bg-white dark:bg-gray-900"}`}>
-          <p className="text-2xl">{hasCheckin ? "✅" : "⏳"}</p>
-          <p className="text-xs text-gray-400 mt-1">Checkin</p>
-        </div>
-        <div className={`rounded-2xl shadow p-4 text-center ${hasJournal ? "bg-green-50 dark:bg-green-950" : "bg-white dark:bg-gray-900"}`}>
-          <p className="text-2xl">{hasJournal ? "✅" : "⏳"}</p>
-          <p className="text-xs text-gray-400 mt-1">Jurnal</p>
-        </div>
+
+        {/* Checkin */}
+        <Link
+          href="/player/checkin"
+          className="rounded-2xl p-4 flex flex-col items-center justify-center gap-1 transition-opacity hover:opacity-80"
+          style={{
+            background: hasCheckin ? "var(--kit-success-dim)" : "var(--kit-surface)",
+            border: `1px solid ${hasCheckin ? "rgba(34,197,94,0.30)" : "var(--kit-border)"}`,
+          }}
+        >
+          {hasCheckin ? (
+            <CheckCircle2 size={20} strokeWidth={2} style={{ color: "var(--kit-success)" }} />
+          ) : (
+            <Circle size={20} strokeWidth={1.5} style={{ color: "var(--kit-text-3)" }} />
+          )}
+          <p
+            className="text-[11px] font-bold uppercase tracking-wider"
+            style={{ color: hasCheckin ? "var(--kit-success)" : "var(--kit-text-3)" }}
+          >
+            Checkin
+          </p>
+          {!hasCheckin && (
+            <p className="text-[9px] uppercase tracking-wide" style={{ color: "var(--kit-text-3)" }}>
+              Completează
+            </p>
+          )}
+        </Link>
+
+        {/* Journal */}
+        <Link
+          href="/player/journal"
+          className="rounded-2xl p-4 flex flex-col items-center justify-center gap-1 transition-opacity hover:opacity-80"
+          style={{
+            background: hasJournal ? "var(--kit-success-dim)" : "var(--kit-surface)",
+            border: `1px solid ${hasJournal ? "rgba(34,197,94,0.30)" : "var(--kit-border)"}`,
+          }}
+        >
+          {hasJournal ? (
+            <CheckCircle2 size={20} strokeWidth={2} style={{ color: "var(--kit-success)" }} />
+          ) : (
+            <Circle size={20} strokeWidth={1.5} style={{ color: "var(--kit-text-3)" }} />
+          )}
+          <p
+            className="text-[11px] font-bold uppercase tracking-wider"
+            style={{ color: hasJournal ? "var(--kit-success)" : "var(--kit-text-3)" }}
+          >
+            Jurnal
+          </p>
+          {!hasJournal && (
+            <p className="text-[9px] uppercase tracking-wide" style={{ color: "var(--kit-text-3)" }}>
+              Scrie azi
+            </p>
+          )}
+        </Link>
       </div>
 
-      {/* Confidence picker */}
-      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-5">
-        <p className="text-sm font-semibold mb-3">Cum mă simt azi?</p>
+      {/* ── Confidence picker ────────────────────────────────── */}
+      <div
+        className="rounded-2xl p-5 space-y-4"
+        style={{ background: "var(--kit-surface)", border: "1px solid var(--kit-border)" }}
+      >
+        <p className="text-xs font-bold uppercase tracking-widest" style={{ color: "var(--kit-text-2)" }}>
+          Cum mă simt azi?
+        </p>
         <ConfidencePicker current={todayConfidence?.level ?? null} />
       </div>
 
-      {/* Weekly scope */}
-      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-5 space-y-3">
+      {/* ── Weekly scope ─────────────────────────────────────── */}
+      <div
+        className="rounded-2xl p-5 space-y-3"
+        style={{ background: "var(--kit-surface)", border: "1px solid var(--kit-border)" }}
+      >
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="text-sm font-semibold">Obiectiv săptămânal</p>
-            <p className="text-xs text-gray-400">Săptămâna {weekLabel}</p>
+            <p className="text-xs font-bold uppercase tracking-widest" style={{ color: "var(--kit-text-2)" }}>
+              Obiectiv săptămânal
+            </p>
+            <p className="text-xs mt-0.5" style={{ color: "var(--kit-text-3)" }}>
+              {weekLabel}
+            </p>
           </div>
-          {currentScope && currentScope.accomplished !== null && (
-            <span className={`text-xs font-medium ${
-              currentScope.accomplished
-                ? "text-green-600 dark:text-green-400"
-                : "text-red-600 dark:text-red-400"
-            }`}>
+          {currentScope?.accomplished !== null && currentScope?.accomplished !== undefined && (
+            <span
+              className="text-xs font-bold uppercase tracking-wide px-2 py-0.5 rounded-full"
+              style={{
+                background: currentScope.accomplished ? "var(--kit-success-dim)" : "var(--kit-danger-dim)",
+                color: currentScope.accomplished ? "var(--kit-success)" : "var(--kit-danger)",
+              }}
+            >
               {currentScope.accomplished ? "Realizat" : "Nerealizat"}
             </span>
           )}
@@ -158,36 +225,48 @@ export default async function PlayerDashboard() {
         {currentScope?.scope ? (
           <RichTextViewer html={currentScope.scope} className="text-sm" />
         ) : (
-          <p className="text-sm text-gray-500">Nu ai setat încă un obiectiv pentru săptămâna aceasta.</p>
+          <p className="text-sm" style={{ color: "var(--kit-text-2)" }}>
+            Nu ai setat încă un obiectiv pentru săptămâna aceasta.
+          </p>
         )}
 
         <Link
           href="/player/scope"
-          className="inline-flex text-sm font-medium text-blue-600 hover:text-blue-700"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide transition-opacity hover:opacity-70"
+          style={{ color: "var(--kit-accent-light)" }}
         >
-          Editează obiectivul
+          Editează obiectivul <ArrowRight size={12} />
         </Link>
       </div>
 
-      {/* Quick links */}
-      <div className="grid grid-cols-2 gap-3">
-        {!hasCheckin && (
-          <Link href="/player/checkin" className="bg-blue-600 text-white rounded-2xl p-4 text-sm font-medium hover:bg-blue-700 transition-colors text-center">
-            ✅ Completează checkin-ul
-          </Link>
-        )}
-        {!hasJournal && (
-          <Link href="/player/journal" className="bg-orange-500 text-white rounded-2xl p-4 text-sm font-medium hover:bg-orange-600 transition-colors text-center">
-            📓 Scrie în jurnal
-          </Link>
-        )}
-        <Link href="/player/scope" className="bg-white dark:bg-gray-900 shadow rounded-2xl p-4 text-sm font-medium hover:shadow-md transition-shadow text-center">
-          🎯 Obiectiv săptămânal
-        </Link>
-        <Link href="/player/library" className="bg-white dark:bg-gray-900 shadow rounded-2xl p-4 text-sm font-medium hover:shadow-md transition-shadow text-center">
-          📚 Bibliotecă
-        </Link>
-      </div>
+      {/* ── Quick actions (only incomplete) ─────────────────── */}
+      {(!hasCheckin || !hasJournal) && (
+        <div className="grid grid-cols-2 gap-3">
+          {!hasCheckin && (
+            <Link
+              href="/player/checkin"
+              className="btn-primary text-center py-4 rounded-2xl text-sm font-bold uppercase tracking-wide"
+            >
+              Completează checkin
+            </Link>
+          )}
+          {!hasJournal && (
+            <Link
+              href="/player/journal"
+              className="rounded-2xl p-4 text-center text-sm font-bold uppercase tracking-wide transition-colors"
+              style={{
+                background: "var(--kit-surface-2)",
+                border: "1px solid var(--kit-border)",
+                color: "var(--kit-text)",
+              }}
+            >
+              Scrie în jurnal
+            </Link>
+          )}
+        </div>
+      )}
     </div>
   );
 }
+
+

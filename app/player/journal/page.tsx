@@ -15,15 +15,19 @@ export default async function JournalPage() {
   });
 
   return (
-    <div className="max-w-lg">
-      <h1 className="text-2xl font-bold mb-2">Reflecție zilnică</h1>
-      <p className="text-sm text-gray-400 mb-6">
-        {today.toLocaleDateString("ro-RO", {
-          weekday: "long",
-          day: "numeric",
-          month: "long",
-        })}
-      </p>
+    <div className="max-w-lg space-y-5">
+      <div>
+        <h1 className="text-3xl font-display font-bold leading-tight mb-1" style={{ color: "var(--kit-text)" }}>
+          Reflecție zilnică
+        </h1>
+        <p className="text-sm" style={{ color: "var(--kit-text-3)" }}>
+          {today.toLocaleDateString("ro-RO", {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+          })}
+        </p>
+      </div>
       <JournalForm existing={existing} />
     </div>
   );

@@ -3,6 +3,7 @@
 import { useActionState, useState, useEffect, useRef } from "react";
 import { submitCheckin } from "@/actions/player";
 import type { CheckinFormItem, CheckinAnswer } from "@/app/generated/prisma/client";
+import { CheckCircle2, Circle } from "lucide-react";
 
 type AnswerMap = Record<number, CheckinAnswer>;
 
@@ -46,12 +47,10 @@ export function CheckinForm({
   const alreadySubmitted = Object.values(answerMap).some((a) => a.checked);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    if (navigator.onLine) return; // let the form action proceed normally
-
+    if (navigator.onLine) return;
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const today = new Date().toISOString().split("T")[0];
-
     const answers = items.map((item) => ({
       flagId: item.id,
       checked: formData.get(`flag_${item.id}`) === "on",
@@ -60,7 +59,6 @@ export function CheckinForm({
           ? ((formData.get(`string_${item.id}`) as string) || null)
           : null,
     }));
-
     const { enqueue } = await import("@/lib/offline-db");
     await enqueue({
       type: "checkin",
@@ -68,34 +66,38 @@ export function CheckinForm({
       payload: { answers, day: today },
       day: today,
     });
-
     setOfflineQueued(true);
     window.dispatchEvent(new CustomEvent("offline-enqueued"));
   };
 
   return (
-    <form
-      ref={formRef}
-      action={formAction}
-      onSubmit={handleSubmit}
-      className="space-y-4"
-    >
+    <form ref={formRef} action={formAction} onSubmit={handleSubmit} className="space-y-4">
       {!isOnline && (
-        <div className="bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 px-4 py-3 rounded-xl text-sm">
-          ⚠️ Ești offline. Datele vor fi salvate local și sincronizate automat când te reconectezi.
+        <div className="kit-warning-banner">
+          Ești offline. Datele vor fi salvate local și sincronizate automat.
         </div>
       )}
-
       {alreadySubmitted && isOnline && (
-        <div className="bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 px-4 py-3 rounded-xl text-sm">
-          ✅ Ai completat checkin-ul de astăzi. Poți actualiza oricând.
+        <div className="kit-success-banner">
+          Ai completat checkin-ul de astăzi. Poți actualiza oricând.
         </div>
       )}
 
-      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow divide-y divide-gray-100 dark:divide-gray-800">
-        {items.map((item) => (
-          <div key={item.id} className="px-5 py-4">
-            <label className="flex items-start gap-3 cursor-pointer">
+      {/* Item rows */}
+      <div
+        className="rounded-2xl overflow-hidden"
+        style={{ border: "1px solid var(--kit-border)" }}
+      >
+        {items.map((item, idx) => (
+          <div
+            key={item.id}
+            className="transition-colors"
+            style={{
+              background: checked[item.id] ? "rgba(34,197,94,0.07)" : "var(--kit-surface)",
+              borderBottom: idx < items.length - 1 ? "1px solid var(--kit-border)" : "none",
+            }}
+          >
+            <label className="flex items-center gap-4 px-4 py-4 cursor-pointer min-h-[60px]">
               <input
                 name={`flag_${item.id}`}
                 type="checkbox"
@@ -103,38 +105,44 @@ export function CheckinForm({
                 onChange={(e) =>
                   setChecked((prev) => ({ ...prev, [item.id]: e.target.checked }))
                 }
-                className="mt-0.5 h-5 w-5 rounded accent-blue-600"
+                className="sr-only"
               />
-              <span className="text-sm font-medium">{item.label}</span>
+              <span className="shrink-0">
+                {checked[item.id] ? (
+                  <CheckCircle2 size={24} strokeWidth={2.5} style={{ color: "var(--kit-success)" }} />
+                ) : (
+                  <Circle size={24} strokeWidth={1.5} style={{ color: "var(--kit-text-3)" }} />
+                )}
+              </span>
+              <span
+                className="text-sm font-medium flex-1 leading-snug"
+                style={{ color: checked[item.id] ? "var(--kit-text)" : "var(--kit-text-2)" }}
+              >
+                {item.label}
+              </span>
             </label>
 
             {item.allowAdditionalString && checked[item.id] && (
-              <input
-                name={`string_${item.id}`}
-                type="text"
-                defaultValue={answerMap[item.id]?.stringValue ?? ""}
-                placeholder="Detalii suplimentare..."
-                className="mt-2 ml-8 input text-sm"
-              />
+              <div className="px-4 pb-4">
+                <input
+                  name={`string_${item.id}`}
+                  type="text"
+                  defaultValue={answerMap[item.id]?.stringValue ?? ""}
+                  placeholder="Detalii suplimentare..."
+                  className="input text-sm"
+                />
+              </div>
             )}
           </div>
         ))}
       </div>
 
-      {state?.error && (
-        <p className="text-sm text-red-600 bg-red-50 dark:bg-red-950 px-3 py-2 rounded-xl">
-          {state.error}
-        </p>
-      )}
-      {state?.success && (
-        <p className="text-sm text-green-600 bg-green-50 dark:bg-green-950 px-3 py-2 rounded-xl">
-          Checkin-ul a fost salvat! ✅
-        </p>
-      )}
+      {state?.error && <div className="kit-error-banner">{state.error}</div>}
+      {state?.success && <div className="kit-success-banner">Checkin-ul a fost salvat!</div>}
       {offlineQueued && !isOnline && (
-        <p className="text-sm text-blue-600 bg-blue-50 dark:bg-blue-950 px-3 py-2 rounded-xl">
-          💾 Checkin-ul a fost salvat local. Va fi sincronizat automat când te reconectezi.
-        </p>
+        <div className="kit-info-banner">
+          Checkin-ul a fost salvat local. Va fi sincronizat automat.
+        </div>
       )}
 
       <button type="submit" disabled={isPending} className="btn-primary w-full">

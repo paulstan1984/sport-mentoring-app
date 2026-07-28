@@ -27,20 +27,29 @@ export default async function ScopePage() {
   ]);
 
   return (
-    <div className="max-w-lg space-y-4 md:space-y-8">
+    <div className="max-w-lg space-y-5">
       <div>
-        <h1 className="text-2xl font-bold mb-1">Obiectiv săptămânal</h1>
-        <p className="text-sm text-gray-400">
+        <h1 className="text-3xl font-display font-bold leading-tight mb-1" style={{ color: "var(--kit-text)" }}>
+          Obiectiv săptămânal
+        </h1>
+        <p className="text-sm" style={{ color: "var(--kit-text-3)" }}>
           Săptămâna {weekLabel}
         </p>
       </div>
 
-      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-5 space-y-2">
-        <p className="text-sm font-semibold">Obiectivul setat</p>
+      <div
+        className="rounded-2xl p-5 space-y-2"
+        style={{ background: "var(--kit-surface)", border: "1px solid var(--kit-border)" }}
+      >
+        <p className="text-xs font-bold uppercase tracking-wider" style={{ color: "var(--kit-text-2)" }}>
+          Obiectivul setat
+        </p>
         {currentScope?.scope ? (
           <RichTextViewer html={currentScope.scope} className="text-sm" />
         ) : (
-          <p className="text-sm text-gray-500">Nu ai setat încă un obiectiv pentru săptămâna aceasta.</p>
+          <p className="text-sm" style={{ color: "var(--kit-text-2)" }}>
+            Nu ai setat încă un obiectiv pentru săptămâna aceasta.
+          </p>
         )}
       </div>
 

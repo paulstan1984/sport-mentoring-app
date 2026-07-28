@@ -40,19 +40,25 @@ export default async function CheckinPage() {
   );
 
   return (
-    <div className="max-w-lg">
-      <h1 className="text-2xl font-bold mb-2">Checkin zilnic</h1>
-      <p className="text-sm text-gray-400 mb-6">
-        {today.toLocaleDateString("ro-RO", {
-          weekday: "long",
-          day: "numeric",
-          month: "long",
-          year: "numeric",
-        })}
-      </p>
+    <div className="max-w-lg space-y-5">
+      <div>
+        <h1 className="text-3xl font-display font-bold leading-tight mb-1" style={{ color: "var(--kit-text)" }}>
+          Checkin zilnic
+        </h1>
+        <p className="text-sm" style={{ color: "var(--kit-text-3)" }}>
+          {today.toLocaleDateString("ro-RO", {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          })}
+        </p>
+      </div>
 
       {items.length === 0 ? (
-        <p className="text-gray-400">Mentorul tău nu a configurat încă formularul de checkin.</p>
+        <p className="text-sm" style={{ color: "var(--kit-text-2)" }}>
+          Mentorul tău nu a configurat încă formularul de checkin.
+        </p>
       ) : (
         <CheckinForm items={items} answerMap={answerMap} />
       )}
