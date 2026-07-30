@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 
 const FALLBACK_SRC = "/avatar-placeholder.svg";
 
@@ -10,13 +10,14 @@ interface AvatarImageProps {
   className?: string;
   width?: number;
   height?: number;
+  style?: React.CSSProperties;
 }
 
 /**
  * Displays an uploaded photo. Falls back to the demo placeholder when
  * the image source is absent or fails to load (e.g. file deleted from disk).
  */
-export function AvatarImage({ src, alt, className, width, height }: AvatarImageProps) {
+export function AvatarImage({ src, alt, className, width, height, style }: AvatarImageProps) {
   const [imgSrc, setImgSrc] = useState<string>(src || FALLBACK_SRC);
 
   return (
@@ -27,6 +28,7 @@ export function AvatarImage({ src, alt, className, width, height }: AvatarImageP
       className={className}
       width={width}
       height={height}
+      style={style}
       onError={() => setImgSrc(FALLBACK_SRC)}
     />
   );
