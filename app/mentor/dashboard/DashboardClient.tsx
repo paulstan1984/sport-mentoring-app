@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { PresenceBadge } from "@/components/PresenceBadge";
+import { AvatarImage } from "@/components/AvatarImage";
 
 type PlayerSummary = {
   id: number;
@@ -57,8 +58,7 @@ export function DashboardClient({ players, playerLabel }: { players: PlayerSumma
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-3">
                 {p.photo ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
+                  <AvatarImage
                     src={p.photo}
                     alt={p.name}
                     className="w-10 h-10 rounded-full object-cover shrink-0"

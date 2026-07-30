@@ -8,6 +8,7 @@ import { touchPlayerActivity } from "@/actions/player";
 import { ImpersonationBanner } from "@/components/ImpersonationBanner";
 import { OfflineStatus } from "@/components/OfflineStatus";
 import { PlayerBottomNav } from "./PlayerBottomNav";
+import { AvatarImage } from "@/components/AvatarImage";
 import {
   LayoutDashboard,
   ClipboardCheck,
@@ -75,8 +76,7 @@ export default async function PlayerLayout({
         >
           <Link href="/player/dashboard" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
             {mentor?.photo ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+              <AvatarImage
                 src={mentor.photo}
                 alt={mentor.name ?? "Antrenor"}
                 width={32}
@@ -141,8 +141,7 @@ export default async function PlayerLayout({
         >
           <div className="flex items-center gap-3">
             {mentor?.photo ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+              <AvatarImage
                 src={mentor.photo}
                 alt={mentor.name ?? "Antrenor"}
                 width={36}

@@ -4,6 +4,7 @@ import { requireMentor, getSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getStreak } from "@/lib/streak";
 import { PresenceBadge } from "@/components/PresenceBadge";
+import { AvatarImage } from "@/components/AvatarImage";
 import { PlayerProfileEditor } from "./PlayerProfileEditor";
 import { PlayerNotes } from "./PlayerNotes";
 import { PlayerSections } from "./PlayerSections";
@@ -95,8 +96,7 @@ export default async function PlayerDetailPage({
         <div className="flex-1">
           <div className="flex items-center gap-3">
             {player.photo ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+              <AvatarImage
                 src={player.photo}
                 alt={player.name}
                 className="w-12 h-12 rounded-full object-cover border-2 border-blue-200 dark:border-blue-700 shrink-0"

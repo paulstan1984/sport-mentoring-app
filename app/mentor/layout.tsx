@@ -7,6 +7,7 @@ import { db } from "@/lib/db";
 import { MentorMobileNav } from "./MentorMobileNav";
 import { ImpersonationBanner } from "@/components/ImpersonationBanner";
 import { OfflineStatus } from "@/components/OfflineStatus";
+import { AvatarImage } from "@/components/AvatarImage";
 import {
   LayoutDashboard,
   Users,
@@ -74,16 +75,15 @@ export default async function MentorLayout({
               🧠 MindMentor
             </Link>
             <Link href="/mentor/profile" className="text-sm flex items-center gap-2 hover:opacity-80 mind-muted">
-              {mentor?.photo ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+              {mentor?.photo && (
+                <AvatarImage
                   src={mentor.photo}
                   alt={mentor.name ?? "Mentor"}
                   width={28}
                   height={28}
                   className={`object-cover shrink-0 ${mentor.wideImage ? "h-7 w-auto" : "w-7 h-7 rounded-full"}`}
                 />
-              ) : null}
+              )}
               {!mentor?.wideImage && (
                 <>
                   {mentor?.name ?? "Mentor"}
@@ -113,16 +113,15 @@ export default async function MentorLayout({
               🧠 MindMentor
             </Link>
             <Link href="/mentor/profile" className="flex items-center gap-2 mt-0.5 hover:opacity-80 mind-muted">
-              {mentor?.photo ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+              {mentor?.photo && (
+                <AvatarImage
                   src={mentor.photo}
                   alt={mentor.name ?? "Mentor"}
                   width={28}
                   height={28}
                   className={`object-cover shrink-0 ${mentor.wideImage ? "h-7 w-auto" : "w-7 h-7 rounded-full"}`}
                 />
-              ) : null}
+              )}
               {!mentor?.wideImage && (
                 <>
                   <span className="text-xs truncate">{mentor?.name ?? "Mentor"}</span>
@@ -177,16 +176,15 @@ export default async function MentorLayout({
           ⚽ Sport Mentor
         </Link>
         <Link href="/mentor/profile" className="text-sm text-blue-200 hover:text-white flex items-center gap-2">
-          {mentor?.photo ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+          {mentor?.photo && (
+            <AvatarImage
               src={mentor.photo}
               alt={mentor.name ?? "Mentor"}
               width={28}
               height={28}
               className={`object-cover shrink-0 ${mentor.wideImage ? "h-7 w-auto" : "w-7 h-7 rounded-full"}`}
             />
-          ) : null}
+          )}
           {!mentor?.wideImage && (
             <>
               {mentor?.name ?? "Mentor"}
@@ -214,16 +212,15 @@ export default async function MentorLayout({
             ⚽ Sport Mentor
           </Link>
           <Link href="/mentor/profile" className="flex items-center gap-2 mt-0.5 hover:text-blue-700">
-            {mentor?.photo ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+            {mentor?.photo && (
+              <AvatarImage
                 src={mentor.photo}
                 alt={mentor.name ?? "Mentor"}
                 width={28}
                 height={28}
                 className={`object-cover border border-blue-200/40 shrink-0 ${mentor.wideImage ? "h-7 w-auto" : "w-7 h-7 rounded-full"}`}
               />
-            ) : null}
+            )}
             {!mentor?.wideImage && (
               <>
                 <span className="text-xs text-blue-600/70 truncate">{mentor?.name ?? "Mentor"}</span>
