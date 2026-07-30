@@ -66,6 +66,7 @@ export function ProfileForm({ mentor }: { mentor: MentorWithUser }) {
               className={`object-cover border-2 border-blue-200 dark:border-blue-700 shrink-0${
                 isWideImage ? " h-16 w-auto" : " w-16 h-16 rounded-full"
               }`}
+              onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/avatar-placeholder.svg"; }}
             />
           ) : (
             <div className="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center text-white text-2xl font-bold shrink-0">

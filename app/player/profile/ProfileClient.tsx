@@ -67,6 +67,7 @@ export function ProfileClient({ player }: { player: PlayerWithRelations }) {
               src={photoUrl}
               alt="Foto profil"
               className="w-16 h-16 rounded-full object-cover border-2 border-blue-200 dark:border-blue-700 shrink-0"
+              onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/avatar-placeholder.svg"; }}
             />
           ) : (
             <div className="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center text-white text-2xl font-bold shrink-0">

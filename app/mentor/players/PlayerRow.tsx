@@ -11,6 +11,7 @@ import {
 import { impersonatePlayer } from "@/actions/auth";
 import type { Player, User, PlayfieldPosition } from "@/app/generated/prisma/client";
 import { PlayerProfileForm } from "./PlayerProfileForm";
+import { AvatarImage } from "@/components/AvatarImage";
 
 type PlayerWithRelations = Player & {
   user: Pick<User, "username">;
@@ -116,8 +117,7 @@ export function PlayerRow({
       <td className="px-4 py-3 font-medium">
         <div className="flex items-center gap-2">
           {player.photo ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <AvatarImage
               src={player.photo}
               alt={player.name}
               className="w-8 h-8 rounded-full object-cover shrink-0"
