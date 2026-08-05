@@ -57,7 +57,7 @@ function circleCoverage(dx, dy, R) {
   return Math.max(0, Math.min(1, R - dist + 0.5));
 }
 
-// Pentagon patch centres for a classic Telstar soccer ball (sphere-projected)
+// Classic Telstar pentagon centres (sphere-projected), matching ⚽ emoji layout
 const PATCHES = [
   [ 0,      0    ],
   [ 0,     -0.52 ],
@@ -66,25 +66,24 @@ const PATCHES = [
   [-0.306,  0.42 ],
   [-0.495, -0.16 ],
 ];
-const PATCH_R = 0.195;
+const PATCH_R = 0.155; // smaller = more white space between patches, matching ⚽ emoji
 
-// Sphere lighting: light source at top-left-front
-const LX = -0.35, LY = -0.55, LZ = 0.76;
+// Phong light source — top-left-front, matches ⚽ emoji shading direction
+const LX = -0.30, LY = -0.50, LZ = 0.81;
 const LLEN = Math.sqrt(LX * LX + LY * LY + LZ * LZ);
 
-function ballColor(nx, ny, inPatch, edgeFade) {
+function ballColor(nx, ny, inPatch) {
   const nz = Math.sqrt(Math.max(0, 1 - nx * nx - ny * ny));
   const diffuse = Math.max(0, (nx * LX + ny * LY + nz * LZ) / LLEN);
-  // Specular highlight (Phong)
-  const rz = 2 * nz * (LZ / LLEN) - (LZ / LLEN);
-  const spec = Math.pow(Math.max(0, rz), 18) * 0.5;
+  const spec = Math.pow(Math.max(0, 2 * nz * (LZ / LLEN) - (LZ / LLEN)), 22) * 0.6;
 
   if (inPatch) {
-    const v = Math.round((diffuse * 45 + spec * 60) * edgeFade);
+    const v = Math.round(diffuse * 40 + spec * 55);
     return [v, v, v];
   }
-  const v = Math.round((200 + diffuse * 55 + spec * 100) * edgeFade);
-  return [Math.min(255, v), Math.min(255, v), Math.min(255, v)];
+  // Bright white with clear highlight top-left, subtle gray shadow bottom-right
+  const v = Math.min(255, Math.round(218 + diffuse * 37 + spec * 90));
+  return [v, v, v];
 }
 
 function inAnyPatch(nx, ny) {
@@ -94,54 +93,41 @@ function inAnyPatch(nx, ny) {
   return false;
 }
 
-// ic_launcher.png — blue circle background + 3-D shaded football
+// ic_launcher.png — ⚽ emoji style: white ball fills the icon, thin outline
 function launcherPixel(x, y, size) {
   const cx = size / 2, cy = size / 2;
   const dx = x - cx, dy = y - cy;
   const dist = Math.sqrt(dx * dx + dy * dy);
   const R = size / 2 - 1;
 
-  if (dist > R + 0.5) return [0, 0, 0, 0];
+  if (dist > R + 0.5) return [0, 0, 0, 0]; // transparent outside icon
 
   const iconAlpha = Math.round(255 * Math.min(1, R - dist + 0.5));
-  const BG = [37, 99, 235]; // #2563eb
 
-  // Subtle drop shadow just outside the ball
-  const ballR = R * 0.72;
-  const shadowR = ballR + Math.max(2, size * 0.03);
-  if (dist > ballR + 0.5) {
-    if (dist < shadowR) {
-      // blend shadow with background
-      const t = 1 - (dist - ballR - 0.5) / (shadowR - ballR - 0.5);
-      const s = Math.round(t * 60);
-      return [Math.max(0, BG[0] - s), Math.max(0, BG[1] - s), Math.max(0, BG[2] - s), iconAlpha];
-    }
-    return [...BG, iconAlpha];
-  }
+  // The ball IS the icon — fills the full circle
+  const ballR = R - 1;
 
-  // Thin black ball border
-  if (dist > ballR - 0.5) return [10, 10, 10, iconAlpha];
+  // Thin black outline
+  if (dist > ballR - 0.5) return [15, 15, 15, iconAlpha];
 
   const nx = dx / ballR, ny = dy / ballR;
-  const edgeFade = Math.min(1, (ballR - dist) / (ballR * 0.08) + 0.4);
-  const [r, g, b] = ballColor(nx, ny, inAnyPatch(nx, ny), edgeFade);
+  const [r, g, b] = ballColor(nx, ny, inAnyPatch(nx, ny));
   return [r, g, b, iconAlpha];
 }
 
-// ic_launcher_foreground.png — 3-D football on transparent bg (adaptive icon layer)
-// Safe zone = inner 72/108 of the canvas; ball fills it fully
+// ic_launcher_foreground.png — same ball on transparent bg for adaptive icon layer
 function foregroundPixel(x, y, size) {
   const cx = size / 2, cy = size / 2;
   const dx = x - cx, dy = y - cy;
   const dist = Math.sqrt(dx * dx + dy * dy);
+  // Fill the safe zone (72/108 of canvas)
   const ballR = size * 0.325;
 
   if (dist > ballR + 0.5) return [0, 0, 0, 0];
-  if (dist > ballR - 0.5) return [10, 10, 10, 255];
+  if (dist > ballR - 0.5) return [15, 15, 15, 255];
 
   const nx = dx / ballR, ny = dy / ballR;
-  const edgeFade = Math.min(1, (ballR - dist) / (ballR * 0.08) + 0.4);
-  const [r, g, b] = ballColor(nx, ny, inAnyPatch(nx, ny), edgeFade);
+  const [r, g, b] = ballColor(nx, ny, inAnyPatch(nx, ny));
   return [r, g, b, 255];
 }
 
