@@ -1,156 +1,24 @@
-// Generates Android launcher icons for Sport Mentor
-// No external dependencies — uses only built-in Node.js modules (zlib, fs)
-const zlib = require("zlib");
+// Copies the supplied Sport Mentor artwork into Android launcher icon slots.
 const fs = require("fs");
 const path = require("path");
 
-// ── PNG writer (same approach as generate-icons.js) ─────────────────────────
+const source = path.join(__dirname, "..", "public", "sport-mentoring-icon.png");
+const resourceRoot = path.join(__dirname, "..", "mobile", "android", "app", "src", "main", "res");
+const densities = ["mdpi", "hdpi", "xhdpi", "xxhdpi", "xxxhdpi"];
 
-function crc32(buf) {
-  const table = new Uint32Array(256);
-  for (let i = 0; i < 256; i++) {
-    let c = i;
-    for (let j = 0; j < 8; j++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
-    table[i] = c;
+if (!fs.existsSync(source)) {
+  throw new Error(`Icon source not found: ${source}`);
+}
+
+for (const density of densities) {
+  const outputDirectory = path.join(resourceRoot, `mipmap-${density}`);
+  fs.mkdirSync(outputDirectory, { recursive: true });
+
+  for (const filename of ["ic_launcher.png", "ic_launcher_round.png", "ic_launcher_foreground.png"]) {
+    fs.copyFileSync(source, path.join(outputDirectory, filename));
   }
-  let crc = 0xffffffff;
-  for (let i = 0; i < buf.length; i++)
-    crc = table[(crc ^ buf[i]) & 0xff] ^ (crc >>> 8);
-  return (crc ^ 0xffffffff) >>> 0;
+
+  console.log(`Copied supplied icon to mipmap-${density}`);
 }
 
-function chunk(type, data) {
-  const t = Buffer.from(type, "ascii");
-  const len = Buffer.alloc(4);
-  len.writeUInt32BE(data.length);
-  const crcBuf = Buffer.alloc(4);
-  crcBuf.writeUInt32BE(crc32(Buffer.concat([t, data])));
-  return Buffer.concat([len, t, data, crcBuf]);
-}
-
-function makePNG(size, getPixel) {
-  const sig = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
-  const ihdrData = Buffer.alloc(13);
-  ihdrData.writeUInt32BE(size, 0);
-  ihdrData.writeUInt32BE(size, 4);
-  ihdrData[8] = 8; // bit depth
-  ihdrData[9] = 6; // RGBA
-  const raw = Buffer.alloc(size * (1 + size * 4));
-  for (let y = 0; y < size; y++) {
-    const rowBase = y * (1 + size * 4);
-    raw[rowBase] = 0;
-    for (let x = 0; x < size; x++) {
-      const [r, g, b, a] = getPixel(x, y, size);
-      const off = rowBase + 1 + x * 4;
-      raw[off] = r; raw[off + 1] = g; raw[off + 2] = b; raw[off + 3] = a;
-    }
-  }
-  const compressed = zlib.deflateSync(raw, { level: 9 });
-  return Buffer.concat([sig, chunk("IHDR", ihdrData), chunk("IDAT", compressed), chunk("IEND", Buffer.alloc(0))]);
-}
-
-// ── Icon designs ─────────────────────────────────────────────────────────────
-
-// Smooth anti-aliased circle test: returns 0..1 coverage
-function circleCoverage(dx, dy, R) {
-  const dist = Math.sqrt(dx * dx + dy * dy);
-  return Math.max(0, Math.min(1, R - dist + 0.5));
-}
-
-// Classic Telstar pentagon centres (sphere-projected), matching ⚽ emoji layout
-const PATCHES = [
-  [ 0,      0    ],
-  [ 0,     -0.52 ],
-  [ 0.495, -0.16 ],
-  [ 0.306,  0.42 ],
-  [-0.306,  0.42 ],
-  [-0.495, -0.16 ],
-];
-const PATCH_R = 0.155; // smaller = more white space between patches, matching ⚽ emoji
-
-// Phong light source — top-left-front, matches ⚽ emoji shading direction
-const LX = -0.30, LY = -0.50, LZ = 0.81;
-const LLEN = Math.sqrt(LX * LX + LY * LY + LZ * LZ);
-
-function ballColor(nx, ny, inPatch) {
-  const nz = Math.sqrt(Math.max(0, 1 - nx * nx - ny * ny));
-  const diffuse = Math.max(0, (nx * LX + ny * LY + nz * LZ) / LLEN);
-  const spec = Math.pow(Math.max(0, 2 * nz * (LZ / LLEN) - (LZ / LLEN)), 22) * 0.6;
-
-  if (inPatch) {
-    const v = Math.round(diffuse * 40 + spec * 55);
-    return [v, v, v];
-  }
-  // Bright white with clear highlight top-left, subtle gray shadow bottom-right
-  const v = Math.min(255, Math.round(218 + diffuse * 37 + spec * 90));
-  return [v, v, v];
-}
-
-function inAnyPatch(nx, ny) {
-  for (const [px, py] of PATCHES) {
-    if (Math.sqrt((nx - px) ** 2 + (ny - py) ** 2) < PATCH_R) return true;
-  }
-  return false;
-}
-
-// ic_launcher.png — ⚽ emoji style: white ball fills the icon, thin outline
-function launcherPixel(x, y, size) {
-  const cx = size / 2, cy = size / 2;
-  const dx = x - cx, dy = y - cy;
-  const dist = Math.sqrt(dx * dx + dy * dy);
-  const R = size / 2 - 1;
-
-  if (dist > R + 0.5) return [0, 0, 0, 0]; // transparent outside icon
-
-  const iconAlpha = Math.round(255 * Math.min(1, R - dist + 0.5));
-
-  // The ball IS the icon — fills the full circle
-  const ballR = R - 1;
-
-  // Thin black outline
-  if (dist > ballR - 0.5) return [15, 15, 15, iconAlpha];
-
-  const nx = dx / ballR, ny = dy / ballR;
-  const [r, g, b] = ballColor(nx, ny, inAnyPatch(nx, ny));
-  return [r, g, b, iconAlpha];
-}
-
-// ic_launcher_foreground.png — same ball on transparent bg for adaptive icon layer
-function foregroundPixel(x, y, size) {
-  const cx = size / 2, cy = size / 2;
-  const dx = x - cx, dy = y - cy;
-  const dist = Math.sqrt(dx * dx + dy * dy);
-  // Fill the safe zone (72/108 of canvas)
-  const ballR = size * 0.325;
-
-  if (dist > ballR + 0.5) return [0, 0, 0, 0];
-  if (dist > ballR - 0.5) return [15, 15, 15, 255];
-
-  const nx = dx / ballR, ny = dy / ballR;
-  const [r, g, b] = ballColor(nx, ny, inAnyPatch(nx, ny));
-  return [r, g, b, 255];
-}
-
-// ── Output config ─────────────────────────────────────────────────────────────
-
-const RES = path.join(__dirname, "..", "mobile", "android", "app", "src", "main", "res");
-
-const targets = [
-  { dir: "mipmap-mdpi",    launcher: 48,  foreground: 108 },
-  { dir: "mipmap-hdpi",    launcher: 72,  foreground: 162 },
-  { dir: "mipmap-xhdpi",   launcher: 96,  foreground: 216 },
-  { dir: "mipmap-xxhdpi",  launcher: 144, foreground: 324 },
-  { dir: "mipmap-xxxhdpi", launcher: 192, foreground: 432 },
-];
-
-for (const { dir, launcher, foreground } of targets) {
-  const out = path.join(RES, dir);
-  fs.mkdirSync(out, { recursive: true });
-
-  fs.writeFileSync(path.join(out, "ic_launcher.png"),       makePNG(launcher,   launcherPixel));
-  fs.writeFileSync(path.join(out, "ic_launcher_round.png"), makePNG(launcher,   launcherPixel));
-  fs.writeFileSync(path.join(out, "ic_launcher_foreground.png"), makePNG(foreground, foregroundPixel));
-  console.log(`✓ ${dir}  (launcher: ${launcher}px, foreground: ${foreground}px)`);
-}
-
-console.log("\nDone. Run  npx cap sync android  then rebuild the app.");
+console.log("Android launcher icons updated.");
