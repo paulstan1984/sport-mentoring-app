@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { logout } from "@/actions/auth";
 import {
   Home,
   ClipboardCheck,
   BookText,
   BookOpen,
   User,
+  LogOut,
 } from "lucide-react";
 
 const navLinks = [
@@ -56,6 +58,18 @@ export function PlayerBottomNav() {
           </Link>
         );
       })}
+      <form action={logout} className="flex-1">
+        <button
+          type="submit"
+          className="w-full h-full flex flex-col items-center justify-end pb-3 pt-2 gap-0.5 transition-colors"
+          style={{ color: "var(--kit-text-3)" }}
+        >
+          <LogOut size={22} strokeWidth={1.5} />
+          <span className="text-[10px] font-semibold tracking-wide leading-none mt-0.5">
+            Ieșire
+          </span>
+        </button>
+      </form>
     </nav>
   );
 }
