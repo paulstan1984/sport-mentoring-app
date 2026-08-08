@@ -20,9 +20,24 @@ function FileIcon({ fileType }: { fileType: string }) {
 }
 
 export function LibraryList({ items }: { items: LibraryItem[] }) {
-  async function handleOpen(id: number) {
-    await markLibraryItemRead(id);
-    window.location.href = `/api/files/${id}`;
+  async function handleOpen(item: LibraryItem) {
+    await markLibraryItemRead(item.id);
+    try {
+      const res = await fetch(`/api/files/${item.id}`);
+      if (!res.ok) return;
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${item.name}.${item.fileType}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch {
+      // fallback: open in browser tab
+      window.open(`/api/files/${item.id}`, "_blank");
+    }
   }
 
   if (items.length === 0) {
@@ -38,7 +53,7 @@ export function LibraryList({ items }: { items: LibraryItem[] }) {
       {items.map((item) => (
         <button
           key={item.id}
-          onClick={() => handleOpen(item.id)}
+          onClick={() => handleOpen(item)}
           className="w-full flex items-center gap-4 px-4 py-4 rounded-2xl transition-all text-left"
           style={{
             background: "var(--kit-surface)",
