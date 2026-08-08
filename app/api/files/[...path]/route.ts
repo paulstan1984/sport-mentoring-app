@@ -61,11 +61,14 @@ export async function GET(
   const stream = createReadStream(item.filePath);
   const webStream = Readable.toWeb(stream) as ReadableStream;
 
+  const inlineTypes = new Set(["pdf", "jpg", "png", "gif"]);
+  const disposition = inlineTypes.has(item.fileType) ? "inline" : "attachment";
+
   return new NextResponse(webStream, {
     headers: {
       "Content-Type": contentType,
       "Content-Length": String(stat.size),
-      "Content-Disposition": `inline; filename="${encodeURIComponent(item.name)}.${item.fileType}"`,
+      "Content-Disposition": `${disposition}; filename="${encodeURIComponent(item.name)}.${item.fileType}"`,
       "Cache-Control": "private, no-store",
     },
   });

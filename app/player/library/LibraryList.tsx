@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { markLibraryItemRead } from "@/actions/player";
 import { FileText, Image, FileSpreadsheet, File } from "lucide-react";
 
@@ -21,12 +20,9 @@ function FileIcon({ fileType }: { fileType: string }) {
 }
 
 export function LibraryList({ items }: { items: LibraryItem[] }) {
-  const router = useRouter();
-
   async function handleOpen(id: number) {
     await markLibraryItemRead(id);
-    window.open(`/api/files/${id}`, "_blank");
-    router.refresh();
+    window.location.href = `/api/files/${id}`;
   }
 
   if (items.length === 0) {
