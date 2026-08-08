@@ -19,6 +19,7 @@
 
 # production
 /build
+/mobile/node_modules/@capacitor
 
 # misc
 .DS_Store
