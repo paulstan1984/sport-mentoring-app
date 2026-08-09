@@ -20,24 +20,8 @@ function FileIcon({ fileType }: { fileType: string }) {
 }
 
 export function LibraryList({ items }: { items: LibraryItem[] }) {
-  async function handleOpen(item: LibraryItem) {
-    await markLibraryItemRead(item.id);
-    try {
-      const res = await fetch(`/api/files/${item.id}`);
-      if (!res.ok) return;
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${item.name}.${item.fileType}`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-    } catch {
-      // fallback: open in browser tab
-      window.open(`/api/files/${item.id}`, "_blank");
-    }
+  function handleOpen(item: LibraryItem) {
+    void markLibraryItemRead(item.id);
   }
 
   if (items.length === 0) {
@@ -51,8 +35,10 @@ export function LibraryList({ items }: { items: LibraryItem[] }) {
   return (
     <div className="space-y-2.5">
       {items.map((item) => (
-        <button
+        <a
           key={item.id}
+          href={`/api/files/${item.id}`}
+          download={`${item.name}.${item.fileType}`}
           onClick={() => handleOpen(item)}
           className="w-full flex items-center gap-4 px-4 py-4 rounded-2xl transition-all text-left"
           style={{
@@ -60,10 +46,10 @@ export function LibraryList({ items }: { items: LibraryItem[] }) {
             border: "1px solid var(--kit-border)",
           }}
           onMouseEnter={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--kit-border-mid)";
+            e.currentTarget.style.borderColor = "var(--kit-border-mid)";
           }}
           onMouseLeave={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--kit-border)";
+            e.currentTarget.style.borderColor = "var(--kit-border)";
           }}
         >
           <FileIcon fileType={item.fileType} />
@@ -90,9 +76,8 @@ export function LibraryList({ items }: { items: LibraryItem[] }) {
           >
             {item.isRead ? "Citit" : "Nou"}
           </span>
-        </button>
+        </a>
       ))}
     </div>
   );
 }
-
