@@ -62,24 +62,6 @@ export function LibraryClient({
     }
   }
 
-  async function handleDownload(id: number, name: string, fileType: string) {
-    try {
-      const res = await fetch(`/api/files/${id}`);
-      if (!res.ok) return;
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${name}.${fileType}`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-    } catch {
-      window.open(`/api/files/${id}`, "_blank");
-    }
-  }
-
   async function handleDelete(id: number) {
     if (!confirm("Ștergi acest element din bibliotecă?")) return;
     await deleteLibraryItem(id);
@@ -134,13 +116,13 @@ export function LibraryClient({
             <div key={item.id} className="bg-white dark:bg-gray-900 rounded-2xl shadow p-5">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <button
-                    type="button"
-                    onClick={() => handleDownload(item.id, item.name, item.fileType)}
+                  <a
+                    href={`/api/files/${item.id}`}
+                    download={`${item.name}.${item.fileType}`}
                     className="font-medium hover:underline text-blue-600 dark:text-blue-400 text-left"
                   >
                     {item.name}
-                  </button>
+                  </a>
                   <p className="text-xs text-gray-400 mt-0.5" suppressHydrationWarning>
                     {item.fileType} ·{" "}
                     {new Date(item.createdAt).toLocaleDateString("ro-RO")}
