@@ -1,6 +1,7 @@
 "use client";
 
 import { markLibraryItemRead } from "@/actions/player";
+import { downloadFile } from "@/lib/downloadFile";
 import { FileText, Image, FileSpreadsheet, File } from "lucide-react";
 
 type LibraryItem = {
@@ -20,8 +21,10 @@ function FileIcon({ fileType }: { fileType: string }) {
 }
 
 export function LibraryList({ items }: { items: LibraryItem[] }) {
-  function handleOpen(item: LibraryItem) {
+  function handleOpen(e: React.MouseEvent, item: LibraryItem) {
+    e.preventDefault();
     void markLibraryItemRead(item.id);
+    void downloadFile(`/api/files/${item.id}`, `${item.name}.${item.fileType}`);
   }
 
   if (items.length === 0) {
@@ -39,7 +42,7 @@ export function LibraryList({ items }: { items: LibraryItem[] }) {
           key={item.id}
           href={`/api/files/${item.id}`}
           download={`${item.name}.${item.fileType}`}
-          onClick={() => handleOpen(item)}
+          onClick={(e) => handleOpen(e, item)}
           className="w-full flex items-center gap-4 px-4 py-4 rounded-2xl transition-all text-left"
           style={{
             background: "var(--kit-surface)",
