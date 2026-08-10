@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { deleteLibraryItem } from "@/actions/mentor";
+import { downloadFile } from "@/lib/downloadFile";
 
 type ReadItem = {
   player: { name: string };
@@ -119,6 +120,10 @@ export function LibraryClient({
                   <a
                     href={`/api/files/${item.id}`}
                     download={`${item.name}.${item.fileType}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      void downloadFile(`/api/files/${item.id}`, `${item.name}.${item.fileType}`);
+                    }}
                     className="font-medium hover:underline text-blue-600 dark:text-blue-400 text-left"
                   >
                     {item.name}
