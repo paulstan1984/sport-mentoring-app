@@ -1,24 +1,33 @@
 /**
- * Downloads a file programmatically using fetch + blob.
- * Works in hybrid mobile app web containers (e.g. Apache Cordova)
- * where the HTML `download` attribute on <a> tags is not supported.
+ * Downloads a file in a way that works across regular browsers AND
+ * hybrid mobile app web containers (e.g. Apache Cordova / WKWebView).
+ *
+ * Strategy:
+ * 1. If the Cordova runtime is detected, use `cordova.InAppBrowser.open`
+ *    with target `_system` so the device's native browser handles the
+ *    download (WebViews cannot download files directly).
+ * 2. Otherwise, build a full absolute URL and open it via window.open
+ *    with `_blank`. The server already sets Content-Disposition: attachment,
+ *    so the browser will trigger a download.
+ *
+ * The previous blob + <a download> approach does NOT work in Cordova
+ * WebViews because:
+ * - The `download` attribute is ignored by WKWebView/Android WebView.
+ * - Blob URLs created with URL.createObjectURL are often blocked.
  */
-export async function downloadFile(url: string, filename: string): Promise<void> {
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`Download failed: ${response.status}`);
+export function downloadFile(url: string, _filename: string): void {
+  // Build absolute URL so it works regardless of base href
+  const absoluteUrl = new URL(url, window.location.origin).href;
+
+  // Detect Cordova environment
+  const cordova = (window as unknown as { cordova?: { InAppBrowser?: { open: (url: string, target: string, options?: string) => unknown } } }).cordova;
+
+  if (cordova?.InAppBrowser) {
+    // Open in the device's system browser which can handle downloads natively
+    cordova.InAppBrowser.open(absoluteUrl, "_system", "");
+  } else {
+    // Standard browser fallback — open in new tab; Content-Disposition
+    // header on the server response will trigger the download.
+    window.open(absoluteUrl, "_blank");
   }
-  const blob = await response.blob();
-  const blobUrl = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = blobUrl;
-  a.download = filename;
-  a.style.display = "none";
-  document.body.appendChild(a);
-  a.click();
-  // Cleanup after a short delay to allow the download to start
-  setTimeout(() => {
-    URL.revokeObjectURL(blobUrl);
-    document.body.removeChild(a);
-  }, 100);
 }
