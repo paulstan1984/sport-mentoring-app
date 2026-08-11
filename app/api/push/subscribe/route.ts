@@ -62,9 +62,16 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: "Date lipsă." }, { status: 400 });
   }
 
-  await db.pushSubscription.deleteMany({
-    where: { endpoint, userId: session.userId },
-  });
+  // Special case: remove all native FCM subscriptions for this user
+  if (endpoint === "fcm://unregister") {
+    await db.pushSubscription.deleteMany({
+      where: { userId: session.userId, endpoint: { startsWith: "fcm://" } },
+    });
+  } else {
+    await db.pushSubscription.deleteMany({
+      where: { endpoint, userId: session.userId },
+    });
+  }
 
   return NextResponse.json({ success: true });
 }
