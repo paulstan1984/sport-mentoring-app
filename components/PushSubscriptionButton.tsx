@@ -16,13 +16,27 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array<ArrayBuffer> {
   return outputArray;
 }
 
+/** Detect if running inside a Capacitor native shell */
+function isCapacitorNative(): boolean {
+  const cap = (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor;
+  return !!cap?.isNativePlatform?.();
+}
+
 type Status = "loading" | "unsupported" | "denied" | "subscribed" | "unsubscribed";
 
 export function PushSubscriptionButton() {
   const [status, setStatus] = useState<Status>("loading");
   const [busy, setBusy] = useState(false);
+  const [native, setNative] = useState(false);
 
   useEffect(() => {
+    if (isCapacitorNative()) {
+      setNative(true);
+      // For native apps, check if we already stored a token
+      checkNativeSubscription();
+      return;
+    }
+
     if (!VAPID_PUBLIC_KEY) {
       setStatus("unsupported");
       return;
@@ -45,7 +59,89 @@ export function PushSubscriptionButton() {
     });
   }, []);
 
+  async function checkNativeSubscription() {
+    try {
+      const { PushNotifications } = await import("@capacitor/push-notifications");
+      const permResult = await PushNotifications.checkPermissions();
+      if (permResult.receive === "denied") {
+        setStatus("denied");
+      } else if (permResult.receive === "granted") {
+        // If permission granted, assume subscribed (token was registered)
+        setStatus("subscribed");
+      } else {
+        setStatus("unsubscribed");
+      }
+    } catch {
+      setStatus("unsubscribed");
+    }
+  }
+
+  async function subscribeNative() {
+    setBusy(true);
+    try {
+      const { PushNotifications } = await import("@capacitor/push-notifications");
+
+      const permResult = await PushNotifications.requestPermissions();
+      if (permResult.receive !== "granted") {
+        setStatus("denied");
+        return;
+      }
+
+      await PushNotifications.register();
+
+      // Listen for the registration token
+      await new Promise<void>((resolve, reject) => {
+        PushNotifications.addListener("registration", async (token) => {
+          try {
+            // Store the FCM token as a special endpoint on the server
+            await fetch("/api/push/subscribe", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                endpoint: `fcm://${token.value}`,
+                keys: { p256dh: "native", auth: "native" },
+              }),
+            });
+            setStatus("subscribed");
+            resolve();
+          } catch (err) {
+            reject(err);
+          }
+        });
+
+        PushNotifications.addListener("registrationError", (err) => {
+          console.error("[push] native registration error:", err);
+          reject(err);
+        });
+      });
+    } catch (err) {
+      console.error("[push] native subscribe error:", err);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function unsubscribeNative() {
+    setBusy(true);
+    try {
+      // We cannot easily get the token back, so just remove all fcm:// subscriptions for user
+      await fetch("/api/push/subscribe", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ endpoint: "fcm://unregister" }),
+      });
+      setStatus("unsubscribed");
+    } catch (err) {
+      console.error("[push] native unsubscribe error:", err);
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function subscribe() {
+    if (native) {
+      return subscribeNative();
+    }
     setBusy(true);
     try {
       const permission = await Notification.requestPermission();
@@ -80,6 +176,9 @@ export function PushSubscriptionButton() {
   }
 
   async function unsubscribe() {
+    if (native) {
+      return unsubscribeNative();
+    }
     setBusy(true);
     try {
       const registration = await navigator.serviceWorker.ready;
@@ -108,7 +207,7 @@ export function PushSubscriptionButton() {
     return (
       <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
         <BellOff size={16} />
-        <span>Notificările sunt blocate în browser. Activează-le din setările browserului.</span>
+        <span>Notificările sunt blocate. Activează-le din setările {native ? "telefonului" : "browserului"}.</span>
       </div>
     );
   }

@@ -28,11 +28,83 @@ export interface SubscriptionKeys {
   auth: string;
 }
 
+/** Check if an endpoint is an FCM native token (stored as fcm://TOKEN) */
+export function isFcmEndpoint(endpoint: string): boolean {
+  return endpoint.startsWith("fcm://");
+}
+
+/** Extract the FCM token from an fcm:// endpoint */
+function extractFcmToken(endpoint: string): string {
+  return endpoint.slice("fcm://".length);
+}
+
+/**
+ * Send a push notification via Firebase Cloud Messaging (legacy HTTP API).
+ * Requires FCM_SERVER_KEY environment variable.
+ */
+async function sendFcmNotification(
+  token: string,
+  payload: PushPayload
+): Promise<boolean> {
+  const serverKey = process.env.FCM_SERVER_KEY;
+  if (!serverKey) {
+    console.warn("[fcm] FCM_SERVER_KEY not configured — skipping native push.");
+    return false;
+  }
+
+  const response = await fetch("https://fcm.googleapis.com/fcm/send", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `key=${serverKey}`,
+    },
+    body: JSON.stringify({
+      to: token,
+      notification: {
+        title: payload.title,
+        body: payload.body,
+        icon: payload.icon,
+        click_action: payload.url,
+      },
+      data: {
+        url: payload.url,
+      },
+    }),
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    if (response.status === 404 || response.status === 410) {
+      throw new Error(`FCM token expired: ${text}`);
+    }
+    console.error("[fcm] send error:", response.status, text);
+    return false;
+  }
+
+  const result = await response.json();
+  if (result.failure > 0) {
+    const error = result.results?.[0]?.error;
+    if (error === "NotRegistered" || error === "InvalidRegistration") {
+      throw new Error(`FCM token invalid: ${error}`);
+    }
+    console.error("[fcm] send failure:", result);
+    return false;
+  }
+
+  return true;
+}
+
 export async function sendPushNotification(
   endpoint: string,
   keys: SubscriptionKeys,
   payload: PushPayload
 ): Promise<boolean> {
+  // Handle native FCM tokens
+  if (isFcmEndpoint(endpoint)) {
+    const token = extractFcmToken(endpoint);
+    return sendFcmNotification(token, payload);
+  }
+
   initVapid();
 
   if (!initialized) {
