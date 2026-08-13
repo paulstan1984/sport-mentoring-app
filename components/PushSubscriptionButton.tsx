@@ -1,9 +1,18 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Bell, BellOff } from "lucide-react";
 
 const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? "";
+
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error("timeout")), ms)
+    ),
+  ]);
+}
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array<ArrayBuffer> {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -28,6 +37,7 @@ export function PushSubscriptionButton() {
   const [status, setStatus] = useState<Status>("loading");
   const [busy, setBusy] = useState(false);
   const [native, setNative] = useState(false);
+  const swRegistrationRef = useRef<ServiceWorkerRegistration | null>(null);
 
   useEffect(() => {
     if (isCapacitorNative()) {
@@ -53,6 +63,7 @@ export function PushSubscriptionButton() {
     }
 
     navigator.serviceWorker.ready.then((registration) => {
+      swRegistrationRef.current = registration;
       registration.pushManager.getSubscription().then((sub) => {
         setStatus(sub ? "subscribed" : "unsubscribed");
       });
@@ -150,11 +161,19 @@ export function PushSubscriptionButton() {
         return;
       }
 
-      const registration = await navigator.serviceWorker.ready;
-      const sub = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
-      });
+      // Use cached registration — avoids navigator.serviceWorker.ready hanging
+      // indefinitely when the SW is reinstalling (e.g. after a deploy).
+      const registration =
+        swRegistrationRef.current ??
+        (await withTimeout(navigator.serviceWorker.ready, 8000));
+
+      const sub = await withTimeout(
+        registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+        }),
+        15000
+      );
 
       const { endpoint, keys } = sub.toJSON() as {
         endpoint: string;
