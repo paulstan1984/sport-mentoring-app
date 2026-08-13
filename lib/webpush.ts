@@ -1,4 +1,5 @@
 import webpush from "web-push";
+import { createSign } from "crypto";
 
 let initialized = false;
 
@@ -38,39 +39,106 @@ function extractFcmToken(endpoint: string): string {
   return endpoint.slice("fcm://".length);
 }
 
+/** Cached OAuth2 access token to avoid re-fetching on every notification. */
+let cachedFcmToken: { token: string; expiresAt: number } | null = null;
+
+/** Obtain a short-lived OAuth2 access token via a service-account JWT (RFC 7523). */
+async function getFcmAccessToken(): Promise<string | null> {
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+  const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
+
+  if (!clientEmail || !privateKey) {
+    console.warn("[fcm] FIREBASE_CLIENT_EMAIL / FIREBASE_PRIVATE_KEY not configured.");
+    return null;
+  }
+
+  if (cachedFcmToken && cachedFcmToken.expiresAt > Date.now() + 60_000) {
+    return cachedFcmToken.token;
+  }
+
+  const now = Math.floor(Date.now() / 1000);
+  const jwtPayload = {
+    iss: clientEmail,
+    scope: "https://www.googleapis.com/auth/firebase.messaging",
+    aud: "https://oauth2.googleapis.com/token",
+    iat: now,
+    exp: now + 3600,
+  };
+
+  const header = Buffer.from(JSON.stringify({ alg: "RS256", typ: "JWT" })).toString("base64url");
+  const body = Buffer.from(JSON.stringify(jwtPayload)).toString("base64url");
+  const unsigned = `${header}.${body}`;
+
+  const signer = createSign("RSA-SHA256");
+  signer.update(unsigned);
+  const signature = signer.sign(privateKey, "base64url");
+  const jwt = `${unsigned}.${signature}`;
+
+  const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
+      assertion: jwt,
+    }),
+  });
+
+  if (!tokenResponse.ok) {
+    console.error("[fcm] Failed to get access token:", await tokenResponse.text());
+    return null;
+  }
+
+  const data = (await tokenResponse.json()) as { access_token: string; expires_in: number };
+  cachedFcmToken = { token: data.access_token, expiresAt: Date.now() + data.expires_in * 1000 };
+  return cachedFcmToken.token;
+}
+
 /**
- * Send a push notification via Firebase Cloud Messaging (legacy HTTP API).
- * Requires FCM_SERVER_KEY environment variable.
+ * Send a push notification via Firebase Cloud Messaging HTTP v1 API.
+ * Requires FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY.
  */
 async function sendFcmNotification(
   token: string,
   payload: PushPayload
 ): Promise<boolean> {
-  const serverKey = process.env.FCM_SERVER_KEY;
-  if (!serverKey) {
-    console.warn("[fcm] FCM_SERVER_KEY not configured — skipping native push.");
+  const projectId = process.env.FIREBASE_PROJECT_ID;
+  if (!projectId) {
+    console.warn("[fcm] FIREBASE_PROJECT_ID not configured — skipping native push.");
     return false;
   }
 
-  const response = await fetch("https://fcm.googleapis.com/fcm/send", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `key=${serverKey}`,
-    },
-    body: JSON.stringify({
-      to: token,
-      notification: {
-        title: payload.title,
-        body: payload.body,
-        icon: payload.icon,
-        click_action: payload.url,
+  const accessToken = await getFcmAccessToken();
+  if (!accessToken) return false;
+
+  const response = await fetch(
+    `https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
       },
-      data: {
-        url: payload.url,
-      },
-    }),
-  });
+      body: JSON.stringify({
+        message: {
+          token,
+          notification: {
+            title: payload.title,
+            body: payload.body,
+          },
+          data: {
+            url: payload.url ?? "",
+            icon: payload.icon ?? "",
+          },
+          android: {
+            notification: {
+              icon: payload.icon,
+              click_action: payload.url,
+            },
+          },
+        },
+      }),
+    }
+  );
 
   if (!response.ok) {
     const text = await response.text();
@@ -78,16 +146,6 @@ async function sendFcmNotification(
       throw new Error(`FCM token expired: ${text}`);
     }
     console.error("[fcm] send error:", response.status, text);
-    return false;
-  }
-
-  const result = await response.json();
-  if (result.failure > 0) {
-    const error = result.results?.[0]?.error;
-    if (error === "NotRegistered" || error === "InvalidRegistration") {
-      throw new Error(`FCM token invalid: ${error}`);
-    }
-    console.error("[fcm] send failure:", result);
     return false;
   }
 
