@@ -4,14 +4,75 @@ import { useState, useEffect, useRef } from "react";
 import { Bell, BellOff } from "lucide-react";
 
 const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? "";
+const SERVICE_WORKER_TIMEOUT_MS = 8_000;
+const PUSH_OPERATION_TIMEOUT_MS = 15_000;
+const API_REQUEST_TIMEOUT_MS = 10_000;
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
-  return Promise.race([
-    promise,
-    new Promise<T>((_, reject) =>
-      setTimeout(() => reject(new Error("timeout")), ms)
-    ),
-  ]);
+  return new Promise<T>((resolve, reject) => {
+    const timeoutId = window.setTimeout(() => reject(new Error("timeout")), ms);
+
+    promise.then(
+      (value) => {
+        window.clearTimeout(timeoutId);
+        resolve(value);
+      },`1`
+      (error: unknown) => {
+        window.clearTimeout(timeoutId);
+        reject(error);
+      }
+    );
+  });
+}
+
+async function fetchWithTimeout(input: RequestInfo | URL, init: RequestInit): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), API_REQUEST_TIMEOUT_MS);
+
+  try {
+    return await fetch(input, { ...init, signal: controller.signal });
+  } finally {
+    window.clearTimeout(timeoutId);
+  }
+}
+
+async function saveSubscription(endpoint: string, keys: { p256dh: string; auth: string }): Promise<void> {
+  const response = await fetchWithTimeout("/api/push/subscribe", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ endpoint, keys }),
+  });
+
+  if (!response.ok) {
+    throw new Error("subscription-save-failed");
+  }
+}
+
+async function removeSubscription(endpoint: string): Promise<void> {
+  const response = await fetchWithTimeout("/api/push/subscribe", {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ endpoint }),
+  });
+
+  if (!response.ok) {
+    throw new Error("subscription-remove-failed");
+  }
+}
+
+function getPushErrorMessage(error: unknown, action: "activa" | "dezactiva"): string {
+  if (
+    (error instanceof Error && error.message === "timeout") ||
+    (error instanceof DOMException && error.name === "AbortError")
+  ) {
+    return "Solicitarea a expirat. Verifică conexiunea și încearcă din nou.";
+  }
+
+  if (error instanceof DOMException && error.name === "NotAllowedError") {
+    return "Permisiunea pentru notificări nu a fost acordată.";
+  }
+
+  return `Nu am putut ${action} notificările push. Încearcă din nou.`;
 }
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array<ArrayBuffer> {
@@ -32,11 +93,16 @@ function isCapacitorNative(): boolean {
 }
 
 type Status = "loading" | "unsupported" | "denied" | "subscribed" | "unsubscribed";
+type NativeListener = { remove: () => Promise<void> };
+type NativePushToken = { value: string };
+type NativePushRegistrationError = { error?: string };
+type NativePushPermission = { receive: string };
 
 export function PushSubscriptionButton() {
   const [status, setStatus] = useState<Status>("loading");
   const [busy, setBusy] = useState(false);
   const [native, setNative] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const swRegistrationRef = useRef<ServiceWorkerRegistration | null>(null);
 
   useEffect(() => {
@@ -62,12 +128,35 @@ export function PushSubscriptionButton() {
       return;
     }
 
-    navigator.serviceWorker.ready.then((registration) => {
-      swRegistrationRef.current = registration;
-      registration.pushManager.getSubscription().then((sub) => {
-        setStatus(sub ? "subscribed" : "unsubscribed");
-      });
-    });
+    let active = true;
+
+    void (async () => {
+      try {
+        const registration = await withTimeout(
+          navigator.serviceWorker.ready,
+          SERVICE_WORKER_TIMEOUT_MS
+        );
+        const sub = await withTimeout(
+          registration.pushManager.getSubscription(),
+          SERVICE_WORKER_TIMEOUT_MS
+        );
+
+        if (active) {
+          swRegistrationRef.current = registration;
+          setStatus(sub ? "subscribed" : "unsubscribed");
+        }
+      } catch (err) {
+        console.error("[push] service worker initialization error:", err);
+        if (active) {
+          setStatus("unsubscribed");
+          setError("Serviciul de notificări nu este pregătit. Reîncarcă pagina și încearcă din nou.");
+        }
+      }
+    })();
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   async function checkNativeSubscription() {
@@ -89,64 +178,85 @@ export function PushSubscriptionButton() {
 
   async function subscribeNative() {
     setBusy(true);
+    setError(null);
+    let registrationListener: NativeListener | null = null;
+    let registrationErrorListener: NativeListener | null = null;
+
     try {
       const { PushNotifications } = await import("@capacitor/push-notifications");
 
-      const permResult = await PushNotifications.requestPermissions();
+      const permResult = (await withTimeout(
+        PushNotifications.requestPermissions(),
+        SERVICE_WORKER_TIMEOUT_MS
+      )) as NativePushPermission;
       if (permResult.receive !== "granted") {
         setStatus("denied");
         return;
       }
 
-      await PushNotifications.register();
-
-      // Listen for the registration token
-      await new Promise<void>((resolve, reject) => {
-        PushNotifications.addListener("registration", async (token) => {
-          try {
-            // Store the FCM token as a special endpoint on the server
-            await fetch("/api/push/subscribe", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                endpoint: `fcm://${token.value}`,
-                keys: { p256dh: "native", auth: "native" },
-              }),
-            });
-            setStatus("subscribed");
-            resolve();
-          } catch (err) {
-            reject(err);
-          }
-        });
-
-        PushNotifications.addListener("registrationError", (err) => {
-          console.error("[push] native registration error:", err);
-          reject(err);
-        });
+      let resolveToken: (token: string) => void = () => undefined;
+      let rejectToken: (reason?: unknown) => void = () => undefined;
+      const tokenPromise = new Promise<string>((resolve, reject) => {
+        resolveToken = resolve;
+        rejectToken = reject;
       });
+
+      registrationListener = await withTimeout(
+        PushNotifications.addListener("registration", (token: NativePushToken) => {
+          resolveToken(token.value);
+        }),
+        SERVICE_WORKER_TIMEOUT_MS
+      );
+      registrationErrorListener = await withTimeout(
+        PushNotifications.addListener("registrationError", (event: NativePushRegistrationError) => {
+          rejectToken(new Error(event.error ?? "native-registration-failed"));
+        }),
+        SERVICE_WORKER_TIMEOUT_MS
+      );
+
+      await withTimeout(PushNotifications.register(), PUSH_OPERATION_TIMEOUT_MS);
+      const token = await withTimeout(tokenPromise, PUSH_OPERATION_TIMEOUT_MS);
+      await saveSubscription(`fcm://${token}`, { p256dh: "native", auth: "native" });
+      setStatus("subscribed");
     } catch (err) {
       console.error("[push] native subscribe error:", err);
+      setError(getPushErrorMessage(err, "activa"));
     } finally {
+      if (registrationListener) {
+        void registrationListener.remove().catch(() => undefined);
+      }
+      if (registrationErrorListener) {
+        void registrationErrorListener.remove().catch(() => undefined);
+      }
       setBusy(false);
     }
   }
 
   async function unsubscribeNative() {
     setBusy(true);
+    setError(null);
     try {
-      // We cannot easily get the token back, so just remove all fcm:// subscriptions for user
-      await fetch("/api/push/subscribe", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ endpoint: "fcm://unregister" }),
-      });
+      await removeSubscription("fcm://unregister");
       setStatus("unsubscribed");
     } catch (err) {
       console.error("[push] native unsubscribe error:", err);
+      setError(getPushErrorMessage(err, "dezactiva"));
     } finally {
       setBusy(false);
     }
+  }
+
+  async function getServiceWorkerRegistration(): Promise<ServiceWorkerRegistration> {
+    if (swRegistrationRef.current) {
+      return swRegistrationRef.current;
+    }
+
+    const registration = await withTimeout(
+      navigator.serviceWorker.ready,
+      SERVICE_WORKER_TIMEOUT_MS
+    );
+    swRegistrationRef.current = registration;
+    return registration;
   }
 
   async function subscribe() {
@@ -154,41 +264,41 @@ export function PushSubscriptionButton() {
       return subscribeNative();
     }
     setBusy(true);
+    setError(null);
     try {
-      const permission = await Notification.requestPermission();
+      const permission = await withTimeout(
+        Notification.requestPermission(),
+        SERVICE_WORKER_TIMEOUT_MS
+      );
       if (permission !== "granted") {
         setStatus("denied");
         return;
       }
 
-      // Use cached registration — avoids navigator.serviceWorker.ready hanging
-      // indefinitely when the SW is reinstalling (e.g. after a deploy).
-      const registration =
-        swRegistrationRef.current ??
-        (await withTimeout(navigator.serviceWorker.ready, 8000));
+      const registration = await getServiceWorkerRegistration();
 
       const sub = await withTimeout(
         registration.pushManager.subscribe({
           userVisibleOnly: true,
           applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
         }),
-        15000
+        PUSH_OPERATION_TIMEOUT_MS
       );
 
-      const { endpoint, keys } = sub.toJSON() as {
-        endpoint: string;
-        keys: { p256dh: string; auth: string };
-      };
+      const subscription = sub.toJSON();
+      if (!subscription.endpoint || !subscription.keys?.p256dh || !subscription.keys.auth) {
+        throw new Error("invalid-subscription");
+      }
 
-      await fetch("/api/push/subscribe", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ endpoint, keys }),
+      await saveSubscription(subscription.endpoint, {
+        p256dh: subscription.keys.p256dh,
+        auth: subscription.keys.auth,
       });
 
       setStatus("subscribed");
     } catch (err) {
       console.error("[push] subscribe error:", err);
+      setError(getPushErrorMessage(err, "activa"));
     } finally {
       setBusy(false);
     }
@@ -199,21 +309,22 @@ export function PushSubscriptionButton() {
       return unsubscribeNative();
     }
     setBusy(true);
+    setError(null);
     try {
-      const registration = await navigator.serviceWorker.ready;
-      const sub = await registration.pushManager.getSubscription();
+      const registration = await getServiceWorkerRegistration();
+      const sub = await withTimeout(
+        registration.pushManager.getSubscription(),
+        SERVICE_WORKER_TIMEOUT_MS
+      );
       if (sub) {
         const endpoint = sub.endpoint;
-        await sub.unsubscribe();
-        await fetch("/api/push/subscribe", {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ endpoint }),
-        });
+        await withTimeout(sub.unsubscribe(), PUSH_OPERATION_TIMEOUT_MS);
+        await removeSubscription(endpoint);
       }
       setStatus("unsubscribed");
     } catch (err) {
       console.error("[push] unsubscribe error:", err);
+      setError(getPushErrorMessage(err, "dezactiva"));
     } finally {
       setBusy(false);
     }
@@ -233,25 +344,35 @@ export function PushSubscriptionButton() {
 
   if (status === "subscribed") {
     return (
-      <button
-        onClick={unsubscribe}
-        disabled={busy}
-        className="btn-secondary flex items-center gap-2 text-sm"
-      >
-        <BellOff size={16} />
-        {busy ? "Se procesează..." : "Dezactivează notificările push"}
-      </button>
+      <div className="space-y-2">
+        <button
+          type="button"
+          onClick={unsubscribe}
+          disabled={busy}
+          aria-busy={busy}
+          className="btn-secondary flex items-center gap-2 text-sm"
+        >
+          <BellOff size={16} />
+          {busy ? "Se procesează..." : "Dezactivează notificările push"}
+        </button>
+        {error && <p role="alert" className="text-sm text-red-600 dark:text-red-400">{error}</p>}
+      </div>
     );
   }
 
   return (
-    <button
-      onClick={subscribe}
-      disabled={busy}
-      className="btn-primary flex items-center gap-2 text-sm"
-    >
-      <Bell size={16} />
-      {busy ? "Se procesează..." : "Activează notificările push"}
-    </button>
+    <div className="space-y-2">
+      <button
+        type="button"
+        onClick={subscribe}
+        disabled={busy}
+        aria-busy={busy}
+        className="btn-primary flex items-center gap-2 text-sm"
+      >
+        <Bell size={16} />
+        {busy ? "Se procesează..." : "Activează notificările push"}
+      </button>
+      {error && <p role="alert" className="text-sm text-red-600 dark:text-red-400">{error}</p>}
+    </div>
   );
 }
