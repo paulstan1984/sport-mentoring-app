@@ -16,7 +16,7 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
       (value) => {
         window.clearTimeout(timeoutId);
         resolve(value);
-      },`1`
+      },
       (error: unknown) => {
         window.clearTimeout(timeoutId);
         reject(error);
