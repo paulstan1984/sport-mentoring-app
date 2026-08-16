@@ -19,7 +19,7 @@
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
-    "@capacitor/browser": "^8.0.4",
+    "@capacitor/browser": "^7.0.0",
     "@capacitor/core": "^7.0.7",
     "@capacitor/push-notifications": "^7.0.7",
     "@prisma/adapter-libsql": "^7.5.0",
