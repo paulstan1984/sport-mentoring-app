@@ -100,10 +100,14 @@ type NativePushPermission = { receive: string };
 type NativePushSupport = { isAvailable: () => Promise<{ available: boolean }> };
 
 async function isNativePushAvailable(): Promise<boolean> {
-  const { registerPlugin } = await import("@capacitor/core");
-  const nativePushSupport = registerPlugin<NativePushSupport>("NativePushSupport");
-  const result = await withTimeout(nativePushSupport.isAvailable(), SERVICE_WORKER_TIMEOUT_MS);
-  return result.available;
+  try {
+    const { registerPlugin } = await import("@capacitor/core");
+    const nativePushSupport = registerPlugin<NativePushSupport>("NativePushSupport");
+    const result = await withTimeout(nativePushSupport.isAvailable(), SERVICE_WORKER_TIMEOUT_MS);
+    return result.available;
+  } catch {
+    return false;
+  }
 }
 
 export function PushSubscriptionButton() {
@@ -114,31 +118,35 @@ export function PushSubscriptionButton() {
   const swRegistrationRef = useRef<ServiceWorkerRegistration | null>(null);
 
   useEffect(() => {
-    if (isCapacitorNative()) {
-      setNative(true);
-      // For native apps, check if we already stored a token
-      checkNativeSubscription();
-      return;
-    }
-
-    if (!VAPID_PUBLIC_KEY) {
-      setStatus("unsupported");
-      return;
-    }
-    if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
-      setStatus("unsupported");
-      return;
-    }
-
-    const permission = Notification.permission;
-    if (permission === "denied") {
-      setStatus("denied");
-      return;
-    }
-
     let active = true;
 
     void (async () => {
+      if (isCapacitorNative()) {
+        const nativeAvailable = await isNativePushAvailable();
+        if (!active) return;
+        if (nativeAvailable) {
+          setNative(true);
+          await checkNativeSubscription();
+          return;
+        }
+        // Native push not available — fall through to web push
+      }
+
+      if (!VAPID_PUBLIC_KEY) {
+        setStatus("unsupported");
+        return;
+      }
+      if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+        setStatus("unsupported");
+        return;
+      }
+
+      const permission = Notification.permission;
+      if (permission === "denied") {
+        setStatus("denied");
+        return;
+      }
+
       try {
         const registration = await withTimeout(
           navigator.serviceWorker.ready,
