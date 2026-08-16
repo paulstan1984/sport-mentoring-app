@@ -17,6 +17,11 @@ const config: CapacitorConfig = {
     allowMixedContent: true,
     backgroundColor: '#f9fafb',
   },
+  plugins: {
+    PushNotifications: {
+      presentationOptions: ['badge', 'sound', 'alert'],
+    },
+  },
 };
 
 export default config;
