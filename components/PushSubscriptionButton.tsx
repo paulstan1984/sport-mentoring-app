@@ -160,19 +160,55 @@ export function PushSubscriptionButton() {
   }, []);
 
   async function checkNativeSubscription() {
+    let registrationListener: NativeListener | null = null;
+    let registrationErrorListener: NativeListener | null = null;
+
     try {
       const { PushNotifications } = await import("@capacitor/push-notifications");
       const permResult = await PushNotifications.checkPermissions();
       if (permResult.receive === "denied") {
         setStatus("denied");
-      } else if (permResult.receive === "granted") {
-        // If permission granted, assume subscribed (token was registered)
-        setStatus("subscribed");
-      } else {
-        setStatus("unsubscribed");
+        return;
       }
-    } catch {
+      if (permResult.receive !== "granted") {
+        setStatus("unsubscribed");
+        return;
+      }
+
+      let resolveToken: (token: string) => void = () => undefined;
+      let rejectToken: (reason?: unknown) => void = () => undefined;
+      const tokenPromise = new Promise<string>((resolve, reject) => {
+        resolveToken = resolve;
+        rejectToken = reject;
+      });
+
+      registrationListener = await withTimeout(
+        PushNotifications.addListener("registration", (token: NativePushToken) => {
+          resolveToken(token.value);
+        }),
+        SERVICE_WORKER_TIMEOUT_MS
+      );
+      registrationErrorListener = await withTimeout(
+        PushNotifications.addListener("registrationError", (event: NativePushRegistrationError) => {
+          rejectToken(new Error(event.error ?? "native-registration-failed"));
+        }),
+        SERVICE_WORKER_TIMEOUT_MS
+      );
+
+      await withTimeout(PushNotifications.register(), PUSH_OPERATION_TIMEOUT_MS);
+      const token = await withTimeout(tokenPromise, PUSH_OPERATION_TIMEOUT_MS);
+      await saveSubscription(`fcm://${token}`, { p256dh: "native", auth: "native" });
+      setStatus("subscribed");
+    } catch (err) {
+      console.error("[push] native subscription check error:", err);
       setStatus("unsubscribed");
+    } finally {
+      if (registrationListener) {
+        void registrationListener.remove().catch(() => undefined);
+      }
+      if (registrationErrorListener) {
+        void registrationErrorListener.remove().catch(() => undefined);
+      }
     }
   }
 
