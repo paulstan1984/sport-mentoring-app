@@ -92,11 +92,19 @@ function isCapacitorNative(): boolean {
   return !!cap?.isNativePlatform?.();
 }
 
-type Status = "loading" | "unsupported" | "denied" | "subscribed" | "unsubscribed";
+type Status = "loading" | "unsupported" | "unavailable" | "denied" | "subscribed" | "unsubscribed";
 type NativeListener = { remove: () => Promise<void> };
 type NativePushToken = { value: string };
 type NativePushRegistrationError = { error?: string };
 type NativePushPermission = { receive: string };
+type NativePushSupport = { isAvailable: () => Promise<{ available: boolean }> };
+
+async function isNativePushAvailable(): Promise<boolean> {
+  const { registerPlugin } = await import("@capacitor/core");
+  const nativePushSupport = registerPlugin<NativePushSupport>("NativePushSupport");
+  const result = await withTimeout(nativePushSupport.isAvailable(), SERVICE_WORKER_TIMEOUT_MS);
+  return result.available;
+}
 
 export function PushSubscriptionButton() {
   const [status, setStatus] = useState<Status>("loading");
@@ -164,6 +172,11 @@ export function PushSubscriptionButton() {
     let registrationErrorListener: NativeListener | null = null;
 
     try {
+      if (!(await isNativePushAvailable())) {
+        setStatus("unavailable");
+        return;
+      }
+
       const { PushNotifications } = await import("@capacitor/push-notifications");
       const permResult = await PushNotifications.checkPermissions();
       if (permResult.receive === "denied") {
@@ -219,6 +232,11 @@ export function PushSubscriptionButton() {
     let registrationErrorListener: NativeListener | null = null;
 
     try {
+      if (!(await isNativePushAvailable())) {
+        setStatus("unavailable");
+        return;
+      }
+
       const { PushNotifications } = await import("@capacitor/push-notifications");
 
       const permResult = (await withTimeout(
@@ -368,6 +386,15 @@ export function PushSubscriptionButton() {
 
   if (status === "loading") return null;
   if (status === "unsupported") return null;
+
+  if (status === "unavailable") {
+    return (
+      <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+        <BellOff size={16} />
+        <span>Notificările push nu sunt configurate în această versiune a aplicației.</span>
+      </div>
+    );
+  }
 
   if (status === "denied") {
     return (
