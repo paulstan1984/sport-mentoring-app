@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Bell, BellOff } from "lucide-react";
+import { Capacitor } from "@capacitor/core";
 
 const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? "";
 const SERVICE_WORKER_TIMEOUT_MS = 8_000;
@@ -88,8 +89,7 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array<ArrayBuffer> {
 
 /** Detect if running inside a Capacitor native shell */
 function isCapacitorNative(): boolean {
-  const cap = (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor;
-  return !!cap?.isNativePlatform?.();
+  return Capacitor.isNativePlatform();
 }
 
 type Status = "loading" | "unsupported" | "unavailable" | "denied" | "subscribed" | "unsubscribed";
@@ -97,18 +97,6 @@ type NativeListener = { remove: () => Promise<void> };
 type NativePushToken = { value: string };
 type NativePushRegistrationError = { error?: string };
 type NativePushPermission = { receive: string };
-type NativePushSupport = { isAvailable: () => Promise<{ available: boolean }> };
-
-async function isNativePushAvailable(): Promise<boolean> {
-  try {
-    const { registerPlugin } = await import("@capacitor/core");
-    const nativePushSupport = registerPlugin<NativePushSupport>("NativePushSupport");
-    const result = await withTimeout(nativePushSupport.isAvailable(), SERVICE_WORKER_TIMEOUT_MS);
-    return result.available;
-  } catch {
-    return false;
-  }
-}
 
 export function PushSubscriptionButton() {
   const [status, setStatus] = useState<Status>("loading");
@@ -122,14 +110,9 @@ export function PushSubscriptionButton() {
 
     void (async () => {
       if (isCapacitorNative()) {
-        const nativeAvailable = await isNativePushAvailable();
-        if (!active) return;
-        if (nativeAvailable) {
-          setNative(true);
-          await checkNativeSubscription();
-          return;
-        }
-        // Native push not available — fall through to web push
+        setNative(true);
+        await checkNativeSubscription();
+        return;
       }
 
       if (!VAPID_PUBLIC_KEY) {
@@ -180,11 +163,6 @@ export function PushSubscriptionButton() {
     let registrationErrorListener: NativeListener | null = null;
 
     try {
-      if (!(await isNativePushAvailable())) {
-        setStatus("unavailable");
-        return;
-      }
-
       const { PushNotifications } = await import("@capacitor/push-notifications");
       const permResult = await PushNotifications.checkPermissions();
       if (permResult.receive === "denied") {
@@ -240,11 +218,6 @@ export function PushSubscriptionButton() {
     let registrationErrorListener: NativeListener | null = null;
 
     try {
-      if (!(await isNativePushAvailable())) {
-        setStatus("unavailable");
-        return;
-      }
-
       const { PushNotifications } = await import("@capacitor/push-notifications");
 
       const permResult = (await withTimeout(
