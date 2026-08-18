@@ -57,44 +57,84 @@ function confidenceLabel(c: string | null): string {
   }
 }
 
-function exportToPdf(reportId: string, playerName: string, startDate: string, endDate: string) {
+async function exportToPdf(
+  reportId: string,
+  playerName: string,
+  startDate: string,
+  endDate: string
+) {
   const el = document.getElementById(reportId);
   if (!el) return;
 
-  // Clone so we can strip the export button before printing
+  const { default: html2pdf } = await import("html2pdf.js");
+
+  // Clone the report so we don't modify the UI
   const clone = el.cloneNode(true) as HTMLElement;
-  const btn = clone.querySelector("[data-print-exclude]");
-  if (btn) btn.parentElement?.removeChild(btn);
 
-  const printStyles = `
-    @page { size: A4 landscape; margin: 12mm; }
-    * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    body { font-family: sans-serif; font-size: 11px; color: #111; background: #fff; margin: 0; padding: 0; }
-    h2 { font-size: 14px; font-weight: 700; margin: 0 0 4px; }
-    p  { font-size: 11px; margin: 0 0 2px; color: #555; }
-    table { width: 100%; border-collapse: collapse; table-layout: auto; margin-top: 12px; }
-    th, td { border: 1px solid #d1d5db; padding: 4px 6px; white-space: nowrap; font-size: 10px; }
-    th { background: #f3f4f6; font-weight: 600; }
-    tr:nth-child(even) td { background: #f9fafb; }
-    .print-chart { margin-top: 20px; }
-    svg { max-width: 100%; }
-  `;
+  // Remove elements that shouldn't be included in the PDF
+  clone.querySelectorAll("[data-print-exclude]").forEach((element) => {
+    element.remove();
+  });
 
-  const win = window.open("", "_blank", "width=1200,height=900");
-  if (!win) return;
-  win.document.write(`<!DOCTYPE html>
-<html><head>
-<meta charset="utf-8"/>
-<title>Raport — ${playerName} (${startDate} – ${endDate})</title>
-<style>${printStyles}</style>
-</head><body>${clone.innerHTML}</body></html>`);
-  win.document.close();
-  win.focus();
-  // Small delay so SVG chart renders before printing
-  setTimeout(() => {
-    win.print();
-    win.close();
-  }, 400);
+  // Create a temporary container
+  const container = document.createElement("div");
+
+  container.style.position = "absolute";
+  container.style.left = "-99999px";
+  container.style.top = "0";
+  container.style.width = "1120px";
+  container.style.background = "#fff";
+  container.style.padding = "0";
+
+  container.appendChild(clone);
+  document.body.appendChild(container);
+
+  const options = {
+    enableLinks: true,
+    margin: [12, 12, 12, 12] as [number, number, number, number],
+    filename: `Raport-${playerName}-${startDate}-${endDate}.pdf`,
+    image: {
+      type: "jpeg" as "jpeg" | "png" | "webp",
+      quality: 0.98,
+    },
+    html2canvas: {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#ffffff",
+    },
+    jsPDF: {
+      unit: "mm",
+      format: "a4",
+      orientation: "landscape" as "portrait" | "landscape",
+    }
+  };
+
+  html2pdf()
+    .set(options)
+    .from(clone)
+    .outputPdf("blob")
+    .then((pdfBlob: Blob) => {
+      // Remove temporary DOM element
+      document.body.removeChild(container);
+
+      // Open the generated PDF in a new browser tab
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+
+      const pdfWindow = window.open(pdfUrl, "_blank");
+
+      if (!pdfWindow) {
+        console.warn("Popup blocked by browser");
+      }
+
+      // Give the browser time to load the PDF before releasing the URL
+      setTimeout(() => {
+        URL.revokeObjectURL(pdfUrl);
+      }, 60000);
+    })
+    .catch((error: unknown) => {
+      document.body.removeChild(container);
+      console.error("PDF generation failed:", error);
+    });
 }
 
 export function ReportClient({ data }: { data: ReportData }) {

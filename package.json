@@ -36,6 +36,7 @@
     "bcryptjs": "^3.0.3",
     "better-sqlite3": "^11.0.0",
     "dotenv": "^17.4.2",
+    "html2pdf.js": "^0.14.0",
     "iron-session": "^8.0.4",
     "isomorphic-dompurify": "^3.5.1",
     "lucide-react": "^1.7.0",
@@ -51,6 +52,7 @@
   "devDependencies": {
     "@capacitor/cli": "^7.6.8",
     "@tailwindcss/postcss": "^4",
+    "@types/html2pdf.js": "^0.10.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
