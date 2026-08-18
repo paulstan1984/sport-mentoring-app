@@ -237,7 +237,12 @@ export function ReportClient({ data }: { data: ReportData }) {
                           <span className="text-gray-400">⬜ Absent</span>
                         )}
                       </td>
-                      <td
+                      <td style={{
+                        whiteSpace: 'normal',
+                        overflowWrap: 'anywhere',
+                        wordBreak: 'break-word',
+                        verticalAlign: 'top',
+                      }}
                         className="px-3 py-2 border border-gray-200 dark:border-gray-700 text-xs"
                         dangerouslySetInnerHTML={{ __html: note.content }}
                       />
