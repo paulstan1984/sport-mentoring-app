@@ -3,6 +3,9 @@
 ### Allow users / clients to see their jurnal
 Users should be able to see the jurnal history. 
 
+### Allow users / clients to add notes
+The application should have a section where users should add/edit notes.
+
 ### Push notifications on hubrid mobile app
 When the user uses the application in hybrid mobile app, and clicks on "activeaza notificarile push" the application crashes and quit.
 
