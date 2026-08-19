@@ -1,8 +1,10 @@
 # TO DO List
 
+### Allow users / clients to see their jurnal
+Users should be able to see the jurnal history. 
+
 ### Push notifications on hubrid mobile app
 When the user uses the application in hybrid mobile app, and clicks on "activeaza notificarile push" the application crashes and quit.
-
 
 # Fixed
 ### Export player report as pdf
