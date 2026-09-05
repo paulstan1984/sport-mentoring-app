@@ -18,6 +18,7 @@ import {
   TrendingUp,
   User,
   LogOut,
+  NotebookPen,
 } from "lucide-react";
 
 export default async function PlayerLayout({
@@ -50,6 +51,7 @@ export default async function PlayerLayout({
     { href: "/player/journal",      label: "Jurnal",          icon: BookText },
     { href: "/player/scope",        label: "Obiectiv",        icon: Target },
     { href: "/player/library",      label: "Bibliotecă",      icon: BookOpen },
+    { href: "/player/notes",        label: "Notițe",          icon: NotebookPen },
     { href: "/player/profile",      label: "Profil",          icon: User },
   ];
 

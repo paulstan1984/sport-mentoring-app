@@ -115,6 +115,7 @@ model Player {
   confidenceLevels      ConfidenceLevel[]
   libraryReads          LibraryItemRead[]
   notes                 PlayerNote[]
+  personalNotes         PlayerPersonalNote[]
   improvementWayRatings ImprovementWayRating[]
   createdAt             DateTime               @default(now())
 }
@@ -128,6 +129,18 @@ model PlayerNote {
   content          String
   checkinPresence  Boolean  @default(false)
   createdAt        DateTime @default(now())
+}
+
+model PlayerPersonalNote {
+  id        Int      @id @default(autoincrement())
+  playerId  Int
+  player    Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  date      DateTime
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+
+  @@index([playerId, date])
 }
 
 model CheckinForm {

@@ -7,13 +7,17 @@ import { CheckCircle2, Circle } from "lucide-react";
 
 type AnswerMap = Record<number, CheckinAnswer>;
 
-export function CheckinForm({
-  items,
-  answerMap,
-}: {
+function formatDateInput(date: Date): string {
+  return date.toISOString().slice(0, 10);
+}
+
+interface CheckinFormProps {
   items: CheckinFormItem[];
   answerMap: AnswerMap;
-}) {
+  selectedDay: Date;
+}
+
+export function CheckinForm({ items, answerMap, selectedDay }: CheckinFormProps) {
   const wrappedAction = async (
     prev: Awaited<ReturnType<typeof submitCheckin>> | null,
     formData: FormData
@@ -32,6 +36,8 @@ export function CheckinForm({
   const [offlineQueued, setOfflineQueued] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
+  const selectedDayString = formatDateInput(selectedDay);
+
   useEffect(() => {
     setIsOnline(navigator.onLine);
     const handleOnline = () => setIsOnline(true);
@@ -44,13 +50,19 @@ export function CheckinForm({
     };
   }, []);
 
+  // Sync checkbox state when the selected day changes
+  useEffect(() => {
+    setChecked(Object.fromEntries(items.map((i) => [i.id, answerMap[i.id]?.checked ?? false])));
+    setOfflineQueued(false);
+  }, [selectedDayString, items, answerMap]);
+
   const alreadySubmitted = Object.values(answerMap).some((a) => a.checked);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     if (navigator.onLine) return;
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const today = new Date().toISOString().split("T")[0];
+    const day = (formData.get("day") as string) || selectedDayString;
     const answers = items.map((item) => ({
       flagId: item.id,
       checked: formData.get(`flag_${item.id}`) === "on",
@@ -63,8 +75,8 @@ export function CheckinForm({
     await enqueue({
       type: "checkin",
       endpoint: "/api/sync/checkin",
-      payload: { answers, day: today },
-      day: today,
+      payload: { answers, day },
+      day,
     });
     setOfflineQueued(true);
     window.dispatchEvent(new CustomEvent("offline-enqueued"));
@@ -72,6 +84,8 @@ export function CheckinForm({
 
   return (
     <form ref={formRef} action={formAction} onSubmit={handleSubmit} className="space-y-4">
+      <input type="hidden" name="day" value={selectedDayString} />
+
       {!isOnline && (
         <div className="kit-warning-banner">
           Ești offline. Datele vor fi salvate local și sincronizate automat.
@@ -79,7 +93,7 @@ export function CheckinForm({
       )}
       {alreadySubmitted && isOnline && (
         <div className="kit-success-banner">
-          Ai completat checkin-ul de astăzi. Poți actualiza oricând.
+          Ai completat checkin-ul. Poți actualiza oricând.
         </div>
       )}
 

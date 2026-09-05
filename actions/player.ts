@@ -16,6 +16,12 @@ async function getPlayerId(): Promise<number> {
   return session.playerId;
 }
 
+function getDayFromForm(formData: FormData): Date {
+  const dayValue = formData.get("day") as string;
+  const day = dayValue ? new Date(dayValue) : new Date();
+  return startOfDayUTC(day);
+}
+
 // ── Checkin ───────────────────────────────────────────────────────────────────
 
 export async function submitCheckin(
@@ -25,7 +31,7 @@ export async function submitCheckin(
   await requirePlayer();
   const playerId = await getPlayerId();
 
-  const today = startOfDayUTC(new Date());
+  const day = getDayFromForm(formData);
 
   // Find mentor's active form items
   const player = await db.player.findUnique({
@@ -59,10 +65,10 @@ export async function submitCheckin(
 
     return db.checkinAnswer.upsert({
       where: {
-        playerId_flagId_day: { playerId, flagId: item.id, day: today },
+        playerId_flagId_day: { playerId, flagId: item.id, day },
       },
       update: { checked, stringValue },
-      create: { playerId, flagId: item.id, day: today, checked, stringValue },
+      create: { playerId, flagId: item.id, day, checked, stringValue },
     });
   });
 
@@ -82,18 +88,18 @@ export async function submitJournal(
   await requirePlayer();
   const playerId = await getPlayerId();
 
-  const today = startOfDayUTC(new Date());
+  const day = getDayFromForm(formData);
   const whatDidGood = (formData.get("whatDidGood") as string) || null;
   const whatDidWrong = (formData.get("whatDidWrong") as string) || null;
   const whatCanDoBetter = (formData.get("whatCanDoBetter") as string) || null;
   const myScore = Math.min(5, Math.max(0, Number(formData.get("myScore")) || 0));
 
   await db.dailyJournal.upsert({
-    where: { playerId_day: { playerId, day: today } },
+    where: { playerId_day: { playerId, day } },
     update: { whatDidGood, whatDidWrong, whatCanDoBetter, myScore },
     create: {
       playerId,
-      day: today,
+      day,
       whatDidGood,
       whatDidWrong,
       whatCanDoBetter,
@@ -103,6 +109,58 @@ export async function submitJournal(
 
   revalidatePath("/player/journal");
   revalidatePath("/player/dashboard");
+  return { success: true };
+}
+
+// ── Personal Notes ────────────────────────────────────────────────────────────
+
+export async function savePlayerNote(
+  _prev: ActionResult | null,
+  formData: FormData
+): Promise<ActionResult> {
+  await requirePlayer();
+  const playerId = await getPlayerId();
+
+  const idValue = formData.get("noteId");
+  const id = idValue ? Number(idValue) : null;
+  const dateValue = formData.get("date") as string;
+  if (!dateValue) return { error: "Data este obligatorie." };
+
+  const date = startOfDayUTC(new Date(dateValue));
+  const content = (formData.get("content") as string)?.trim() ?? "";
+  if (!content) return { error: "Conținutul notiței este obligatoriu." };
+
+  if (id) {
+    const existing = await db.playerPersonalNote.findFirst({
+      where: { id, playerId },
+    });
+    if (!existing) return { error: "Notița nu a fost găsită." };
+
+    await db.playerPersonalNote.update({
+      where: { id },
+      data: { date, content },
+    });
+  } else {
+    await db.playerPersonalNote.create({
+      data: { playerId, date, content },
+    });
+  }
+
+  revalidatePath("/player/notes");
+  return { success: true };
+}
+
+export async function deletePlayerNote(id: number): Promise<ActionResult> {
+  await requirePlayer();
+  const playerId = await getPlayerId();
+
+  const existing = await db.playerPersonalNote.findFirst({
+    where: { id, playerId },
+  });
+  if (!existing) return { error: "Notița nu a fost găsită." };
+
+  await db.playerPersonalNote.delete({ where: { id } });
+  revalidatePath("/player/notes");
   return { success: true };
 }
 

@@ -62,7 +62,7 @@ import { createPlayer } from "@/actions/mentor";
 import { db } from "@/lib/db";
 import { getSession, requireMentor } from "@/lib/auth";
 
-const mockDb = db as {
+const mockDb = db as unknown as {
   user: { findUnique: ReturnType<typeof vi.fn>; create: ReturnType<typeof vi.fn> };
   player: { findUnique: ReturnType<typeof vi.fn>; update: ReturnType<typeof vi.fn>; count: ReturnType<typeof vi.fn> };
   mentor: { findUnique: ReturnType<typeof vi.fn> };
