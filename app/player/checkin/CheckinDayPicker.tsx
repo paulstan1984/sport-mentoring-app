@@ -1,5 +1,7 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+
 function formatDateInput(date: Date): string {
   return date.toISOString().slice(0, 10);
 }
@@ -9,6 +11,8 @@ interface CheckinDayPickerProps {
 }
 
 export function CheckinDayPicker({ selectedDay }: CheckinDayPickerProps) {
+  const router = useRouter();
+
   return (
     <div>
       <label htmlFor="checkin-day" className="label text-xs mb-1.5 block">
@@ -21,7 +25,8 @@ export function CheckinDayPicker({ selectedDay }: CheckinDayPickerProps) {
         onChange={(e) => {
           const value = e.target.value;
           if (value) {
-            window.location.href = `/player/checkin?day=${value}`;
+            const params = new URLSearchParams({ day: value });
+            router.push(`/player/checkin?${params.toString()}`);
           }
         }}
         className="input text-sm"
