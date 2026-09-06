@@ -32,14 +32,19 @@ Cu SportMentor, fiecare sportiv completează un check-in zilnic, iar tu vezi rap
 Testează gratuit cu primul tău sportiv.
 ```
 
+### Invitație pentru testarea gratuită a SportMentor
+
 ```
-Bună ziua,
+Bună,
 
-Am dezvoltat SportMentor, o platformă care îi ajută pe antrenori să urmărească zilnic starea, obiectivele și progresul sportivilor.
+Am dezvoltat **SportMentor**, o platformă care îi ajută pe antrenori să urmărească mai ușor, zi de zi, starea, obiectivele și progresul sportivilor.
 
-Căutăm câteva academii/cluburi din România care să testeze platforma gratuit.
+În această perioadă caut câteva academii și cluburi din România care ar vrea să testeze platforma **gratuit**, într-un grup pilot.
 
-Putem configura gratuit un grup pilot pentru 5–10 sportivi și vă putem arăta în 15 minute cum funcționează.
+Pot să îți configurez gratuit un grup pentru **5–10 sportivi** și să îți arăt în aproximativ **15 minute** cum funcționează și cum poate fi folosită de antrenori și sportivi.
 
-Dacă vi se pare interesant, putem programa o scurtă demonstrație.
+Dacă ți se pare interesant, putem programa o scurtă demonstrație și îți pot arăta concret cum funcționează.
+
+Mulțumesc!
+Paul
 ```

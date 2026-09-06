@@ -41,6 +41,12 @@ vi.mock("@/lib/db", () => ({
     improvementWayRating: {
       upsert: vi.fn(),
     },
+    playerPersonalNote: {
+      findFirst: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+    },
     $transaction: vi.fn(),
   },
 }));
@@ -73,12 +79,14 @@ import {
   markLibraryItemRead,
   updatePlayerObjective,
   changePlayerPassword,
+  savePlayerNote,
+  deletePlayerNote,
 } from "@/actions/player";
 import { db } from "@/lib/db";
 import { getSession, requirePlayer } from "@/lib/auth";
 import bcrypt from "bcryptjs";
 
-const mockDb = db as {
+const mockDb = db as unknown as {
   player: { findUnique: ReturnType<typeof vi.fn>; update: ReturnType<typeof vi.fn> };
   user: { findUnique: ReturnType<typeof vi.fn>; update: ReturnType<typeof vi.fn> };
   dailyJournal: { upsert: ReturnType<typeof vi.fn> };
@@ -92,10 +100,16 @@ const mockDb = db as {
   libraryItem: { findFirst: ReturnType<typeof vi.fn> };
   libraryItemRead: { upsert: ReturnType<typeof vi.fn> };
   improvementWayRating: { upsert: ReturnType<typeof vi.fn> };
+  playerPersonalNote: {
+    findFirst: ReturnType<typeof vi.fn>;
+    create: ReturnType<typeof vi.fn>;
+    update: ReturnType<typeof vi.fn>;
+    delete: ReturnType<typeof vi.fn>;
+  };
   $transaction: ReturnType<typeof vi.fn>;
 };
 
-const mockBcrypt = bcrypt as { compare: ReturnType<typeof vi.fn>; hash: ReturnType<typeof vi.fn> };
+const mockBcrypt = bcrypt as unknown as { compare: ReturnType<typeof vi.fn>; hash: ReturnType<typeof vi.fn> };
 
 const playerSession = { userId: 3, role: "PLAYER", playerId: 20 };
 
@@ -404,5 +418,82 @@ describe("changePlayerPassword", () => {
     );
     expect(result.success).toBe(true);
     expect(mockDb.user.update).toHaveBeenCalledOnce();
+  });
+});
+
+describe("savePlayerNote", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(getSession).mockResolvedValue(playerSession as never);
+    vi.mocked(requirePlayer).mockResolvedValue(playerSession as never);
+    mockDb.playerPersonalNote.findFirst.mockResolvedValue(null);
+    mockDb.playerPersonalNote.create.mockResolvedValue({});
+    mockDb.playerPersonalNote.update.mockResolvedValue({});
+  });
+
+  it("returns error when date is missing", async () => {
+    const result = await savePlayerNote(null, makeFormData({ content: "Test" }));
+    expect(result.error).toBe("Data este obligatorie.");
+  });
+
+  it("returns error when content is empty", async () => {
+    const result = await savePlayerNote(null, makeFormData({ date: "2026-09-05", content: "   " }));
+    expect(result.error).toBe("Conținutul notiței este obligatoriu.");
+  });
+
+  it("creates a new note successfully", async () => {
+    const result = await savePlayerNote(
+      null,
+      makeFormData({ date: "2026-09-05", content: "Nota mea" })
+    );
+    expect(result.success).toBe(true);
+    expect(mockDb.playerPersonalNote.create).toHaveBeenCalledOnce();
+    const call = mockDb.playerPersonalNote.create.mock.calls[0][0];
+    expect(call.data.playerId).toBe(20);
+    expect(call.data.content).toBe("Nota mea");
+  });
+
+  it("updates an existing note successfully", async () => {
+    mockDb.playerPersonalNote.findFirst.mockResolvedValueOnce({ id: 5, playerId: 20 });
+    const result = await savePlayerNote(
+      null,
+      makeFormData({ noteId: "5", date: "2026-09-05", content: "Actualizat" })
+    );
+    expect(result.success).toBe(true);
+    expect(mockDb.playerPersonalNote.update).toHaveBeenCalledWith({
+      where: { id: 5 },
+      data: expect.objectContaining({ content: "Actualizat" }),
+    });
+  });
+
+  it("returns error when updating a note that does not belong to player", async () => {
+    mockDb.playerPersonalNote.findFirst.mockResolvedValueOnce(null);
+    const result = await savePlayerNote(
+      null,
+      makeFormData({ noteId: "99", date: "2026-09-05", content: "Actualizat" })
+    );
+    expect(result.error).toBe("Notița nu a fost găsită.");
+  });
+});
+
+describe("deletePlayerNote", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(getSession).mockResolvedValue(playerSession as never);
+    vi.mocked(requirePlayer).mockResolvedValue(playerSession as never);
+    mockDb.playerPersonalNote.delete.mockResolvedValue({});
+  });
+
+  it("returns error when note not found", async () => {
+    mockDb.playerPersonalNote.findFirst.mockResolvedValueOnce(null);
+    const result = await deletePlayerNote(999);
+    expect(result.error).toBe("Notița nu a fost găsită.");
+  });
+
+  it("deletes note successfully", async () => {
+    mockDb.playerPersonalNote.findFirst.mockResolvedValueOnce({ id: 5, playerId: 20 });
+    const result = await deletePlayerNote(5);
+    expect(result.success).toBe(true);
+    expect(mockDb.playerPersonalNote.delete).toHaveBeenCalledWith({ where: { id: 5 } });
   });
 });

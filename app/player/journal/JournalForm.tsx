@@ -5,7 +5,20 @@ import { submitJournal } from "@/actions/player";
 import { RichTextEditor } from "@/components/RichTextEditor";
 import type { DailyJournal } from "@/app/generated/prisma/client";
 
-export function JournalForm({ existing }: { existing: DailyJournal | null }) {
+function formatDateInput(date: Date): string {
+  return date.toISOString().slice(0, 10);
+}
+
+function startOfDayUTC(date: Date): Date {
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+}
+
+interface JournalFormProps {
+  existing: DailyJournal | null;
+  selectedDay: Date;
+}
+
+export function JournalForm({ existing, selectedDay }: JournalFormProps) {
   const wrappedAction = async (
     prev: Awaited<ReturnType<typeof submitJournal>> | null,
     formData: FormData
@@ -33,11 +46,14 @@ export function JournalForm({ existing }: { existing: DailyJournal | null }) {
     };
   }, []);
 
+  const selectedDayString = formatDateInput(selectedDay);
+  const isToday = selectedDay.getTime() === startOfDayUTC(new Date()).getTime();
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     if (navigator.onLine) return;
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const today = new Date().toISOString().split("T")[0];
+    const day = (formData.get("day") as string) || selectedDayString;
     const { enqueue } = await import("@/lib/offline-db");
     await enqueue({
       type: "journal",
@@ -47,9 +63,9 @@ export function JournalForm({ existing }: { existing: DailyJournal | null }) {
         whatDidWrong: (formData.get("whatDidWrong") as string) || null,
         whatCanDoBetter: (formData.get("whatCanDoBetter") as string) || null,
         myScore: Math.min(5, Math.max(0, Number(formData.get("myScore")) || 0)),
-        day: today,
+        day,
       },
-      day: today,
+      day,
     });
     setOfflineQueued(true);
     window.dispatchEvent(new CustomEvent("offline-enqueued"));
@@ -81,6 +97,8 @@ export function JournalForm({ existing }: { existing: DailyJournal | null }) {
 
   return (
     <form action={formAction} onSubmit={handleSubmit} className="space-y-4">
+      <input type="hidden" name="day" value={selectedDayString} />
+
       {!isOnline && (
         <div className="kit-warning-banner">
           Ești offline. Datele vor fi salvate local și sincronizate automat.
@@ -88,7 +106,9 @@ export function JournalForm({ existing }: { existing: DailyJournal | null }) {
       )}
       {existing && isOnline && (
         <div className="kit-success-banner">
-          Ai completat jurnalul de astăzi. Poți actualiza oricând.
+          {isToday
+            ? "Ai completat jurnalul de astăzi. Poți actualiza oricând."
+            : `Ai completat jurnalul pentru ${selectedDay.toLocaleDateString("ro-RO")}. Poți actualiza oricând.`}
         </div>
       )}
 

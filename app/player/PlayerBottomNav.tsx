@@ -14,6 +14,7 @@ import {
   MoreHorizontal,
   TrendingUp,
   Target,
+  NotebookPen,
 } from "lucide-react";
 
 const mainLinks = [
@@ -26,6 +27,7 @@ const mainLinks = [
 const moreLinks = [
   { href: "/player/improvement", label: "Îmbunătățiri", icon: TrendingUp },
   { href: "/player/scope",       label: "Obiectiv",     icon: Target },
+  { href: "/player/notes",       label: "Notițe",       icon: NotebookPen },
   { href: "/player/profile",     label: "Profil",       icon: User },
 ];
 

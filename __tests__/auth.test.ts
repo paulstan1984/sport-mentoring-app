@@ -35,13 +35,13 @@ import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import bcrypt from "bcryptjs";
 
-const mockDb = db as {
+const mockDb = db as unknown as {
   user: { findUnique: ReturnType<typeof vi.fn> };
   mentor: { findUnique: ReturnType<typeof vi.fn> };
   player: { findUnique: ReturnType<typeof vi.fn> };
 };
 
-const mockBcrypt = bcrypt as { compare: ReturnType<typeof vi.fn>; hash: ReturnType<typeof vi.fn> };
+const mockBcrypt = bcrypt as unknown as { compare: ReturnType<typeof vi.fn>; hash: ReturnType<typeof vi.fn> };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
