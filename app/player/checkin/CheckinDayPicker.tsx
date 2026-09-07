@@ -21,7 +21,7 @@ export function CheckinDayPicker({ selectedDay }: CheckinDayPickerProps) {
       <input
         id="checkin-day"
         type="date"
-        defaultValue={formatDateInput(selectedDay)}
+        value={formatDateInput(selectedDay)}
         onChange={(e) => {
           const value = e.target.value;
           if (value) {
