@@ -21,7 +21,7 @@ export function JournalDayPicker({ selectedDay }: JournalDayPickerProps) {
       <input
         id="journal-day"
         type="date"
-        defaultValue={formatDateInput(selectedDay)}
+        value={formatDateInput(selectedDay)}
         onChange={(e) => {
           const value = e.target.value;
           if (value) {
