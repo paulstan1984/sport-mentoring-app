@@ -42,7 +42,10 @@ export async function submitCheckin(
           checkinForm: {
             include: {
               items: {
-                where: { deletedAt: null },
+                where: {
+                  deletedAt: null,
+                  OR: [{ playerId: null }, { playerId }],
+                },
                 orderBy: { order: "asc" },
               },
             },
@@ -76,6 +79,95 @@ export async function submitCheckin(
 
   revalidatePath("/player/checkin");
   revalidatePath("/player/dashboard");
+  return { success: true };
+}
+
+export async function addPlayerCheckinFormItem(
+  _prev: ActionResult | null,
+  formData: FormData
+): Promise<ActionResult> {
+  await requirePlayer();
+  const playerId = await getPlayerId();
+
+  const label = (formData.get("label") as string)?.trim();
+  const allowAdditionalString = formData.get("allowAdditionalString") === "on";
+  if (!label) return { error: "Introduceți un label." };
+
+  const player = await db.player.findUnique({
+    where: { id: playerId },
+    select: { mentorId: true, mentor: { select: { checkinForm: true } } },
+  });
+  if (!player) return { error: "Jucător negăsit." };
+  let form = player.mentor?.checkinForm;
+  if (!form) {
+    form = await db.checkinForm.create({ data: { mentorId: player.mentorId } });
+  }
+
+  const maxOrder = await db.checkinFormItem.aggregate({
+    where: { formId: form.id, deletedAt: null, playerId },
+    _max: { order: true },
+  });
+
+  await db.checkinFormItem.create({
+    data: {
+      formId: form.id,
+      playerId,
+      label,
+      allowAdditionalString,
+      order: (maxOrder._max.order ?? -1) + 1,
+    },
+  });
+
+  revalidatePath("/player/checkin-items");
+  revalidatePath("/player/checkin");
+  revalidatePath(`/mentor/players/${playerId}`);
+  revalidatePath("/mentor/reports");
+  return { success: true };
+}
+
+export async function updatePlayerCheckinFormItem(
+  _prev: ActionResult | null,
+  formData: FormData
+): Promise<ActionResult> {
+  await requirePlayer();
+  const playerId = await getPlayerId();
+
+  const id = Number(formData.get("id"));
+  const label = (formData.get("label") as string)?.trim();
+  const allowAdditionalString = formData.get("allowAdditionalString") === "on";
+  if (!id || !label) return { error: "Date invalide." };
+
+  const item = await db.checkinFormItem.findFirst({ where: { id, playerId, deletedAt: null } });
+  if (!item) return { error: "Element negăsit." };
+
+  await db.checkinFormItem.update({
+    where: { id },
+    data: { label, allowAdditionalString },
+  });
+
+  revalidatePath("/player/checkin-items");
+  revalidatePath("/player/checkin");
+  revalidatePath(`/mentor/players/${playerId}`);
+  revalidatePath("/mentor/reports");
+  return { success: true };
+}
+
+export async function softDeletePlayerCheckinFormItem(id: number): Promise<ActionResult> {
+  await requirePlayer();
+  const playerId = await getPlayerId();
+
+  const item = await db.checkinFormItem.findFirst({ where: { id, playerId, deletedAt: null } });
+  if (!item) return { error: "Element negăsit." };
+
+  await db.checkinFormItem.update({
+    where: { id },
+    data: { deletedAt: new Date() },
+  });
+
+  revalidatePath("/player/checkin-items");
+  revalidatePath("/player/checkin");
+  revalidatePath(`/mentor/players/${playerId}`);
+  revalidatePath("/mentor/reports");
   return { success: true };
 }
 

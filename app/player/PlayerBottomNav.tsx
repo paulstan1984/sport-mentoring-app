@@ -15,6 +15,7 @@ import {
   TrendingUp,
   Target,
   NotebookPen,
+  ListChecks,
 } from "lucide-react";
 
 const mainLinks = [
@@ -28,6 +29,7 @@ const moreLinks = [
   { href: "/player/improvement", label: "Îmbunătățiri", icon: TrendingUp },
   { href: "/player/scope",       label: "Obiectiv",     icon: Target },
   { href: "/player/notes",       label: "Notițe",       icon: NotebookPen },
+  { href: "/player/checkin-items", label: "Elemente checkin", icon: ListChecks },
   { href: "/player/profile",     label: "Profil",       icon: User },
 ];
 

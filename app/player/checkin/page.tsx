@@ -4,6 +4,7 @@ import { startOfDayUTC } from "@/lib/streak";
 import { CheckinForm } from "./CheckinForm";
 import { CheckinDayPicker } from "./CheckinDayPicker";
 import { CheckinHistory } from "./CheckinHistory";
+import { CheckinReportChart } from "./CheckinReportChart";
 
 interface CheckinPageProps {
   searchParams?: Promise<{ day?: string }>;
@@ -28,7 +29,10 @@ export default async function CheckinPage({ searchParams }: CheckinPageProps) {
           checkinForm: {
             include: {
               items: {
-                where: { deletedAt: null },
+                where: {
+                  deletedAt: null,
+                  OR: [{ playerId: null }, { playerId }],
+                },
                 orderBy: { order: "asc" },
               },
             },
@@ -39,6 +43,8 @@ export default async function CheckinPage({ searchParams }: CheckinPageProps) {
   });
 
   const items = player?.mentor?.checkinForm?.items ?? [];
+  const mentorItems = items.filter((item) => item.playerId === null);
+  const playerItems = items.filter((item) => item.playerId === playerId);
 
   // Load existing answers for the selected day
   const existingAnswers = await db.checkinAnswer.findMany({
@@ -57,6 +63,23 @@ export default async function CheckinPage({ searchParams }: CheckinPageProps) {
     orderBy: { day: "desc" },
     take: 30,
   });
+
+  const reportStart = new Date(today);
+  reportStart.setUTCDate(reportStart.getUTCDate() - 13);
+  const recentCheckedAnswers = items.length
+    ? await db.checkinAnswer.findMany({
+        where: {
+          playerId,
+          checked: true,
+          flagId: { in: items.map((item) => item.id) },
+          day: { gte: reportStart, lte: new Date(`${today.toISOString().slice(0, 10)}T23:59:59.999Z`) },
+        },
+      })
+    : [];
+  const checkinReportData = items.map((item) => ({
+    label: item.label,
+    checkedCount: recentCheckedAnswers.filter((answer) => answer.flagId === item.id).length,
+  }));
 
   return (
     <div className="max-w-lg space-y-5">
@@ -81,7 +104,13 @@ export default async function CheckinPage({ searchParams }: CheckinPageProps) {
       ) : (
         <>
           <CheckinDayPicker selectedDay={selectedDay} />
-          <CheckinForm items={items} answerMap={answerMap} selectedDay={selectedDay} />
+          <CheckinForm
+            mentorItems={mentorItems}
+            playerItems={playerItems}
+            answerMap={answerMap}
+            selectedDay={selectedDay}
+          />
+          <CheckinReportChart data={checkinReportData} />
           <CheckinHistory days={recentAnswers.map((a) => a.day)} selectedDay={selectedDay} />
         </>
       )}

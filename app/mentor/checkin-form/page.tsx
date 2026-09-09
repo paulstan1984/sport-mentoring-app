@@ -11,7 +11,7 @@ export default async function CheckinFormPage() {
     where: { mentorId },
     include: {
       items: {
-        where: { deletedAt: null },
+        where: { deletedAt: null, playerId: null },
         orderBy: { order: "asc" },
       },
     },

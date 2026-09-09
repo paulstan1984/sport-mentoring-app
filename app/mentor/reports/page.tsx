@@ -1,7 +1,13 @@
 import { requireMentor, getSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { ReportClient } from "./ReportClient";
-import type { ReportData, ReportRow, SelectedImprovementWay, PlayerNoteRow } from "./ReportClient";
+import type {
+  ReportData,
+  ReportRow,
+  SelectedImprovementWay,
+  SelectedCheckinItem,
+  PlayerNoteRow,
+} from "./ReportClient";
 
 // Returns all dates (UTC midnight) between startDate and endDate (inclusive)
 function getDatesInRange(startDate: Date, endDate: Date): Date[] {
@@ -65,6 +71,24 @@ export default async function ReportsPage({
   const startDateStr = (params.startDate as string | undefined) ?? "";
   const endDateStr = (params.endDate as string | undefined) ?? "";
 
+  const selectedPlayer = playerId
+    ? await db.player.findFirst({
+        where: { id: playerId, mentorId },
+        select: { id: true, name: true, mentor: { select: { checkinForm: { select: { id: true } } } } },
+      })
+    : null;
+
+  const selectableCheckinItems = selectedPlayer?.mentor.checkinForm
+    ? await db.checkinFormItem.findMany({
+        where: {
+          formId: selectedPlayer.mentor.checkinForm.id,
+          deletedAt: null,
+          OR: [{ playerId: null }, { playerId: selectedPlayer.id }],
+        },
+        orderBy: [{ playerId: "asc" }, { order: "asc" }],
+      })
+    : [];
+
   // Checkbox defaults: checked when not yet submitted; use param values after submission
   const includeConfidence = !isReportRequested || params.includeConfidence === "1";
   const includeJournalScore = !isReportRequested || params.includeJournalScore === "1";
@@ -82,14 +106,21 @@ export default async function ReportsPage({
     selectedImprovementWayIds = ids.map(Number).filter((n) => !isNaN(n));
   }
 
+  let selectedCheckinItemIds: number[] = [];
+  if (selectedPlayer && selectableCheckinItems.length > 0) {
+    const raw = params.checkinItems;
+    const ids = raw ? (Array.isArray(raw) ? raw : [raw]) : [];
+    selectedCheckinItemIds =
+      ids.length > 0
+        ? ids.map(Number).filter((n) => !isNaN(n))
+        : selectableCheckinItems.map((item) => item.id);
+  }
+
   let reportData: ReportData | null = null;
 
   if (isReportRequested && playerId && startDateStr && endDateStr) {
     // Validate player belongs to this mentor
-    const player = await db.player.findFirst({
-      where: { id: playerId, mentorId },
-      select: { id: true, name: true },
-    });
+    const player = selectedPlayer;
 
     if (player && startDateStr <= endDateStr) {
       const startDate = new Date(`${startDateStr}T00:00:00.000Z`);
@@ -97,7 +128,7 @@ export default async function ReportsPage({
       const dates = getDatesInRange(startDate, endDate);
 
       // Fetch all required data in parallel
-      const [improvementRatings, confidenceLevels, dailyJournals, weeklyScopes, checkinAnswers, rawPlayerNotes] =
+      const [improvementRatings, confidenceLevels, dailyJournals, checkinAnswers, checkinAnswersByItem, weeklyScopes, rawPlayerNotes] =
         await Promise.all([
           selectedImprovementWayIds.length > 0
             ? db.improvementWayRating.findMany({
@@ -124,9 +155,6 @@ export default async function ReportsPage({
                 },
               })
             : Promise.resolve([]),
-          includeWeeklyGoal
-            ? db.weeklyScope.findMany({ where: { playerId } })
-            : Promise.resolve([]),
           includeCheckinCount
             ? db.checkinAnswer.findMany({
                 where: {
@@ -135,6 +163,19 @@ export default async function ReportsPage({
                   day: { gte: startDate, lte: new Date(`${endDateStr}T23:59:59.999Z`) },
                 },
               })
+            : Promise.resolve([]),
+          selectedCheckinItemIds.length > 0
+            ? db.checkinAnswer.findMany({
+                where: {
+                  playerId,
+                  checked: true,
+                  flagId: { in: selectedCheckinItemIds },
+                  day: { gte: startDate, lte: new Date(`${endDateStr}T23:59:59.999Z`) },
+                },
+              })
+            : Promise.resolve([]),
+          includeWeeklyGoal
+            ? db.weeklyScope.findMany({ where: { playerId } })
             : Promise.resolve([]),
           includePlayerNotes
             ? db.playerNote.findMany({
@@ -150,15 +191,24 @@ export default async function ReportsPage({
       const selectedImprovementWays: SelectedImprovementWay[] = improvementWays
         .filter((iw) => selectedImprovementWayIds.includes(iw.id))
         .map((iw) => ({ id: iw.id, title: iw.title }));
+      const selectedCheckinItems: SelectedCheckinItem[] = selectableCheckinItems
+        .filter((item) => selectedCheckinItemIds.includes(item.id))
+        .map((item) => ({ id: item.id, label: item.label }));
 
       const rows: ReportRow[] = dates.map((date) => {
         const dayStr = toDateStr(date);
 
         // Improvement way ratings for this day
         const iwRatings: Record<number, number> = {};
+        const checkinFlags: Record<number, number> = {};
         for (const r of improvementRatings) {
           if (toDateStr(r.day) === dayStr) {
             iwRatings[r.improvementWayId] = r.score;
+          }
+        }
+        for (const answer of checkinAnswersByItem) {
+          if (toDateStr(answer.day) === dayStr) {
+            checkinFlags[answer.flagId] = 1;
           }
         }
 
@@ -192,7 +242,7 @@ export default async function ReportsPage({
           checkinCount = checkinAnswers.filter((a) => toDateStr(a.day) === dayStr).length;
         }
 
-        return { date: dayStr, iwRatings, confidence, journalScore, weeklyGoal, checkinCount };
+        return { date: dayStr, iwRatings, checkinFlags, confidence, journalScore, weeklyGoal, checkinCount };
       });
 
       const playerNotes: PlayerNoteRow[] = rawPlayerNotes.map((n) => ({
@@ -208,6 +258,7 @@ export default async function ReportsPage({
         endDate: endDateStr,
         playerLabel,
         selectedImprovementWays,
+        selectedCheckinItems,
         includeConfidence,
         includeJournalScore,
         includeWeeklyGoal,
@@ -281,6 +332,29 @@ export default async function ReportsPage({
                       className="rounded"
                     />
                     {iw.title}
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {selectedPlayer && selectableCheckinItems.length > 0 && (
+            <div>
+              <p className="label mb-2">Elemente de checkin</p>
+              <div className="flex flex-wrap gap-3">
+                {selectableCheckinItems.map((item) => (
+                  <label key={item.id} className="flex items-center gap-2 text-sm cursor-pointer">
+                    <input
+                      type="checkbox"
+                      name="checkinItems"
+                      value={String(item.id)}
+                      defaultChecked={selectedCheckinItemIds.includes(item.id)}
+                      className="rounded"
+                    />
+                    {item.label}
+                    {item.playerId && (
+                      <span className="text-[10px] uppercase tracking-wide text-blue-500">(personal)</span>
+                    )}
                   </label>
                 ))}
               </div>

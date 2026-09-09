@@ -16,11 +16,16 @@ vi.mock("@/lib/db", () => ({
     },
     player: {
       findUnique: vi.fn(),
+      findFirst: vi.fn(),
       update: vi.fn(),
       count: vi.fn(),
     },
     checkinAnswer: {
       upsert: vi.fn(),
+    },
+    checkinFormItem: {
+      findFirst: vi.fn(),
+      update: vi.fn(),
     },
     mentor: {
       findUnique: vi.fn(),
@@ -58,13 +63,23 @@ vi.mock("@/lib/upload", () => ({
 
 // ── Imports (after mocks) ─────────────────────────────────────────────────────
 
-import { createPlayer } from "@/actions/mentor";
+import {
+  createPlayer,
+  updatePlayerSpecificCheckinFormItem,
+  softDeletePlayerSpecificCheckinFormItem,
+} from "@/actions/mentor";
 import { db } from "@/lib/db";
 import { getSession, requireMentor } from "@/lib/auth";
 
 const mockDb = db as unknown as {
   user: { findUnique: ReturnType<typeof vi.fn>; create: ReturnType<typeof vi.fn> };
-  player: { findUnique: ReturnType<typeof vi.fn>; update: ReturnType<typeof vi.fn>; count: ReturnType<typeof vi.fn> };
+  player: {
+    findUnique: ReturnType<typeof vi.fn>;
+    findFirst: ReturnType<typeof vi.fn>;
+    update: ReturnType<typeof vi.fn>;
+    count: ReturnType<typeof vi.fn>;
+  };
+  checkinFormItem: { findFirst: ReturnType<typeof vi.fn>; update: ReturnType<typeof vi.fn> };
   mentor: { findUnique: ReturnType<typeof vi.fn> };
   mentorLabel: { findMany: ReturnType<typeof vi.fn> };
   $transaction: ReturnType<typeof vi.fn>;
@@ -101,6 +116,52 @@ describe("createPlayer", () => {
     mockDb.mentor.findUnique.mockResolvedValue({ level: "PRO" });
     mockDb.mentorLabel.findMany.mockResolvedValue([]);
     mockDb.player.count.mockResolvedValue(0);
+  });
+
+  describe("updatePlayerSpecificCheckinFormItem", () => {
+    beforeEach(() => {
+      vi.clearAllMocks();
+      vi.mocked(getSession).mockResolvedValue(mentorSession as never);
+      vi.mocked(requireMentor).mockResolvedValue(mentorSession as never);
+      mockDb.player.findFirst.mockResolvedValue({ id: 20, mentorId: 10 });
+      mockDb.checkinFormItem.update.mockResolvedValue({});
+    });
+
+    it("updates player-specific item for own player", async () => {
+      mockDb.checkinFormItem.findFirst.mockResolvedValueOnce({ id: 9, playerId: 20 });
+      const fd = makeFormData({
+        playerId: "20",
+        id: "9",
+        label: "Nou label",
+        allowAdditionalString: "on",
+      });
+      const result = await updatePlayerSpecificCheckinFormItem(null, fd);
+      expect(result.success).toBe(true);
+      expect(mockDb.checkinFormItem.update).toHaveBeenCalledWith({
+        where: { id: 9 },
+        data: { label: "Nou label", allowAdditionalString: true },
+      });
+    });
+  });
+
+  describe("softDeletePlayerSpecificCheckinFormItem", () => {
+    beforeEach(() => {
+      vi.clearAllMocks();
+      vi.mocked(getSession).mockResolvedValue(mentorSession as never);
+      vi.mocked(requireMentor).mockResolvedValue(mentorSession as never);
+      mockDb.player.findFirst.mockResolvedValue({ id: 20, mentorId: 10 });
+      mockDb.checkinFormItem.update.mockResolvedValue({});
+    });
+
+    it("soft deletes player-specific item for own player", async () => {
+      mockDb.checkinFormItem.findFirst.mockResolvedValueOnce({ id: 9, playerId: 20 });
+      const result = await softDeletePlayerSpecificCheckinFormItem(20, 9);
+      expect(result.success).toBe(true);
+      expect(mockDb.checkinFormItem.update).toHaveBeenCalledWith({
+        where: { id: 9 },
+        data: { deletedAt: expect.any(Date) },
+      });
+    });
   });
 
   it("returns error when required fields are missing", async () => {

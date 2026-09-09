@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState, useEffect, useRef } from "react";
+import { useActionState, useState, useEffect, useRef, useMemo } from "react";
 import { submitCheckin } from "@/actions/player";
 import type { CheckinFormItem, CheckinAnswer } from "@/app/generated/prisma/client";
 import { CheckCircle2, Circle } from "lucide-react";
@@ -12,12 +12,18 @@ function formatDateInput(date: Date): string {
 }
 
 interface CheckinFormProps {
-  items: CheckinFormItem[];
+  mentorItems: CheckinFormItem[];
+  playerItems: CheckinFormItem[];
   answerMap: AnswerMap;
   selectedDay: Date;
 }
 
-export function CheckinForm({ items, answerMap, selectedDay }: CheckinFormProps) {
+export function CheckinForm({
+  mentorItems,
+  playerItems,
+  answerMap,
+  selectedDay,
+}: CheckinFormProps) {
   const wrappedAction = async (
     prev: Awaited<ReturnType<typeof submitCheckin>> | null,
     formData: FormData
@@ -29,6 +35,7 @@ export function CheckinForm({ items, answerMap, selectedDay }: CheckinFormProps)
     }
   };
   const [state, formAction, isPending] = useActionState(wrappedAction, null);
+  const items = useMemo(() => [...mentorItems, ...playerItems], [mentorItems, playerItems]);
   const [checked, setChecked] = useState<Record<number, boolean>>(
     Object.fromEntries(items.map((i) => [i.id, answerMap[i.id]?.checked ?? false]))
   );
@@ -97,18 +104,18 @@ export function CheckinForm({ items, answerMap, selectedDay }: CheckinFormProps)
         </div>
       )}
 
-      {/* Item rows */}
+      {/* Mentor item rows */}
       <div
         className="rounded-2xl overflow-hidden"
         style={{ border: "1px solid var(--kit-border)" }}
       >
-        {items.map((item, idx) => (
+        {mentorItems.map((item, idx) => (
           <div
             key={item.id}
             className="transition-colors"
             style={{
               background: checked[item.id] ? "rgba(34,197,94,0.07)" : "var(--kit-surface)",
-              borderBottom: idx < items.length - 1 ? "1px solid var(--kit-border)" : "none",
+              borderBottom: idx < mentorItems.length - 1 ? "1px solid var(--kit-border)" : "none",
             }}
           >
             <label className="flex items-center gap-4 px-4 py-4 cursor-pointer min-h-[60px]">
@@ -150,6 +157,66 @@ export function CheckinForm({ items, answerMap, selectedDay }: CheckinFormProps)
           </div>
         ))}
       </div>
+
+      {playerItems.length > 0 && (
+        <>
+          <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--kit-text-3)" }}>
+            Elementele mele
+          </p>
+          <div
+            className="rounded-2xl overflow-hidden"
+            style={{ border: "1px solid var(--kit-border)" }}
+          >
+            {playerItems.map((item, idx) => (
+              <div
+                key={item.id}
+                className="transition-colors"
+                style={{
+                  background: checked[item.id] ? "rgba(34,197,94,0.07)" : "var(--kit-surface)",
+                  borderBottom: idx < playerItems.length - 1 ? "1px solid var(--kit-border)" : "none",
+                }}
+              >
+                <label className="flex items-center gap-4 px-4 py-4 cursor-pointer min-h-[60px]">
+                  <input
+                    name={`flag_${item.id}`}
+                    type="checkbox"
+                    checked={checked[item.id] ?? false}
+                    onChange={(e) =>
+                      setChecked((prev) => ({ ...prev, [item.id]: e.target.checked }))
+                    }
+                    className="sr-only"
+                  />
+                  <span className="shrink-0">
+                    {checked[item.id] ? (
+                      <CheckCircle2 size={24} strokeWidth={2.5} style={{ color: "var(--kit-success)" }} />
+                    ) : (
+                      <Circle size={24} strokeWidth={1.5} style={{ color: "var(--kit-text-3)" }} />
+                    )}
+                  </span>
+                  <span
+                    className="text-sm font-medium flex-1 leading-snug"
+                    style={{ color: checked[item.id] ? "var(--kit-text)" : "var(--kit-text-2)" }}
+                  >
+                    {item.label}
+                  </span>
+                </label>
+
+                {item.allowAdditionalString && checked[item.id] && (
+                  <div className="px-4 pb-4">
+                    <input
+                      name={`string_${item.id}`}
+                      type="text"
+                      defaultValue={answerMap[item.id]?.stringValue ?? ""}
+                      placeholder="Detalii suplimentare..."
+                      className="input text-sm"
+                    />
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </>
+      )}
 
       {state?.error && <div className="kit-error-banner">{state.error}</div>}
       {state?.success && <div className="kit-success-banner">Checkin-ul a fost salvat!</div>}
