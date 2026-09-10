@@ -32,6 +32,15 @@ vi.mock("@/lib/db", () => ({
     checkinAnswer: {
       upsert: vi.fn(),
     },
+    checkinForm: {
+      create: vi.fn(),
+    },
+    checkinFormItem: {
+      aggregate: vi.fn(),
+      create: vi.fn(),
+      findFirst: vi.fn(),
+      update: vi.fn(),
+    },
     libraryItem: {
       findFirst: vi.fn(),
     },
@@ -76,6 +85,9 @@ import {
   toggleWeeklyScope,
   setConfidenceLevel,
   submitCheckin,
+  addPlayerCheckinFormItem,
+  updatePlayerCheckinFormItem,
+  softDeletePlayerCheckinFormItem,
   markLibraryItemRead,
   updatePlayerObjective,
   changePlayerPassword,
@@ -97,6 +109,13 @@ const mockDb = db as unknown as {
   };
   confidenceLevel: { upsert: ReturnType<typeof vi.fn> };
   checkinAnswer: { upsert: ReturnType<typeof vi.fn> };
+  checkinForm: { create: ReturnType<typeof vi.fn> };
+  checkinFormItem: {
+    aggregate: ReturnType<typeof vi.fn>;
+    create: ReturnType<typeof vi.fn>;
+    findFirst: ReturnType<typeof vi.fn>;
+    update: ReturnType<typeof vi.fn>;
+  };
   libraryItem: { findFirst: ReturnType<typeof vi.fn> };
   libraryItemRead: { upsert: ReturnType<typeof vi.fn> };
   improvementWayRating: { upsert: ReturnType<typeof vi.fn> };
@@ -120,8 +139,8 @@ const mockDbPlayer = {
   mentor: {
     checkinForm: {
       items: [
-        { id: 1, allowAdditionalString: false },
-        { id: 2, allowAdditionalString: true },
+        { id: 1, allowAdditionalString: false, playerId: null },
+        { id: 2, allowAdditionalString: true, playerId: 20 },
       ],
     },
     improvementWays: [
@@ -278,6 +297,8 @@ describe("submitCheckin", () => {
     vi.mocked(getSession).mockResolvedValue(playerSession as never);
     vi.mocked(requirePlayer).mockResolvedValue(playerSession as never);
     mockDb.$transaction.mockResolvedValue([]);
+    mockDb.checkinFormItem.aggregate.mockResolvedValue({ _max: { order: 1 } });
+    mockDb.checkinForm.create.mockResolvedValue({ id: 11, mentorId: 10 });
   });
 
   it("returns error when checkin form not available", async () => {
@@ -302,6 +323,98 @@ describe("submitCheckin", () => {
     const result = await submitCheckin(null, fd);
     expect(result.success).toBe(true);
     expect(mockDb.$transaction).toHaveBeenCalledOnce();
+    expect(mockDb.player.findUnique).toHaveBeenCalledWith({
+      where: { id: 20 },
+      include: {
+        mentor: {
+          include: {
+            checkinForm: {
+              include: {
+                items: {
+                  where: {
+                    deletedAt: null,
+                    OR: [{ playerId: null }, { playerId: 20 }],
+                  },
+                  orderBy: { order: "asc" },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+  });
+});
+
+describe("addPlayerCheckinFormItem", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(getSession).mockResolvedValue(playerSession as never);
+    vi.mocked(requirePlayer).mockResolvedValue(playerSession as never);
+    mockDb.player.findUnique.mockResolvedValue({
+      mentorId: 10,
+      mentor: { checkinForm: { id: 11 } },
+    });
+    mockDb.checkinFormItem.aggregate.mockResolvedValue({ _max: { order: 2 } });
+    mockDb.checkinFormItem.create.mockResolvedValue({});
+  });
+
+  it("creates a player-specific checkin item", async () => {
+    const result = await addPlayerCheckinFormItem(
+      null,
+      makeFormData({ label: "Am dormit 8 ore", allowAdditionalString: "on" })
+    );
+    expect(result.success).toBe(true);
+    expect(mockDb.checkinFormItem.create).toHaveBeenCalledWith({
+      data: {
+        formId: 11,
+        playerId: 20,
+        label: "Am dormit 8 ore",
+        allowAdditionalString: true,
+        order: 3,
+      },
+    });
+  });
+});
+
+describe("updatePlayerCheckinFormItem", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(getSession).mockResolvedValue(playerSession as never);
+    vi.mocked(requirePlayer).mockResolvedValue(playerSession as never);
+    mockDb.checkinFormItem.update.mockResolvedValue({});
+  });
+
+  it("updates owned player-specific item", async () => {
+    mockDb.checkinFormItem.findFirst.mockResolvedValueOnce({ id: 5, playerId: 20 });
+    const result = await updatePlayerCheckinFormItem(
+      null,
+      makeFormData({ id: "5", label: "Actualizat", allowAdditionalString: "on" })
+    );
+    expect(result.success).toBe(true);
+    expect(mockDb.checkinFormItem.update).toHaveBeenCalledWith({
+      where: { id: 5 },
+      data: { label: "Actualizat", allowAdditionalString: true },
+    });
+  });
+});
+
+describe("softDeletePlayerCheckinFormItem", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(getSession).mockResolvedValue(playerSession as never);
+    vi.mocked(requirePlayer).mockResolvedValue(playerSession as never);
+    mockDb.checkinFormItem.update.mockResolvedValue({});
+  });
+
+  it("soft deletes owned player-specific item", async () => {
+    mockDb.checkinFormItem.findFirst.mockResolvedValueOnce({ id: 9, playerId: 20 });
+    const result = await softDeletePlayerCheckinFormItem(9);
+    expect(result.success).toBe(true);
+    expect(mockDb.checkinFormItem.update).toHaveBeenCalledWith({
+      where: { id: 9 },
+      data: { deletedAt: expect.any(Date) },
+    });
   });
 });
 

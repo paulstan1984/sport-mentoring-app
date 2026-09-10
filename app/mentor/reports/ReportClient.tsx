@@ -14,6 +14,7 @@ import {
 export interface ReportRow {
   date: string;
   iwRatings: Record<number, number>;
+  checkinFlags: Record<number, number>;
   confidence: string | null;
   journalScore: number | null;
   weeklyGoal: number | null;
@@ -23,6 +24,11 @@ export interface ReportRow {
 export interface SelectedImprovementWay {
   id: number;
   title: string;
+}
+
+export interface SelectedCheckinItem {
+  id: number;
+  label: string;
 }
 
 export interface PlayerNoteRow {
@@ -38,6 +44,7 @@ export interface ReportData {
   endDate: string;
   playerLabel: string;
   selectedImprovementWays: SelectedImprovementWay[];
+  selectedCheckinItems: SelectedCheckinItem[];
   includeConfidence: boolean;
   includeJournalScore: boolean;
   includeWeeklyGoal: boolean;
@@ -199,6 +206,14 @@ export function ReportClient({ data }: { data: ReportData }) {
                     Checkin
                   </th>
                 )}
+                {data.selectedCheckinItems.map((item) => (
+                  <th
+                    key={item.id}
+                    className="text-center px-3 py-2 border border-gray-200 dark:border-gray-700 font-semibold text-xs whitespace-nowrap"
+                  >
+                    {item.label}
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>
@@ -235,6 +250,14 @@ export function ReportClient({ data }: { data: ReportData }) {
                       {row.checkinCount ?? "—"}
                     </td>
                   )}
+                  {data.selectedCheckinItems.map((item) => (
+                    <td
+                      key={item.id}
+                      className="px-3 py-2 border border-gray-200 dark:border-gray-700 text-center"
+                    >
+                      {(row.checkinFlags[item.id] ?? 0) > 0 ? "✅" : "⬜"}
+                    </td>
+                  ))}
                 </tr>
               ))}
             </tbody>
@@ -324,6 +347,9 @@ function ReportChart({ data }: { data: ReportData }) {
     if (data.includeJournalScore) point["journalScore"] = row.journalScore;
     if (data.includeWeeklyGoal) point["weeklyGoal"] = row.weeklyGoal;
     if (data.includeCheckinCount) point["checkinCount"] = row.checkinCount;
+    for (const item of data.selectedCheckinItems) {
+      point[`checkin_${item.id}`] = row.checkinFlags[item.id] ?? 0;
+    }
     return point;
   });
 
@@ -340,14 +366,14 @@ function ReportChart({ data }: { data: ReportData }) {
           />
           <YAxis tick={{ fontSize: 11 }} />
           <Tooltip
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            formatter={((value: any, name: string) => {
+            formatter={(value: unknown, name: string | number | undefined) => {
+              const safeName = String(name ?? "");
               if (name === "confidence") {
                 const labels: Record<number, string> = { 3: "Bine", 2: "OK", 1: "Greu" };
-                return [typeof value === "number" ? (labels[value] ?? value) : value, "Nivel încredere"];
+                return [typeof value === "number" ? String(labels[value] ?? value) : String(value ?? "—"), "Nivel încredere"];
               }
-              return [value, name];
-            }) as any}
+              return [String(value ?? "—"), safeName];
+            }}
           />
           <Legend />
 
@@ -407,6 +433,18 @@ function ReportChart({ data }: { data: ReportData }) {
               connectNulls
             />
           )}
+          {data.selectedCheckinItems.map((item, idx) => (
+            <Line
+              key={item.id}
+              type="monotone"
+              dataKey={`checkin_${item.id}`}
+              name={item.label}
+              stroke={LINE_COLORS[(idx + data.selectedImprovementWays.length + 1) % LINE_COLORS.length]}
+              strokeDasharray="3 3"
+              dot={false}
+              connectNulls
+            />
+          ))}
         </LineChart>
       </ResponsiveContainer>
     </div>

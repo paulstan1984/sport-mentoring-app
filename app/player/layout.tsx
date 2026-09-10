@@ -19,6 +19,7 @@ import {
   User,
   LogOut,
   NotebookPen,
+  ListChecks,
 } from "lucide-react";
 
 export default async function PlayerLayout({
@@ -52,6 +53,7 @@ export default async function PlayerLayout({
     { href: "/player/scope",        label: "Obiectiv",        icon: Target },
     { href: "/player/library",      label: "Bibliotecă",      icon: BookOpen },
     { href: "/player/notes",        label: "Notițe",          icon: NotebookPen },
+    { href: "/player/checkin-items",label: "Elemente checkin",   icon: ListChecks },
     { href: "/player/profile",      label: "Profil",          icon: User },
   ];
 

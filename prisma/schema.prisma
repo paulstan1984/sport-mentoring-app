@@ -110,6 +110,7 @@ model Player {
   isActive              Boolean                @default(true)
   lastActiveAt          DateTime?
   checkinAnswers        CheckinAnswer[]
+  checkinFormItems      CheckinFormItem[]
   dailyJournals         DailyJournal[]
   weeklyScopes          WeeklyScope[]
   confidenceLevels      ConfidenceLevel[]
@@ -154,11 +155,15 @@ model CheckinFormItem {
   id                    Int             @id @default(autoincrement())
   formId                Int
   form                  CheckinForm     @relation(fields: [formId], references: [id], onDelete: Cascade)
+  playerId              Int?
+  player                Player?         @relation(fields: [playerId], references: [id], onDelete: Cascade)
   label                 String
   allowAdditionalString Boolean         @default(false)
   order                 Int             @default(0)
   deletedAt             DateTime?
   answers               CheckinAnswer[]
+
+  @@index([formId, playerId, deletedAt, order])
 }
 
 model CheckinAnswer {
@@ -293,4 +298,3 @@ model PushSubscription {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 }
-

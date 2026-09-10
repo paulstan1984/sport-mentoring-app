@@ -6,6 +6,7 @@ import { getStreak } from "@/lib/streak";
 import { PresenceBadge } from "@/components/PresenceBadge";
 import { AvatarImage } from "@/components/AvatarImage";
 import { PlayerProfileEditor } from "./PlayerProfileEditor";
+import { PlayerCheckinItemsEditor } from "./PlayerCheckinItemsEditor";
 import { PlayerNotes } from "./PlayerNotes";
 import { PlayerSections } from "./PlayerSections";
 
@@ -58,7 +59,7 @@ export default async function PlayerDetailPage({
   }, []);
 
   // Library items for this mentor + read status
-  const [libraryItems, allPositions, improvementWays, labels, mentor] = await Promise.all([
+  const [libraryItems, allPositions, improvementWays, labels, mentor, playerCheckinItems] = await Promise.all([
     db.libraryItem.findMany({
       where: { mentorId },
       include: {
@@ -80,6 +81,10 @@ export default async function PlayerDetailPage({
     }),
     db.mentorLabel.findMany({ where: { mentorId }, select: { key: true, value: true } }),
     db.mentor.findUnique({ where: { id: mentorId }, select: { theme: true } }),
+    db.checkinFormItem.findMany({
+      where: { playerId, deletedAt: null, form: { mentorId } },
+      orderBy: { order: "asc" },
+    }),
   ]);
 
   const mentorTheme = mentor?.theme ?? "SPORT_MENTOR";
@@ -138,6 +143,8 @@ export default async function PlayerDetailPage({
         teamLabel={teamLabel}
         playfieldPositionLabel={playfieldPositionLabel}
       />
+
+      <PlayerCheckinItemsEditor playerId={player.id} items={playerCheckinItems} />
 
       {/* Mentor notes for this player */}
       <PlayerNotes playerId={player.id} notes={player.notes} />

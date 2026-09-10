@@ -42,7 +42,14 @@ export async function POST(request: NextRequest) {
       mentor: {
         include: {
           checkinForm: {
-            include: { items: { where: { deletedAt: null } } },
+            include: {
+              items: {
+                where: {
+                  deletedAt: null,
+                  OR: [{ playerId: null }, { playerId }],
+                },
+              },
+            },
           },
         },
       },

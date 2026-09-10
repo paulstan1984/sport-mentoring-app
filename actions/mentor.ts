@@ -470,7 +470,7 @@ export async function addCheckinFormItem(
   }
 
   const maxOrder = await db.checkinFormItem.aggregate({
-    where: { formId: form.id, deletedAt: null },
+    where: { formId: form.id, deletedAt: null, playerId: null },
     _max: { order: true },
   });
 
@@ -502,7 +502,7 @@ export async function updateCheckinFormItem(
 
   // Verify ownership
   const item = await db.checkinFormItem.findFirst({
-    where: { id, form: { mentorId } },
+    where: { id, playerId: null, form: { mentorId } },
   });
   if (!item) return { error: "Element negăsit." };
 
@@ -520,7 +520,7 @@ export async function softDeleteCheckinFormItem(id: number): Promise<ActionResul
   const mentorId = await getMentorId();
 
   const item = await db.checkinFormItem.findFirst({
-    where: { id, form: { mentorId } },
+    where: { id, playerId: null, form: { mentorId } },
   });
   if (!item) return { error: "Element negăsit." };
 
@@ -541,7 +541,7 @@ export async function moveCheckinFormItem(
   const mentorId = await getMentorId();
 
   const item = await db.checkinFormItem.findFirst({
-    where: { id, form: { mentorId }, deletedAt: null },
+    where: { id, playerId: null, form: { mentorId }, deletedAt: null },
   });
   if (!item) return { error: "Element negăsit." };
 
@@ -549,6 +549,7 @@ export async function moveCheckinFormItem(
     where: {
       formId: item.formId,
       deletedAt: null,
+      playerId: null,
       order: direction === "up" ? { lt: item.order } : { gt: item.order },
     },
     orderBy: { order: direction === "up" ? "desc" : "asc" },
@@ -568,6 +569,62 @@ export async function moveCheckinFormItem(
   ]);
 
   revalidatePath("/mentor/checkin-form");
+  return { success: true };
+}
+
+export async function updatePlayerSpecificCheckinFormItem(
+  _prev: ActionResult | null,
+  formData: FormData
+): Promise<ActionResult> {
+  await requireMentor();
+  const mentorId = await getMentorId();
+
+  const playerId = Number(formData.get("playerId"));
+  const id = Number(formData.get("id"));
+  const label = (formData.get("label") as string)?.trim();
+  const allowAdditionalString = formData.get("allowAdditionalString") === "on";
+  if (!playerId || !id || !label) return { error: "Date invalide." };
+
+  const player = await db.player.findFirst({ where: { id: playerId, mentorId } });
+  if (!player) return { error: "Jucătorul nu a fost găsit." };
+
+  const item = await db.checkinFormItem.findFirst({
+    where: { id, playerId, deletedAt: null, form: { mentorId } },
+  });
+  if (!item) return { error: "Element negăsit." };
+
+  await db.checkinFormItem.update({
+    where: { id },
+    data: { label, allowAdditionalString },
+  });
+
+  revalidatePath(`/mentor/players/${playerId}`);
+  revalidatePath("/mentor/reports");
+  return { success: true };
+}
+
+export async function softDeletePlayerSpecificCheckinFormItem(
+  playerId: number,
+  id: number
+): Promise<ActionResult> {
+  await requireMentor();
+  const mentorId = await getMentorId();
+
+  const player = await db.player.findFirst({ where: { id: playerId, mentorId } });
+  if (!player) return { error: "Jucătorul nu a fost găsit." };
+
+  const item = await db.checkinFormItem.findFirst({
+    where: { id, playerId, deletedAt: null, form: { mentorId } },
+  });
+  if (!item) return { error: "Element negăsit." };
+
+  await db.checkinFormItem.update({
+    where: { id },
+    data: { deletedAt: new Date() },
+  });
+
+  revalidatePath(`/mentor/players/${playerId}`);
+  revalidatePath("/mentor/reports");
   return { success: true };
 }
 
