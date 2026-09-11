@@ -10,9 +10,7 @@ export default function Loading() {
         <div className="route-loading-track" aria-hidden="true">
           <div className="route-loading-bar" />
         </div>
-        <p className="mt-3 text-sm font-semibold" style={{ color: "var(--kit-text-2)" }}>
-          Se încarcă pagina...
-        </p>
+        <p className="route-loading-label">Se încarcă pagina...</p>
       </div>
     </div>
   );
