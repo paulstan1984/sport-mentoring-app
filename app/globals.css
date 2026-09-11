@@ -78,6 +78,94 @@ body {
   font-family: var(--font-barlow, system-ui, sans-serif);
 }
 
+.route-transition-shell {
+  animation: route-enter 240ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.route-loading-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(6px);
+}
+
+.route-loading-card {
+  width: min(100%, 19rem);
+  border-radius: 1rem;
+  border: 1px solid var(--kit-border);
+  background: rgba(255, 255, 255, 0.92);
+  padding: 1rem;
+  box-shadow: 0 10px 32px rgba(15, 23, 42, 0.12);
+}
+
+.route-loading-track {
+  position: relative;
+  height: 0.375rem;
+  overflow: hidden;
+  border-radius: 9999px;
+  background: var(--kit-accent-dim);
+}
+
+.route-loading-bar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 42%;
+  border-radius: 9999px;
+  background: var(--kit-accent);
+  animation: route-loading-bar 900ms cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+.route-loading-label {
+  margin-top: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--kit-text-2);
+}
+
+@keyframes route-enter {
+  from {
+    opacity: 0.92;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes route-loading-bar {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(280%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .route-transition-shell,
+  .route-loading-bar {
+    animation: none;
+  }
+
+  .route-loading-bar {
+    left: 22.5%;
+    transform: none;
+  }
+
+  .route-loading-overlay {
+    backdrop-filter: none;
+  }
+}
+
 /* ── Core utility classes ─────────────────────────────────────────────── */
 
 @layer utilities {
