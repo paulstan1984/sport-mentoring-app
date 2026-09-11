@@ -153,6 +153,11 @@ body {
     animation: none;
   }
 
+  .route-loading-bar {
+    left: 22.5%;
+    transform: none;
+  }
+
   .route-loading-overlay {
     backdrop-filter: none;
   }
