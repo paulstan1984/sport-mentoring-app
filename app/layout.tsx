@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Barlow, Barlow_Condensed } from "next/font/google";
 import "./globals.css";
 import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
+import PageTransition from "@/components/PageTransition";
 
 const barlow = Barlow({
   variable: "--font-barlow",
@@ -33,7 +34,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col antialiased">
         <ServiceWorkerRegistration />
-        {children}
+        <PageTransition>{children}</PageTransition>
       </body>
     </html>
   );
