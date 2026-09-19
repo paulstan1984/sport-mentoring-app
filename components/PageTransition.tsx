@@ -1,6 +1,5 @@
 "use client";
 
-import { AnimatePresence, motion } from "motion/react";
 import { usePathname } from "next/navigation";
 
 export default function PageTransition({
@@ -10,20 +9,13 @@ export default function PageTransition({
 }) {
   const pathname = usePathname();
 
+  // Plain CSS animation (see .page-transition in globals.css) so the fade-in
+  // is applied by the browser before first paint of the new route, instead
+  // of a JS-driven animation that can lag behind and flash the page fully
+  // visible before animating.
   return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key={pathname}
-        initial={{ y: 40, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: -40, opacity: 0 }}
-        transition={{
-          duration: 0.35,
-          ease: "easeInOut",
-        }}
-      >
-        {children}
-      </motion.div>
-    </AnimatePresence>
+    <div key={pathname} className="page-transition">
+      {children}
+    </div>
   );
 }

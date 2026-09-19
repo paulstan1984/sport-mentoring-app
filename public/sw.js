@@ -13,7 +13,7 @@
  *  IndexedDB queue through the /api/sync/* endpoints.
  */
 
-const CACHE_VERSION = "v1";
+const CACHE_VERSION = "v2";
 const STATIC_CACHE = `sport-mentor-static-${CACHE_VERSION}`;
 const PAGE_CACHE = `sport-mentor-pages-${CACHE_VERSION}`;
 const OFFLINE_CACHE = `sport-mentor-offline-${CACHE_VERSION}`;
@@ -98,8 +98,13 @@ self.addEventListener("fetch", (event) => {
   // Never cache sync API calls
   if (url.pathname.startsWith("/api/sync/")) return;
 
+  // In dev, Turbopack can reuse chunk URLs across restarts with different
+  // module content, so cache-first would serve stale/incompatible chunks.
+  const isLocalDev = ["localhost", "127.0.0.1"].includes(self.location.hostname);
+
   // Cache-first for immutable Next.js static chunks
   if (url.pathname.startsWith("/_next/static/")) {
+    if (isLocalDev) return;
     event.respondWith(cacheFirst(event.request, STATIC_CACHE));
     return;
   }

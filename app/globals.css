@@ -78,6 +78,25 @@ body {
   font-family: var(--font-barlow, system-ui, sans-serif);
 }
 
+/* ── Page transition ──────────────────────────────────────────────────── */
+/* CSS-only so the browser applies the hidden start state on the same frame
+   it paints the new route — no flash of the fully-visible page before the
+   fade-in kicks in (which happened with a JS/effect-driven animation). */
+@keyframes page-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.page-transition {
+  animation: page-fade-in 0.25s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-transition {
+    animation: none;
+  }
+}
+
 /* ── Core utility classes ─────────────────────────────────────────────── */
 
 @layer utilities {
