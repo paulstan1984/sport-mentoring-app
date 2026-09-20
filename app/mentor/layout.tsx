@@ -65,7 +65,7 @@ export default async function MentorLayout({
 
   if (isMindMentor) {
     return (
-      <div className="min-h-screen flex flex-col mind-bg">
+      <div className="flex min-h-[100dvh] flex-col mind-bg">
         <div className="sticky top-0 z-20">
           <ImpersonationBanner />
           <OfflineStatus />
@@ -99,7 +99,7 @@ export default async function MentorLayout({
         </div>
 
         {/* Main content */}
-        <main className="flex-1 overflow-auto p-2 pb-20 md:p-4 md:pb-8 md:px-8 md:pt-8">{children}</main>
+        <main className="flex-1 overflow-auto p-2 pb-[calc(6rem+env(safe-area-inset-bottom))] md:p-4 md:pb-8 md:px-8 md:pt-8">{children}</main>
 
         {/* Bottom navigation (mobile-first) */}
         <MentorMobileNav playersLabel={playersLabel} isMindMentor={true} />
@@ -166,7 +166,7 @@ export default async function MentorLayout({
   }
 
   return (
-    <div className="min-h-screen flex flex-col sport-bg">
+    <div className="flex min-h-[100dvh] flex-col sport-bg">
       <div className="sticky top-0 z-20">
         <ImpersonationBanner />
         <OfflineStatus />
@@ -200,7 +200,7 @@ export default async function MentorLayout({
       </div>
 
       {/* Main content */}
-      <main className="flex-1 overflow-auto p-2 pb-20 md:p-4 md:pb-8 md:px-8 md:pt-8">{children}</main>
+      <main className="flex-1 overflow-auto p-2 pb-[calc(6rem+env(safe-area-inset-bottom))] md:p-4 md:pb-8 md:px-8 md:pt-8">{children}</main>
 
       {/* Bottom navigation (mobile-first) */}
       <MentorMobileNav playersLabel={playersLabel} />

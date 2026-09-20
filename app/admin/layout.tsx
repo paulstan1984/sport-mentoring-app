@@ -36,7 +36,7 @@ export default async function AdminLayout({
   ];
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="flex min-h-[100dvh] flex-col">
       {/* Top header (mobile) */}
       <header className="bg-blue-600 text-white px-4 py-3 flex items-center justify-between sticky top-0 z-10 md:hidden">
         <span className="font-bold text-sm">⚽ Sport Mentor</span>
@@ -44,12 +44,15 @@ export default async function AdminLayout({
       </header>
 
       {/* Main content */}
-      <main className="flex-1 overflow-auto p-2 pb-20 md:p-4 md:pb-8 md:px-8 md:pt-8">
+      <main className="flex-1 overflow-auto p-2 pb-[calc(6rem+env(safe-area-inset-bottom))] md:p-4 md:pb-8 md:px-8 md:pt-8">
         {children}
       </main>
 
       {/* Bottom navigation (mobile-first) */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 flex md:hidden z-10">
+      <nav
+        className="sticky bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 flex md:hidden z-10"
+        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      >
         {navLinks.map((l) => (
           <Link
             key={l.href}

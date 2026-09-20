@@ -61,7 +61,8 @@ export function MentorMobileNav({
           >
             <div
               id="mentor-more-menu"
-              className="fixed bottom-16 left-0 right-0 mind-card mind-border-top px-4 py-3 space-y-1 z-30 shadow-lg"
+              className="fixed left-0 right-0 mind-card mind-border-top px-4 py-3 space-y-1 z-30 shadow-lg"
+              style={{ bottom: "calc(env(safe-area-inset-bottom) + 4.5rem)" }}
               onClick={(e) => e.stopPropagation()}
             >
               {mobileMoreLinks.map((l) => (
@@ -78,7 +79,10 @@ export function MentorMobileNav({
             </div>
           </div>
         )}
-        <nav className="mind-card mind-border-top fixed bottom-0 left-0 right-0 flex md:hidden z-10">
+        <nav
+          className="mind-card mind-border-top sticky bottom-0 left-0 right-0 flex md:hidden z-10"
+          style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+        >
           {mainLinks.map((l) => (
             <Link
               key={l.href}
@@ -125,7 +129,8 @@ export function MentorMobileNav({
         >
           <div
             id="mentor-more-menu"
-            className="fixed bottom-16 left-0 right-0 sport-bottom-nav px-4 py-3 space-y-1 z-30 shadow-lg"
+            className="fixed left-0 right-0 sport-bottom-nav px-4 py-3 space-y-1 z-30 shadow-lg"
+            style={{ bottom: "calc(env(safe-area-inset-bottom) + 4.5rem)" }}
             onClick={(e) => e.stopPropagation()}
           >
             {mobileMoreLinks.map((l) => (
@@ -142,7 +147,10 @@ export function MentorMobileNav({
           </div>
         </div>
       )}
-      <nav className="sport-bottom-nav fixed bottom-0 left-0 right-0 flex md:hidden z-10">
+      <nav
+        className="sport-bottom-nav sticky bottom-0 left-0 right-0 flex md:hidden z-10"
+        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      >
         {mainLinks.map((l) => (
           <Link
             key={l.href}
