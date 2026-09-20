@@ -123,7 +123,7 @@ export default async function PlayerLayout({
       </div>
 
       {/* Page content */}
-      <main className="flex-1 overflow-auto px-4 pt-5 pb-6 md:pb-8 md:px-8 md:pt-8">
+      <main className="flex-1 overflow-auto px-4 pt-5 pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-8 md:px-8 md:pt-8">
         {children}
       </main>
 
@@ -218,4 +218,3 @@ export default async function PlayerLayout({
     </div>
   );
 }
-
