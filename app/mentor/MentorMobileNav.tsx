@@ -49,100 +49,27 @@ export function MentorMobileNav({
 
   if (isMindMentor) {
     return (
-      <div className="sticky bottom-0 left-0 right-0 z-10 md:hidden">
+      <>
         {moreOpen && (
           <div
             role="button"
             aria-label="Închide meniul"
             tabIndex={0}
-            className="fixed inset-0 z-0"
+            className="fixed inset-0 z-20"
             onClick={closeMore}
             onKeyDown={handleOverlayKeyDown}
-          />
-        )}
-        <div className="relative z-10">
-          {moreOpen && (
-            <div className="absolute bottom-full left-0 right-0 px-4 pb-3">
-              <div
-                id="mentor-more-menu"
-                className="mind-card mind-border-top space-y-1 px-4 py-3 shadow-lg"
-              >
-                {mobileMoreLinks.map((l) => (
-                  <Link
-                    key={l.href}
-                    href={l.href}
-                    className="flex items-center gap-3 px-3 py-2 text-sm rounded-lg mind-nav-link"
-                    onClick={closeMore}
-                  >
-                    <l.icon size={20} />
-                    <span>{l.label}</span>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
-          <nav
-            className="mind-card mind-border-top flex"
-            style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
           >
-            {mainLinks.map((l) => (
-              <Link
-                key={l.href}
-                href={l.href}
-                className="flex-1 flex flex-col items-center py-2 text-xs transition-colors mind-muted"
-              >
-                <l.icon size={22} className="mb-0.5" />
-                <span className="mt-0.5 truncate">{l.label}</span>
-              </Link>
-            ))}
-            <button
-              onClick={() => setMoreOpen(!moreOpen)}
-              aria-expanded={moreOpen}
-              aria-controls="mentor-more-menu"
-              className="flex-1 flex flex-col items-center py-2 text-xs transition-colors mind-muted"
-            >
-              <MoreHorizontal size={22} className="mb-0.5" />
-              <span className="mt-0.5 truncate">Mai mult</span>
-            </button>
-            <form action={logout} className="flex-1">
-              <button
-                type="submit"
-                className="w-full h-full flex flex-col items-center py-2 text-xs transition-colors mind-muted"
-              >
-                <LogOut size={22} className="mb-0.5" />
-                <span className="mt-0.5 truncate">Ieșire</span>
-              </button>
-            </form>
-          </nav>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="sticky bottom-0 left-0 right-0 z-10 md:hidden">
-      {moreOpen && (
-        <div
-          role="button"
-          aria-label="Închide meniul"
-          tabIndex={0}
-          className="fixed inset-0 z-0"
-          onClick={closeMore}
-          onKeyDown={handleOverlayKeyDown}
-        />
-      )}
-      <div className="relative z-10">
-        {moreOpen && (
-          <div className="absolute bottom-full left-0 right-0 px-4 pb-3">
             <div
               id="mentor-more-menu"
-              className="sport-bottom-nav space-y-1 px-4 py-3 shadow-lg"
+              className="fixed left-0 right-0 mind-card mind-border-top px-4 py-3 space-y-1 z-30 shadow-lg"
+              style={{ bottom: "calc(env(safe-area-inset-bottom) + 4.5rem)" }}
+              onClick={(e) => e.stopPropagation()}
             >
               {mobileMoreLinks.map((l) => (
                 <Link
                   key={l.href}
                   href={l.href}
-                  className="sport-nav-link flex items-center gap-3 px-3 py-2 text-sm"
+                  className="flex items-center gap-3 px-3 py-2 text-sm rounded-lg mind-nav-link"
                   onClick={closeMore}
                 >
                   <l.icon size={20} />
@@ -153,14 +80,14 @@ export function MentorMobileNav({
           </div>
         )}
         <nav
-          className="sport-bottom-nav flex"
+          className="mind-card mind-border-top sticky bottom-0 left-0 right-0 flex md:hidden z-10"
           style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
         >
           {mainLinks.map((l) => (
             <Link
               key={l.href}
               href={l.href}
-              className="flex-1 flex flex-col items-center py-2 text-xs text-blue-700 hover:text-blue-900 transition-colors"
+              className="flex-1 flex flex-col items-center py-2 text-xs transition-colors mind-muted"
             >
               <l.icon size={22} className="mb-0.5" />
               <span className="mt-0.5 truncate">{l.label}</span>
@@ -170,7 +97,7 @@ export function MentorMobileNav({
             onClick={() => setMoreOpen(!moreOpen)}
             aria-expanded={moreOpen}
             aria-controls="mentor-more-menu"
-            className="flex-1 flex flex-col items-center py-2 text-xs text-blue-700 hover:text-blue-900 transition-colors"
+            className="flex-1 flex flex-col items-center py-2 text-xs transition-colors mind-muted"
           >
             <MoreHorizontal size={22} className="mb-0.5" />
             <span className="mt-0.5 truncate">Mai mult</span>
@@ -178,14 +105,81 @@ export function MentorMobileNav({
           <form action={logout} className="flex-1">
             <button
               type="submit"
-              className="w-full h-full flex flex-col items-center py-2 text-xs text-blue-700 hover:text-red-600 transition-colors"
+              className="w-full h-full flex flex-col items-center py-2 text-xs transition-colors mind-muted"
             >
               <LogOut size={22} className="mb-0.5" />
               <span className="mt-0.5 truncate">Ieșire</span>
             </button>
           </form>
         </nav>
-      </div>
-    </div>
+      </>
+    );
+  }
+
+  return (
+    <>
+      {moreOpen && (
+        <div
+          role="button"
+          aria-label="Închide meniul"
+          tabIndex={0}
+          className="fixed inset-0 z-20"
+          onClick={closeMore}
+          onKeyDown={handleOverlayKeyDown}
+        >
+          <div
+            id="mentor-more-menu"
+            className="fixed left-0 right-0 sport-bottom-nav px-4 py-3 space-y-1 z-30 shadow-lg"
+            style={{ bottom: "calc(env(safe-area-inset-bottom) + 4.5rem)" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {mobileMoreLinks.map((l) => (
+              <Link
+                key={l.href}
+                href={l.href}
+                className="sport-nav-link flex items-center gap-3 px-3 py-2 text-sm"
+                onClick={closeMore}
+              >
+                <l.icon size={20} />
+                <span>{l.label}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+      <nav
+        className="sport-bottom-nav sticky bottom-0 left-0 right-0 flex md:hidden z-10"
+        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      >
+        {mainLinks.map((l) => (
+          <Link
+            key={l.href}
+            href={l.href}
+            className="flex-1 flex flex-col items-center py-2 text-xs text-blue-700 hover:text-blue-900 transition-colors"
+          >
+            <l.icon size={22} className="mb-0.5" />
+            <span className="mt-0.5 truncate">{l.label}</span>
+          </Link>
+        ))}
+        <button
+          onClick={() => setMoreOpen(!moreOpen)}
+          aria-expanded={moreOpen}
+          aria-controls="mentor-more-menu"
+          className="flex-1 flex flex-col items-center py-2 text-xs text-blue-700 hover:text-blue-900 transition-colors"
+        >
+          <MoreHorizontal size={22} className="mb-0.5" />
+          <span className="mt-0.5 truncate">Mai mult</span>
+        </button>
+        <form action={logout} className="flex-1">
+          <button
+            type="submit"
+            className="w-full h-full flex flex-col items-center py-2 text-xs text-blue-700 hover:text-red-600 transition-colors"
+          >
+            <LogOut size={22} className="mb-0.5" />
+            <span className="mt-0.5 truncate">Ieșire</span>
+          </button>
+        </form>
+      </nav>
+    </>
   );
 }

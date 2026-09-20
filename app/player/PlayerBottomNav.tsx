@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logout } from "@/actions/auth";
@@ -36,9 +36,24 @@ const moreLinks = [
 export function PlayerBottomNav() {
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = useState(false);
+  const moreMenuRef = useRef<HTMLDivElement>(null);
+  const moreButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (moreOpen) {
+      moreMenuRef.current?.focus();
+    }
+  }, [moreOpen]);
 
   function closeMore() {
     setMoreOpen(false);
+    moreButtonRef.current?.focus();
+  }
+
+  function handleMenuKeyDown(e: React.KeyboardEvent) {
+    if (e.key === "Escape") {
+      closeMore();
+    }
   }
 
   function handleOverlayKeyDown(e: React.KeyboardEvent) {
@@ -53,22 +68,18 @@ export function PlayerBottomNav() {
 
   return (
     <div className="sticky bottom-0 left-0 right-0 z-20 md:hidden">
-      {moreOpen && (
-        <div
-          role="button"
-          aria-label="Închide meniul"
-          tabIndex={0}
-          className="fixed inset-0 z-0"
-          onClick={closeMore}
-          onKeyDown={handleOverlayKeyDown}
-        />
-      )}
-      <div className="relative z-10">
+      <div className="relative z-40">
         {moreOpen && (
           <div className="absolute bottom-full left-0 right-0 px-4 pb-3">
             <div
               id="player-more-menu"
+              ref={moreMenuRef}
+              role="region"
+              aria-label="Mai multe opțiuni"
+              tabIndex={-1}
               className="sport-bottom-nav space-y-1 px-4 py-3 shadow-lg"
+              onClick={(e) => e.stopPropagation()}
+              onKeyDown={handleMenuKeyDown}
             >
               {moreLinks.map((l) => (
                 <Link
@@ -87,6 +98,7 @@ export function PlayerBottomNav() {
         <nav
           className="sport-bottom-nav flex"
           style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+          onClick={(e) => e.stopPropagation()}
         >
           {mainLinks.map((l) => {
             const isActive =
@@ -116,6 +128,8 @@ export function PlayerBottomNav() {
             );
           })}
           <button
+            type="button"
+            ref={moreButtonRef}
             onClick={() => setMoreOpen(!moreOpen)}
             aria-expanded={moreOpen}
             aria-controls="player-more-menu"
@@ -151,6 +165,16 @@ export function PlayerBottomNav() {
           </form>
         </nav>
       </div>
+      {moreOpen && (
+        <div
+          role="button"
+          aria-label="Închide meniul"
+          tabIndex={0}
+          className="fixed inset-0 z-30"
+          onClick={closeMore}
+          onKeyDown={handleOverlayKeyDown}
+        />
+      )}
     </div>
   );
 }
