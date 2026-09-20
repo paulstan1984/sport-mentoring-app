@@ -64,7 +64,8 @@ export function PlayerBottomNav() {
         >
           <div
             id="player-more-menu"
-            className="fixed bottom-16 left-0 right-0 sport-bottom-nav px-4 py-3 space-y-1 z-30 shadow-lg"
+            className="fixed left-0 right-0 sport-bottom-nav px-4 py-3 space-y-1 z-30 shadow-lg"
+            style={{ bottom: "calc(env(safe-area-inset-bottom) + 4.5rem)" }}
             onClick={(e) => e.stopPropagation()}
           >
             {moreLinks.map((l) => (
@@ -82,7 +83,7 @@ export function PlayerBottomNav() {
         </div>
       )}
       <nav
-        className="sport-bottom-nav fixed bottom-0 left-0 right-0 flex md:hidden z-20"
+        className="sport-bottom-nav sticky bottom-0 left-0 right-0 flex md:hidden z-20"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
         {mainLinks.map((l) => {
