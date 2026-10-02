@@ -6,8 +6,10 @@ import { CheckinDayPicker } from "./CheckinDayPicker";
 import { CheckinHistory } from "./CheckinHistory";
 import { CheckinReportChart } from "./CheckinReportChart";
 
+const HISTORY_PAGE_SIZE = 10;
+
 interface CheckinPageProps {
-  searchParams?: Promise<{ day?: string }>;
+  searchParams?: Promise<{ day?: string; historyPage?: string }>;
 }
 
 export default async function CheckinPage({ searchParams }: CheckinPageProps) {
@@ -20,6 +22,10 @@ export default async function CheckinPage({ searchParams }: CheckinPageProps) {
   const selectedDay = params?.day
     ? startOfDayUTC(new Date(params.day))
     : today;
+  const requestedHistoryPage = Number(params?.historyPage);
+  const historyPage = Number.isSafeInteger(requestedHistoryPage)
+    ? Math.max(1, requestedHistoryPage)
+    : 1;
 
   const player = await db.player.findUnique({
     where: { id: playerId },
@@ -56,13 +62,15 @@ export default async function CheckinPage({ searchParams }: CheckinPageProps) {
   );
 
   // Recent days with at least one answer for history
-  const recentAnswers = await db.checkinAnswer.findMany({
-    where: { playerId },
-    select: { day: true },
-    distinct: ["day"],
+  const historyDays = await db.checkinAnswer.groupBy({
+    by: ["day"],
+    where: { playerId, day: { not: selectedDay } },
     orderBy: { day: "desc" },
-    take: 30,
+    skip: (historyPage - 1) * HISTORY_PAGE_SIZE,
+    take: HISTORY_PAGE_SIZE + 1,
   });
+  const hasNextHistoryPage = historyDays.length > HISTORY_PAGE_SIZE;
+  const recentAnswers = historyDays.slice(0, HISTORY_PAGE_SIZE);
 
   const reportStart = new Date(today);
   reportStart.setUTCDate(reportStart.getUTCDate() - 13);
@@ -111,7 +119,12 @@ export default async function CheckinPage({ searchParams }: CheckinPageProps) {
             selectedDay={selectedDay}
           />
           <CheckinReportChart data={checkinReportData} />
-          <CheckinHistory days={recentAnswers.map((a) => a.day)} selectedDay={selectedDay} />
+          <CheckinHistory
+            days={recentAnswers.map((answer) => answer.day)}
+            selectedDay={selectedDay}
+            page={historyPage}
+            hasNextPage={hasNextHistoryPage}
+          />
         </>
       )}
     </div>

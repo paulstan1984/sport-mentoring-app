@@ -65,6 +65,11 @@ export function CheckinForm({
 
   const alreadySubmitted = Object.values(answerMap).some((a) => a.checked);
 
+  const handleCheckChange = (itemId: number, value: boolean) => {
+    setChecked((prev) => ({ ...prev, [itemId]: value }));
+    requestAnimationFrame(() => formRef.current?.requestSubmit());
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     if (navigator.onLine) return;
     e.preventDefault();
@@ -123,9 +128,7 @@ export function CheckinForm({
                 name={`flag_${item.id}`}
                 type="checkbox"
                 checked={checked[item.id] ?? false}
-                onChange={(e) =>
-                  setChecked((prev) => ({ ...prev, [item.id]: e.target.checked }))
-                }
+                onChange={(e) => handleCheckChange(item.id, e.target.checked)}
                 className="sr-only"
               />
               <span className="shrink-0">
@@ -151,6 +154,7 @@ export function CheckinForm({
                   defaultValue={answerMap[item.id]?.stringValue ?? ""}
                   placeholder="Detalii suplimentare..."
                   className="input text-sm"
+                  onBlur={() => formRef.current?.requestSubmit()}
                 />
               </div>
             )}
@@ -181,9 +185,7 @@ export function CheckinForm({
                     name={`flag_${item.id}`}
                     type="checkbox"
                     checked={checked[item.id] ?? false}
-                    onChange={(e) =>
-                      setChecked((prev) => ({ ...prev, [item.id]: e.target.checked }))
-                    }
+                    onChange={(e) => handleCheckChange(item.id, e.target.checked)}
                     className="sr-only"
                   />
                   <span className="shrink-0">
@@ -209,6 +211,7 @@ export function CheckinForm({
                       defaultValue={answerMap[item.id]?.stringValue ?? ""}
                       placeholder="Detalii suplimentare..."
                       className="input text-sm"
+                      onBlur={() => formRef.current?.requestSubmit()}
                     />
                   </div>
                 )}
@@ -225,10 +228,11 @@ export function CheckinForm({
           Checkin-ul a fost salvat local. Va fi sincronizat automat.
         </div>
       )}
-
-      <button type="submit" disabled={isPending} className="btn-primary w-full">
-        {isPending ? "Se salvează..." : "Salvează checkin-ul"}
-      </button>
+      {isPending && (
+        <p className="text-xs text-center" style={{ color: "var(--kit-text-3)" }}>
+          Se salvează...
+        </p>
+      )}
     </form>
   );
 }
