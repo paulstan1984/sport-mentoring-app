@@ -46,3 +46,4 @@ uploads/
 data/db/app.db
 data/db/prod-app.db
 contracte/*
+mobile/android/app/upload-keystore.jks

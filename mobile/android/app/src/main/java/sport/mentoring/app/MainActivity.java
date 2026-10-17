@@ -1,4 +1,4 @@
-package com.sportmentor.app;
+package sport.mentoring.app;
 
 import android.app.DownloadManager;
 import android.net.Uri;
