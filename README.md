@@ -162,6 +162,8 @@ Aplicația Android folosește Firebase Cloud Messaging (FCM). Configurați acela
 
 Fără `google-services.json`, aplicația dezactivează în siguranță înregistrarea push nativă, fără să încerce inițializarea FCM la deschiderea profilului.
 
+Pentru un pachet Android release semnat, configurați `KEYSTORE_PASSWORD` și `KEY_PASSWORD` ca variabile de mediu sau proprietăți Gradle private în `%USERPROFILE%\.gradle\gradle.properties`. Fișierul `mobile/android/app/upload-keystore.jks` este necesar; nu salvați parolele în fișierele proiectului. Apoi rulați `.\gradlew.bat bundleRelease` din `mobile/android`.
+
 ---
 
 ## Roluri și redirecționare
