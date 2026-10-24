@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Bell, BellOff } from "lucide-react";
-import { Capacitor } from "@capacitor/core";
+import { Capacitor, registerPlugin } from "@capacitor/core";
 
 const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? "";
 const SERVICE_WORKER_TIMEOUT_MS = 8_000;
@@ -97,6 +97,11 @@ type NativeListener = { remove: () => Promise<void> };
 type NativePushToken = { value: string };
 type NativePushRegistrationError = { error?: string };
 type NativePushPermission = { receive: string };
+type NativePushSupportPlugin = {
+  isAvailable: () => Promise<{ available: boolean }>;
+};
+
+const NativePushSupport = registerPlugin<NativePushSupportPlugin>("NativePushSupport");
 
 export function PushSubscriptionButton() {
   const [status, setStatus] = useState<Status>("loading");
@@ -111,7 +116,7 @@ export function PushSubscriptionButton() {
     void (async () => {
       if (isCapacitorNative()) {
         setNative(true);
-        await checkNativeSubscription();
+        await checkNativeSubscription(() => active);
         return;
       }
 
@@ -158,55 +163,32 @@ export function PushSubscriptionButton() {
     };
   }, []);
 
-  async function checkNativeSubscription() {
-    let registrationListener: NativeListener | null = null;
-    let registrationErrorListener: NativeListener | null = null;
-
+  async function checkNativeSubscription(isActive: () => boolean) {
     try {
+      const support = await NativePushSupport.isAvailable();
+      if (!support.available) {
+        if (isActive()) setStatus("unavailable");
+        return;
+      }
+
       const { PushNotifications } = await import("@capacitor/push-notifications");
       const permResult = await PushNotifications.checkPermissions();
       if (permResult.receive === "denied") {
-        setStatus("denied");
-        return;
-      }
-      if (permResult.receive !== "granted") {
-        setStatus("unsubscribed");
+        if (isActive()) setStatus("denied");
         return;
       }
 
-      let resolveToken: (token: string) => void = () => undefined;
-      let rejectToken: (reason?: unknown) => void = () => undefined;
-      const tokenPromise = new Promise<string>((resolve, reject) => {
-        resolveToken = resolve;
-        rejectToken = reject;
-      });
-
-      registrationListener = await withTimeout(
-        PushNotifications.addListener("registration", (token: NativePushToken) => {
-          resolveToken(token.value);
-        }),
-        SERVICE_WORKER_TIMEOUT_MS
-      );
-      registrationErrorListener = await withTimeout(
-        PushNotifications.addListener("registrationError", (event: NativePushRegistrationError) => {
-          rejectToken(new Error(event.error ?? "native-registration-failed"));
-        }),
-        SERVICE_WORKER_TIMEOUT_MS
-      );
-
-      await withTimeout(PushNotifications.register(), PUSH_OPERATION_TIMEOUT_MS);
-      const token = await withTimeout(tokenPromise, PUSH_OPERATION_TIMEOUT_MS);
-      await saveSubscription(`fcm://${token}`, { p256dh: "native", auth: "native" });
-      setStatus("subscribed");
+      const response = await fetchWithTimeout("/api/push/subscribe", { method: "GET" });
+      if (!response.ok) throw new Error("subscription-status-failed");
+      const { subscribed } = (await response.json()) as { subscribed: boolean };
+      if (isActive()) {
+        setStatus(subscribed ? "subscribed" : "unsubscribed");
+      }
     } catch (err) {
       console.error("[push] native subscription check error:", err);
-      setStatus("unsubscribed");
-    } finally {
-      if (registrationListener) {
-        void registrationListener.remove().catch(() => undefined);
-      }
-      if (registrationErrorListener) {
-        void registrationErrorListener.remove().catch(() => undefined);
+      if (isActive()) {
+        setStatus("unsubscribed");
+        setError("Nu am putut verifica starea notificărilor. Încearcă din nou.");
       }
     }
   }
@@ -218,6 +200,12 @@ export function PushSubscriptionButton() {
     let registrationErrorListener: NativeListener | null = null;
 
     try {
+      const support = await NativePushSupport.isAvailable();
+      if (!support.available) {
+        setStatus("unavailable");
+        return;
+      }
+
       const { PushNotifications } = await import("@capacitor/push-notifications");
 
       const permResult = (await withTimeout(

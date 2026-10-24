@@ -129,12 +129,6 @@ async function sendFcmNotification(
             url: payload.url ?? "",
             icon: payload.icon ?? "",
           },
-          android: {
-            notification: {
-              icon: payload.icon,
-              click_action: payload.url,
-            },
-          },
         },
       }),
     }

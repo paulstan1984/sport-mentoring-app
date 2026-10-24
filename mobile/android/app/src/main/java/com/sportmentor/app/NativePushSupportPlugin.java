@@ -1,4 +1,4 @@
-package sport.mentoring.app;
+package com.sportmentor.app;
 
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;

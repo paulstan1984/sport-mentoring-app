@@ -10,6 +10,21 @@ interface SubscribeBody {
   };
 }
 
+/** GET /api/push/subscribe — return whether the current user has native push enabled. */
+export async function GET() {
+  const session = await getSession();
+  if (!session.userId) {
+    return NextResponse.json({ error: "Neautorizat." }, { status: 401 });
+  }
+
+  const subscription = await db.pushSubscription.findFirst({
+    where: { userId: session.userId, endpoint: { startsWith: "fcm://" } },
+    select: { id: true },
+  });
+
+  return NextResponse.json({ subscribed: subscription !== null });
+}
+
 /** POST /api/push/subscribe — save or update a push subscription for the current user. */
 export async function POST(request: NextRequest) {
   const session = await getSession();
