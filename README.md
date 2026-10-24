@@ -42,6 +42,9 @@ cp .env.example .env
 | `VAPID_PUBLIC_KEY` | Cheia publică VAPID pentru notificări push |
 | `VAPID_PRIVATE_KEY` | Cheia privată VAPID pentru notificări push |
 | `NEXT_PUBLIC_VAPID_PUBLIC_KEY` | Trebuie să fie identică cu `VAPID_PUBLIC_KEY` (expusă browserului) |
+| `FIREBASE_PROJECT_ID` | ID-ul proiectului Firebase folosit pentru notificările native |
+| `FIREBASE_CLIENT_EMAIL` | Email-ul contului de serviciu Firebase pentru trimiterea notificărilor |
+| `FIREBASE_PRIVATE_KEY` | Cheia privată a contului de serviciu Firebase (newline-uri escapate ca `\n`) |
 
 Generare `SESSION_SECRET`:
 
@@ -148,6 +151,21 @@ uploads/          # Fișiere uploadate (gitignored, creat automat)
 
 ---
 
+## Aplicația Android și notificări native
+
+Aplicația Android folosește Firebase Cloud Messaging (FCM). Configurați același proiect Firebase pentru aplicația Android și server:
+
+1. În Firebase Console, adăugați o aplicație Android cu ID-ul `com.sportmentor.app`.
+2. Descărcați `google-services.json` și salvați-l local în `mobile/android/app/google-services.json`. Nu îl comiteți în Git.
+3. Configurați `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL` și `FIREBASE_PRIVATE_KEY` în mediul serverului. Cheia privată este cea a unui cont de serviciu cu permisiunea Firebase Cloud Messaging API.
+4. Sincronizați și reconstruiți aplicația: `cd mobile` apoi `npm run sync` și `npm run build:android`.
+
+Fără `google-services.json`, aplicația dezactivează în siguranță înregistrarea push nativă, fără să încerce inițializarea FCM la deschiderea profilului.
+
+Pentru un pachet Android release semnat, configurați `KEYSTORE_PASSWORD` și `KEY_PASSWORD` ca variabile de mediu sau proprietăți Gradle private în `%USERPROFILE%\.gradle\gradle.properties`. Fișierul `mobile/android/app/upload-keystore.jks` este necesar; nu salvați parolele în fișierele proiectului. Apoi rulați `.\gradlew.bat bundleRelease` din `mobile/android`.
+
+---
+
 ## Roluri și redirecționare
 
 | Rol           | Redirecționare după login |
@@ -185,5 +203,6 @@ Asigurați-vă că variabilele de mediu sunt configurate în fly.io:
 ```bash
 fly secrets set DATABASE_URL="..." SESSION_SECRET="..." UPLOAD_DIR="/data/uploads" \
   GMAIL_USER="notificari@gmail.com" GMAIL_APP_PASSWORD="..." \
-  SIGNUP_NOTIFICATION_EMAIL="admin@example.com"
+  SIGNUP_NOTIFICATION_EMAIL="admin@example.com" \
+  FIREBASE_PROJECT_ID="..." FIREBASE_CLIENT_EMAIL="..." FIREBASE_PRIVATE_KEY="..."
 ```

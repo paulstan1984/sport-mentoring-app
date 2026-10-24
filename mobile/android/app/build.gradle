@@ -1,14 +1,21 @@
 apply plugin: 'com.android.application'
 
+def releaseStorePassword = providers.gradleProperty('KEYSTORE_PASSWORD')
+    .orElse(providers.environmentVariable('KEYSTORE_PASSWORD'))
+    .orNull
+def releaseKeyPassword = providers.gradleProperty('KEY_PASSWORD')
+    .orElse(providers.environmentVariable('KEY_PASSWORD'))
+    .orNull
+
 android {
-    namespace "sport.mentoring.app"
+    namespace "com.sportmentor.app"
     compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "sport.mentoring.app"
+        applicationId "com.sportmentor.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 7
-        versionName "1.0.7"
+        versionCode 8
+        versionName "1.0.8"
         minSdk 23
         targetSdk 36
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -21,9 +28,9 @@ android {
     signingConfigs {
         release {
             storeFile file("upload-keystore.jks")
-            storePassword System.getenv("KEYSTORE_PASSWORD")
+            storePassword releaseStorePassword
             keyAlias "upload"
-            keyPassword System.getenv("KEY_PASSWORD")
+            keyPassword releaseKeyPassword
         }
     }
     buildTypes {
@@ -54,6 +61,24 @@ dependencies {
 }
 
 apply from: 'capacitor.build.gradle'
+
+tasks.configureEach {
+    if (name == 'validateSigningRelease' || name == 'signReleaseBundle') {
+        doFirst {
+            def missing = []
+            if (!releaseStorePassword) missing.add('KEYSTORE_PASSWORD')
+            if (!releaseKeyPassword) missing.add('KEY_PASSWORD')
+            if (!file('upload-keystore.jks').exists()) missing.add('mobile/android/app/upload-keystore.jks')
+
+            if (!missing.isEmpty()) {
+                throw new GradleException(
+                    "Release signing is not configured. Provide ${missing.join(', ')} " +
+                    "as environment variables or Gradle user properties in %USERPROFILE%\\.gradle\\gradle.properties."
+                )
+            }
+        }
+    }
+}
 
 try {
     def servicesJSON = file('google-services.json')

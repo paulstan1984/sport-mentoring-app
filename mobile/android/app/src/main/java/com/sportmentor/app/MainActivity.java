@@ -1,4 +1,4 @@
-package sport.mentoring.app;
+package com.sportmentor.app;
 
 import android.app.DownloadManager;
 import android.net.Uri;
@@ -13,8 +13,8 @@ import com.getcapacitor.BridgeActivity;
 public class MainActivity extends BridgeActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         registerPlugin(NativePushSupportPlugin.class);
+        super.onCreate(savedInstanceState);
 
         bridge.getWebView().setDownloadListener((url, userAgent, contentDisposition, mimeType, contentLength) -> {
             DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
