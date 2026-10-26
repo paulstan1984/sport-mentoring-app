@@ -3,21 +3,28 @@
  * Capacitor Android/iOS WebViews.
  *
  * Strategy:
- * 1. Capacitor: open via @capacitor/browser (Chrome Custom Tab / SFSafariViewController)
- *    so the native browser handles the download — WebViews cannot download files directly.
- * 2. Otherwise: open in a new tab; Content-Disposition: attachment on the server triggers
- *    the download.
+ * 1. Capacitor: navigate the WebView itself to the URL. The request carries the
+ *    session cookie, and the server's Content-Disposition: attachment response is
+ *    handled by the native DownloadListener (MainActivity), which saves the file to
+ *    Downloads. An external browser must NOT be used: it has no session.
+ * 2. Otherwise: open in a new tab; Content-Disposition: attachment on the server
+ *    triggers the download.
  */
-export async function downloadFile(url: string, _filename: string): Promise<void> {
+export function downloadFile(url: string, _filename?: string): void {
   const absoluteUrl = new URL(url, window.location.origin).href;
 
-  // Detect Capacitor runtime
   const cap = (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor;
 
   if (cap?.isNativePlatform?.()) {
-    const { Browser } = await import("@capacitor/browser");
-    await Browser.open({ url: absoluteUrl });
+    window.location.assign(absoluteUrl);
   } else {
-    window.open(absoluteUrl, "_blank");
+    // Same-tab anchor click: avoids popup blockers and standalone-PWA window issues.
+    const a = document.createElement("a");
+    a.href = absoluteUrl;
+    a.download = _filename ?? "";
+    a.rel = "noopener";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
   }
 }

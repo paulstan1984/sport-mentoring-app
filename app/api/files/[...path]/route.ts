@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { createReadStream, statSync } from "fs";
 import { Readable } from "stream";
+import { basename, join } from "path";
 import { getSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 
@@ -41,10 +42,24 @@ export async function GET(
   }
 
   // Stream the file
-  let stat: ReturnType<typeof statSync>;
-  try {
-    stat = statSync(item.filePath);
-  } catch {
+  // The stored path may come from another environment (e.g. /data/uploads on
+  // production), so fall back to the current UPLOAD_DIR/[mentorId]/[file].
+  const candidates = [
+    item.filePath,
+    join(process.env.UPLOAD_DIR ?? "./uploads", String(item.mentorId), basename(item.filePath)),
+  ];
+  let filePath = "";
+  let stat: ReturnType<typeof statSync> | undefined;
+  for (const candidate of candidates) {
+    try {
+      stat = statSync(candidate);
+      filePath = candidate;
+      break;
+    } catch {
+      // try next candidate
+    }
+  }
+  if (!stat) {
     return NextResponse.json({ error: "Fișierul nu a fost găsit pe server." }, { status: 404 });
   }
 
@@ -58,7 +73,7 @@ export async function GET(
   };
 
   const contentType = MIME_TYPES[item.fileType] ?? "application/octet-stream";
-  const stream = createReadStream(item.filePath);
+  const stream = createReadStream(filePath);
   const webStream = Readable.toWeb(stream) as ReadableStream;
 
   return new NextResponse(webStream, {

@@ -155,12 +155,12 @@ uploads/          # Fișiere uploadate (gitignored, creat automat)
 
 Aplicația Android folosește Firebase Cloud Messaging (FCM). Configurați același proiect Firebase pentru aplicația Android și server:
 
-1. În Firebase Console, adăugați o aplicație Android cu ID-ul `com.sportmentor.app`.
-2. Descărcați `google-services.json` și salvați-l local în `mobile/android/app/google-services.json`. Nu îl comiteți în Git.
+1. În proiectul Firebase existent, adăugați o nouă aplicație Android cu ID-ul `sport.mentoring.app` (nu ștergeți aplicația veche înainte de a verifica dacă mai este folosită).
+2. Descărcați noul `google-services.json` pentru această aplicație și înlocuiți fișierul local `mobile/android/app/google-services.json`. Configurația veche pentru alt ID de pachet nu va funcționa. Nu comiteți fișierul în Git.
 3. Configurați `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL` și `FIREBASE_PRIVATE_KEY` în mediul serverului. Cheia privată este cea a unui cont de serviciu cu permisiunea Firebase Cloud Messaging API.
-4. Sincronizați și reconstruiți aplicația: `cd mobile` apoi `npm run sync` și `npm run build:android`.
+4. Sincronizați și reconstruiți aplicația: `cd mobile` apoi `npm run sync`; din `mobile/android`, rulați `.\gradlew.bat bundleRelease`.
 
-Fără `google-services.json`, aplicația dezactivează în siguranță înregistrarea push nativă, fără să încerce inițializarea FCM la deschiderea profilului.
+Dacă noua aplicație Android este adăugată în același proiect Firebase, variabilele Firebase de pe server rămân neschimbate. După instalarea versiunii noi, utilizatorii trebuie să activeze din nou notificările pentru a înregistra tokenul FCM al noii aplicații.
 
 Pentru un pachet Android release semnat, configurați `KEYSTORE_PASSWORD` și `KEY_PASSWORD` ca variabile de mediu sau proprietăți Gradle private în `%USERPROFILE%\.gradle\gradle.properties`. Fișierul `mobile/android/app/upload-keystore.jks` este necesar; nu salvați parolele în fișierele proiectului. Apoi rulați `.\gradlew.bat bundleRelease` din `mobile/android`.
 
