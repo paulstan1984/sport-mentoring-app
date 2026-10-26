@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { importPlayersFromCsv } from "@/actions/mentor";
+import { downloadFile } from "@/lib/downloadFile";
 
 export function PlayerCsvImport() {
   const wrappedAction = async (
@@ -21,6 +22,10 @@ export function PlayerCsvImport() {
           href="/api/mentor/players-template"
           className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:underline"
           download
+          onClick={(e) => {
+            e.preventDefault();
+            downloadFile("/api/mentor/players-template", "template-jucatori.csv");
+          }}
         >
           Descarcă șablon CSV
         </a>

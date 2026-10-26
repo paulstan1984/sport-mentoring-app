@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Trash2, Database, Upload } from "lucide-react";
 import { deleteOrphanUsers } from "@/actions/admin";
+import { downloadFile } from "@/lib/downloadFile";
 
 export default function ToolsClient() {
   const [loading, setLoading] = useState(false);
@@ -112,6 +113,10 @@ export default function ToolsClient() {
           <a
             href="/api/admin/download-db"
             download="app.db"
+            onClick={(e) => {
+              e.preventDefault();
+              downloadFile("/api/admin/download-db", "app.db");
+            }}
             className="btn-xs flex items-center gap-1.5 shrink-0"
           >
             <Database size={14} />

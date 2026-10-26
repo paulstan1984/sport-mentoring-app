@@ -29,7 +29,7 @@ export interface SubscriptionKeys {
   auth: string;
 }
 
-const ANDROID_PUSH_CLICK_ACTION = "com.sportmentor.app.OPEN_PUSH";
+const ANDROID_PUSH_CLICK_ACTION = "sport.mentoring.app.OPEN_PUSH";
 
 /** Check if an endpoint is an FCM native token (stored as fcm://TOKEN) */
 export function isFcmEndpoint(endpoint: string): boolean {

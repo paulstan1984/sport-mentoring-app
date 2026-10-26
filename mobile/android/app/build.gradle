@@ -8,15 +8,15 @@ def releaseKeyPassword = providers.gradleProperty('KEY_PASSWORD')
     .orNull
 
 android {
-    namespace "com.sportmentor.app"
+    namespace "sport.mentoring.app"
     compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.sportmentor.app"
+        applicationId "sport.mentoring.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 8
-        versionName "1.0.8"
-        minSdk 23
+        versionCode 9
+        versionName "1.0.9"
+        minSdk 24
         targetSdk 36
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {

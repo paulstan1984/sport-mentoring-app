@@ -23,7 +23,7 @@
             </intent-filter>
 
             <intent-filter>
-                <action android:name="com.sportmentor.app.OPEN_PUSH" />
+                <action android:name="sport.mentoring.app.OPEN_PUSH" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
 

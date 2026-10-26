@@ -6,7 +6,7 @@ const APP_URL = 'https://sport-mentoring-app.fly.dev';
 //const APP_URL = 'http://10.0.2.2:3000'; // for Android emulator local dev
 
 const config: CapacitorConfig = {
-  appId: 'com.sportmentor.app',
+  appId: 'sport.mentoring.app',
   appName: 'Sport Mentor',
   webDir: 'www',
   server: {
