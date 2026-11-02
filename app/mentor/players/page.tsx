@@ -5,21 +5,33 @@ import { PlayerForm } from "./PlayerForm";
 import { PlayerCsvImportToggle } from "./PlayerCsvImportToggle";
 import { PlayerRow } from "./PlayerRow";
 import { PLAYER_LIMITS } from "@/lib/playerLimits";
+import { getPlayerActivityFilter } from "@/lib/playerActivityFilter";
 
-export default async function PlayersPage() {
+export default async function PlayersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string }>;
+}) {
   await requireMentor();
   const session = await getSession();
   const mentorId = session.mentorId!;
+  const { status: statusParam } = await searchParams;
+  const status = getPlayerActivityFilter(statusParam);
+  const playerWhere = {
+    mentorId,
+    ...(status === "all" ? {} : { isActive: status === "active" }),
+  };
 
-  const [players, allPositions, labels, mentor] = await Promise.all([
+  const [players, playerCount, allPositions, labels, mentor] = await Promise.all([
     db.player.findMany({
-      where: { mentorId },
+      where: playerWhere,
       include: {
         user: { select: { username: true } },
         playfieldPosition: true,
       },
       orderBy: { name: "asc" },
     }),
+    db.player.count({ where: { mentorId } }),
     db.playfieldPosition.findMany({ orderBy: { order: "asc" } }),
     db.mentorLabel.findMany({ where: { mentorId }, select: { key: true, value: true } }),
     db.mentor.findUnique({ where: { id: mentorId }, select: { level: true, theme: true } }),
@@ -36,11 +48,23 @@ export default async function PlayersPage() {
   const positions = allPositions.filter((p) => p.theme === mentorTheme);
 
   const playerLimit = mentor ? PLAYER_LIMITS[mentor.level] : null;
-  const atLimit = playerLimit !== null && players.length >= playerLimit;
+  const atLimit = playerLimit !== null && playerCount >= playerLimit;
 
   return (
     <div className="max-w-4xl">
       <h1 className="text-2xl font-bold mb-6">{playersLabel}</h1>
+
+      <form method="get" className="flex items-end gap-3 mb-6">
+        <div>
+          <label htmlFor="player-status" className="label">Starea jucătorilor</label>
+          <select id="player-status" name="status" defaultValue={status} className="input">
+            <option value="active">Activi</option>
+            <option value="inactive">Inactivi</option>
+            <option value="all">Toți</option>
+          </select>
+        </div>
+        <button type="submit" className="btn-secondary">Filtrează</button>
+      </form>
 
       {/* Player limit indicator */}
       {playerLimit !== null && (
@@ -64,7 +88,7 @@ export default async function PlayersPage() {
             </>
           ) : (
             <span>
-              {playersLabel}: <strong>{players.length}</strong> / <strong>{playerLimit}</strong>
+              {playersLabel}: <strong>{playerCount}</strong> / <strong>{playerLimit}</strong>
             </span>
           )}
         </div>

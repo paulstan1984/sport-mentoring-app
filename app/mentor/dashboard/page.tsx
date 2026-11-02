@@ -10,7 +10,7 @@ export default async function MentorDashboard() {
 
   const [players, labels] = await Promise.all([
     db.player.findMany({
-      where: { mentorId },
+      where: { mentorId, isActive: true },
       include: {
         user: { select: { username: true } },
         playfieldPosition: true,
